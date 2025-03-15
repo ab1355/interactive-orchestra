@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Bell, AlertCircle, CheckCircle, Clock, X, Filter, Settings, BellOff } from 'lucide-react';
@@ -9,17 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { getProjectAlerts, dismissAlert } from '@/integrations/supabase/client';
-
-interface Alert {
-  id: string;
-  title: string;
-  description: string;
-  type: 'warning' | 'critical' | 'info';
-  created_at: string;
-  is_read: boolean;
-  source: string;
-  project_id: string;
-}
+import { Alert } from '@/types/flow';
 
 const getAlertIcon = (type: string) => {
   switch (type) {

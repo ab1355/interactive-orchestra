@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -12,17 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { getTasks, createTask, updateTaskStatus } from '@/integrations/supabase/client';
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  priority: string;
-  due_date: string;
-  assigned_to: string;
-  project_id: string;
-}
+import { Task } from '@/types/flow';
 
 const getPriorityColor = (priority: string) => {
   switch (priority.toLowerCase()) {
