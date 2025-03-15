@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Users, Plus, Router, AutomationIcon } from 'lucide-react';
+import { Users, Plus, Router } from 'lucide-react';
 import AgentCard from './AgentCard';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
