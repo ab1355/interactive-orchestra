@@ -17,7 +17,8 @@ import {
   BarChart4,
   BookOpen,
   PieChart,
-  ArrowRight
+  ArrowRight,
+  TrendingUp
 } from 'lucide-react';
 import { 
   PieChart as RechartsPieChart, 

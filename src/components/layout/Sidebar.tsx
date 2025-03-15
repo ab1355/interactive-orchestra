@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   BrainCircuit, 
   Users, 
@@ -20,7 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 const Sidebar = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = React.useState(false);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const { toast } = useToast();
 
   const toggleSidebar = () => {
