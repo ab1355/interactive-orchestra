@@ -24,7 +24,7 @@ const CommunicationThread: React.FC = () => {
       id: '1',
       senderId: 'research-agent',
       senderRole: 'Research Agent',
-      content: 'I've started gathering data for the market analysis task.',
+      content: "I've started gathering data for the market analysis task.",
       timestamp: new Date(Date.now() - 1000 * 60 * 5),
       channel: 'broadcast',
       priority: 3
