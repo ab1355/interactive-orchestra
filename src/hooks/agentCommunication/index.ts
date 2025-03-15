@@ -39,4 +39,5 @@ export const useAgentCommunication = (options: UseAgentCommunicationOptions): Us
   };
 };
 
+// Export both as named and default export for compatibility
 export default useAgentCommunication;

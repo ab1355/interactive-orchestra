@@ -25,7 +25,6 @@ const MultiAgentCollaboration: React.FC = () => {
       const unsubscribe = agentCommunication.subscribeToMessages((message) => {
         if (message.channel === 'priority') {
           toast.warning(`Priority message from ${message.senderRole}: ${message.content}`, {
-            position: 'top-right',
             duration: 5000,
           });
         }
