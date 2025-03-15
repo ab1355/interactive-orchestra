@@ -1,6 +1,19 @@
 
 import { AgentMessage, MessageContent } from '@/types/communication';
 
+// Ensures timestamp is a Date object
+const ensureTimestampIsDate = (timestamp: Date | string | undefined): Date => {
+  if (!timestamp) {
+    return new Date();
+  }
+  
+  if (typeof timestamp === 'string') {
+    return new Date(timestamp);
+  }
+  
+  return timestamp;
+};
+
 // Converts a MessageContent to an AgentMessage format
 export const formatMessageToAgentMessage = (message: MessageContent): AgentMessage => {
   return {
@@ -11,7 +24,7 @@ export const formatMessageToAgentMessage = (message: MessageContent): AgentMessa
     content: message.content,
     channel: message.channel || 'broadcast',
     priority: message.priority || 3,
-    timestamp: message.timestamp || new Date()
+    timestamp: ensureTimestampIsDate(message.timestamp)
   };
 };
 

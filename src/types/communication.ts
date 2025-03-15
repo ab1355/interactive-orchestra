@@ -31,7 +31,7 @@ export interface InternalMessage {
   senderRole?: string;
   recipientId?: string;
   content: string;
-  timestamp: string;
+  timestamp: Date | string; // Changed to accept both Date and string
   channel: CommunicationChannel;
   priority: number;
   metadata?: Record<string, any>;

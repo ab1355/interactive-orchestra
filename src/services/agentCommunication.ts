@@ -79,7 +79,7 @@ class AgentCommunicationService {
         senderRole,
         recipientId,
         content,
-        timestamp,
+        timestamp, // This is a string ISO format
         channel,
         priority,
         metadata
@@ -195,9 +195,11 @@ class AgentCommunicationService {
     }
     
     // Sort by timestamp (newest first)
-    messages.sort((a, b) => 
-      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
+    messages.sort((a, b) => {
+      const dateA = typeof a.timestamp === 'string' ? new Date(a.timestamp) : a.timestamp;
+      const dateB = typeof b.timestamp === 'string' ? new Date(b.timestamp) : b.timestamp;
+      return dateB.getTime() - dateA.getTime();
+    });
     
     // Apply limit if specified
     if (limit) {
