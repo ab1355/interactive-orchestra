@@ -5,12 +5,16 @@ import {
   Server, 
   Cpu, 
   Network, 
-  Workflow, 
-  Tool, 
-  Share2, 
-  Scaling
+  Share2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+// Import missing icons or create custom ones
+const Tool = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>;
+
+const Workflow = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/></svg>;
+
+const Scaling = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 3v18"/><path d="M3 12h18"/><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>;
 
 const ResourceManagement: React.FC = () => {
   return (
@@ -44,7 +48,7 @@ const ResourceManagement: React.FC = () => {
                   <span className="text-sm text-center text-gray-300">Tool Integration</span>
                 </div>
                 <div className="bg-black/20 p-3 rounded-lg flex flex-col items-center">
-                  <Network className="w-8 h-8 text-purple mb-2" />
+                  <Network className="w-8 h-8 text-purple-400 mb-2" />
                   <span className="text-sm text-center text-gray-300">API Access</span>
                 </div>
               </div>
@@ -85,33 +89,33 @@ const ResourceManagement: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="bg-code-background p-4 rounded-md border border-white/10 font-mono text-sm text-gray-300 mb-6">
-              <div className="text-purple">class ResourceOptimization:</div>
+              <div className="text-purple-400">class ResourceOptimization:</div>
               <div className="pl-4 text-white">def <span className="text-blue-400">__init__</span>(self):</div>
-              <div className="pl-8 text-white">self.allocation_strategy = {</div>
+              <div className="pl-8 text-white">self.allocation_strategy = {"{"}</div>
               <div className="pl-12 text-white">
-                '<span className="text-green-400">dynamic</span>': <span className="text-yellow-400">True</span>,
+                &apos;<span className="text-green-400">dynamic</span>&apos;: <span className="text-yellow-400">True</span>,
               </div>
               <div className="pl-12 text-white">
-                '<span className="text-green-400">scalable</span>': <span className="text-yellow-400">True</span>,
+                &apos;<span className="text-green-400">scalable</span>&apos;: <span className="text-yellow-400">True</span>,
               </div>
               <div className="pl-12 text-white">
-                '<span className="text-green-400">mission_based</span>': <span className="text-yellow-400">True</span>
+                &apos;<span className="text-green-400">mission_based</span>&apos;: <span className="text-yellow-400">True</span>
               </div>
-              <div className="pl-8 text-white">}</div>
-              <div className="pl-8 text-white">self.resource_pools = {</div>
+              <div className="pl-8 text-white">{"}"}</div>
+              <div className="pl-8 text-white">self.resource_pools = {"{"}</div>
               <div className="pl-12 text-white">
-                '<span className="text-green-400">computational</span>': [],
-              </div>
-              <div className="pl-12 text-white">
-                '<span className="text-green-400">data</span>': [],
+                &apos;<span className="text-green-400">computational</span>&apos;: [],
               </div>
               <div className="pl-12 text-white">
-                '<span className="text-green-400">tools</span>': [],
+                &apos;<span className="text-green-400">data</span>&apos;: [],
               </div>
               <div className="pl-12 text-white">
-                '<span className="text-green-400">api</span>': []
+                &apos;<span className="text-green-400">tools</span>&apos;: [],
               </div>
-              <div className="pl-8 text-white">}</div>
+              <div className="pl-12 text-white">
+                &apos;<span className="text-green-400">api</span>&apos;: []
+              </div>
+              <div className="pl-8 text-white">{"}"}</div>
             </div>
             
             <div className="space-y-4">
@@ -136,8 +140,8 @@ const ResourceManagement: React.FC = () => {
               </div>
               
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-purple/20 flex items-center justify-center">
-                  <Workflow className="w-6 h-6 text-purple" />
+                <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <Workflow className="w-6 h-6 text-purple-400" />
                 </div>
                 <div>
                   <h4 className="text-white font-medium">Mission-Based Distribution</h4>
