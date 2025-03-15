@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Router, Check, AlertCircle, ArrowUp, ArrowDown, Square, PlusCircle } from 'lucide-react';
@@ -10,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAgentCommunication } from '@/hooks/useAgentCommunication';
+import { CommunicationChannel } from '@/types/communication';
 
 interface RoutedTask {
   id: string;
@@ -42,14 +42,12 @@ const TaskRouter: React.FC = () => {
   
   const { toast } = useToast();
   
-  // Example of using the agent communication hook - connecting to the router agent
   const { sendMessage, messages, isConnected } = useAgentCommunication({
     agentId: 'task-router',
     agentRole: 'manager',
     channels: ['direct', 'broadcast', 'priority']
   });
 
-  // Available agents for assignment
   const availableAgents = [
     { id: 'research-agent', name: 'Research Agent' },
     { id: 'analysis-agent', name: 'Analysis Agent' },
@@ -58,12 +56,10 @@ const TaskRouter: React.FC = () => {
     { id: 'specialist-agent', name: 'Specialist Agent' }
   ];
 
-  // Simulate task routing
   const routeNewTask = () => {
     const taskTypes = ['Research', 'Analysis', 'Report Generation', 'Data Cleaning', 'Visualization'];
     const complexity: ('low' | 'medium' | 'high')[] = ['low', 'medium', 'high'];
     
-    // Generate random priority based on complexity
     const complexityValue = complexity[Math.floor(Math.random() * complexity.length)];
     let priorityBase = complexityValue === 'high' ? 7 : complexityValue === 'medium' ? 4 : 1;
     const priorityVariance = Math.floor(Math.random() * 3);
@@ -79,12 +75,8 @@ const TaskRouter: React.FC = () => {
     
     setRoutedTasks(prev => [newTask, ...prev]);
     
-    // Simulate routing decision based on priority
     setTimeout(() => {
-      // Higher priority tasks get routed faster
-      const routingDelay = 11 - newTask.priority; // 1-10 scale, higher priority = less delay
-      
-      // Critical tasks (9-10) always get routed to specialized agents
+      const routingDelay = 11 - newTask.priority;
       const agentTypes = newTask.priority >= 9 
         ? ['specialist-agent', 'expert-agent'] 
         : ['research-agent', 'analysis-agent', 'writer-agent', 'data-agent'];
@@ -97,7 +89,6 @@ const TaskRouter: React.FC = () => {
         )
       );
       
-      // Send a message to the agent about the new task with appropriate priority
       sendMessage(`New task assigned: ${newTask.name}`, {
         recipientId: randomAgent,
         priority: newTask.priority,
@@ -146,7 +137,6 @@ const TaskRouter: React.FC = () => {
       variant: "default",
     });
 
-    // Simulate proposals for the new task after a delay
     setTimeout(() => {
       simulateProposals(taskId);
     }, 2000);
@@ -168,7 +158,6 @@ const TaskRouter: React.FC = () => {
       )
     );
 
-    // Send a message about the assignment
     sendMessage(`Task "${currentTask.name}" manually assigned to you`, {
       recipientId: selectedAgent,
       priority: currentTask.priority,
@@ -185,14 +174,12 @@ const TaskRouter: React.FC = () => {
     setCurrentTask(null);
     setSelectedAgent('');
 
-    // Simulate proposals from the assigned agent
     setTimeout(() => {
       simulateProposalFromAgent(currentTask.id, selectedAgent);
     }, 1500);
   };
 
   const simulateProposals = (taskId: string) => {
-    // Simulate 1-3 agents making proposals
     const numProposals = 1 + Math.floor(Math.random() * 3);
     const possibleAgents = [...availableAgents];
     
@@ -202,7 +189,6 @@ const TaskRouter: React.FC = () => {
       const agentIndex = Math.floor(Math.random() * possibleAgents.length);
       const agent = possibleAgents.splice(agentIndex, 1)[0];
       
-      // Add delay between proposals
       setTimeout(() => {
         simulateProposalFromAgent(taskId, agent.id);
       }, 800 * (i + 1));
@@ -222,7 +208,6 @@ const TaskRouter: React.FC = () => {
       variant: "default",
     });
 
-    // Send a message about the proposal
     sendMessage(`I've submitted a proposal for task "${task.name}" with ${70 + Math.floor(Math.random() * 30)}% confidence`, {
       senderId: agentId,
       senderRole: agent.name,
@@ -242,7 +227,6 @@ const TaskRouter: React.FC = () => {
     );
 
     if (task.agentId) {
-      // Notify the agent that the task was stopped
       sendMessage(`Task "${task.name}" has been stopped by the manager`, {
         recipientId: task.agentId,
         priority: 8,
@@ -388,7 +372,6 @@ const TaskRouter: React.FC = () => {
           )}
         </div>
 
-        {/* Add Task Dialog */}
         <Dialog open={showAddTask} onOpenChange={setShowAddTask}>
           <DialogContent className="sm:max-w-[425px] bg-dark-accent border-white/10">
             <DialogHeader>
@@ -460,7 +443,6 @@ const TaskRouter: React.FC = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Assign Task Dialog */}
         <Dialog open={showAssignTask} onOpenChange={setShowAssignTask}>
           <DialogContent className="sm:max-w-[425px] bg-dark-accent border-white/10">
             <DialogHeader>

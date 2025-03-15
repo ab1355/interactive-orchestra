@@ -1,24 +1,8 @@
 
 import { EventEmitter } from 'events';
-
-interface MessageContent {
-  senderId?: string;
-  senderRole?: string;
-  recipientId?: string;
-  content: string;
-  channel?: 'direct' | 'broadcast' | 'priority';
-  priority?: number;
-  metadata?: Record<string, any>;
-}
+import { MessageContent, CommunicationChannel, SubscriptionOptions } from '@/types/communication';
 
 type MessageListener = (message: MessageContent) => void;
-
-interface SubscriptionOptions {
-  channel?: 'direct' | 'broadcast' | 'priority' | 'all';
-  senderId?: string;
-  recipientId?: string;
-  priority?: number | 'any'; // Priority threshold or 'any'
-}
 
 class AgentCommunicationSystem {
   private eventEmitter: EventEmitter;
@@ -37,7 +21,7 @@ class AgentCommunicationSystem {
     const processedMessage: MessageContent = {
       ...message,
       senderId: message.senderId || 'system',
-      channel: message.channel || 'broadcast',
+      channel: message.channel as CommunicationChannel || 'broadcast',
       priority: message.priority || 3,
       timestamp: new Date()
     };

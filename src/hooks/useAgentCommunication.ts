@@ -1,29 +1,19 @@
 
 import { useState, useEffect } from 'react';
 import { agentCommunication } from '@/services/agentCommunication';
+import { CommunicationChannel, AgentMessage, MessageContent } from '@/types/communication';
 
 interface UseAgentCommunicationOptions {
   agentId: string;
   agentRole?: string;
-  channels?: ('direct' | 'broadcast' | 'priority')[];
+  channels?: CommunicationChannel[];
   priorityThreshold?: number;
-}
-
-interface Message {
-  id: string;
-  senderId: string;
-  senderRole?: string;
-  recipientId?: string;
-  content: string;
-  channel: string;
-  priority: number;
-  timestamp: Date;
 }
 
 export const useAgentCommunication = (options: UseAgentCommunicationOptions) => {
   const { agentId, agentRole, channels = ['direct', 'broadcast'], priorityThreshold } = options;
   
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<AgentMessage[]>([]);
   const [isConnected, setIsConnected] = useState(true);
   
   useEffect(() => {
@@ -43,9 +33,9 @@ export const useAgentCommunication = (options: UseAgentCommunicationOptions) => 
             senderRole: message.senderRole,
             recipientId: message.recipientId,
             content: message.content,
-            channel: message.channel || 'broadcast',
+            channel: message.channel as CommunicationChannel || 'broadcast',
             priority: message.priority || 3,
-            timestamp: new Date()
+            timestamp: message.timestamp || new Date()
           }
         ]);
       }
@@ -69,7 +59,7 @@ export const useAgentCommunication = (options: UseAgentCommunicationOptions) => 
               content: message.content,
               channel: 'broadcast',
               priority: message.priority || 3,
-              timestamp: new Date()
+              timestamp: message.timestamp || new Date()
             }
           ]);
         }
@@ -90,7 +80,7 @@ export const useAgentCommunication = (options: UseAgentCommunicationOptions) => 
             content: message.content,
             channel: 'priority',
             priority: message.priority || 7,
-            timestamp: new Date()
+            timestamp: message.timestamp || new Date()
           }
         ]);
       }, { channel: 'priority' });
@@ -112,9 +102,9 @@ export const useAgentCommunication = (options: UseAgentCommunicationOptions) => 
         senderRole: msg.senderRole,
         recipientId: msg.recipientId,
         content: msg.content,
-        channel: msg.channel || 'broadcast',
+        channel: msg.channel as CommunicationChannel || 'broadcast',
         priority: msg.priority || 3,
-        timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date()
+        timestamp: msg.timestamp || new Date()
       })));
     }
     
@@ -126,7 +116,7 @@ export const useAgentCommunication = (options: UseAgentCommunicationOptions) => 
   
   const sendMessage = (content: string, options: {
     recipientId?: string;
-    channel?: 'direct' | 'broadcast' | 'priority';
+    channel?: CommunicationChannel;
     priority?: number;
     metadata?: Record<string, any>;
   } = {}) => {

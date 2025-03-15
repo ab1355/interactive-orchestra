@@ -1,0 +1,32 @@
+
+// Communication-related types for the agent communication system
+export type CommunicationChannel = 'broadcast' | 'direct' | 'priority';
+
+export interface MessageContent {
+  senderId?: string;
+  senderRole?: string;
+  recipientId?: string;
+  content: string;
+  channel?: CommunicationChannel;
+  priority?: number;
+  metadata?: Record<string, any>;
+  timestamp?: Date;
+}
+
+export interface AgentMessage {
+  id: string;
+  senderId: string;
+  senderRole?: string;
+  recipientId?: string;
+  content: string;
+  channel: CommunicationChannel;
+  priority: number;
+  timestamp: Date;
+}
+
+export interface SubscriptionOptions {
+  channel?: CommunicationChannel | 'all';
+  senderId?: string;
+  recipientId?: string;
+  priority?: number | 'any';
+}

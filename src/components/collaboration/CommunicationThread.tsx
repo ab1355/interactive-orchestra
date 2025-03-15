@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Send, AlertCircle, Bot, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { agentCommunication } from '@/services/agentCommunication';
 import { useToast } from '@/hooks/use-toast';
+import { CommunicationChannel } from '@/types/communication';
 
 interface Message {
   id: string;
@@ -13,7 +15,7 @@ interface Message {
   senderRole: string;
   content: string;
   timestamp: Date;
-  channel: string;
+  channel: CommunicationChannel;
   priority: number;
 }
 
@@ -80,7 +82,7 @@ const CommunicationThread: React.FC = () => {
         senderRole: message.senderRole || 'Unknown Agent',
         content: message.content,
         timestamp: new Date(),
-        channel: message.channel || 'broadcast',
+        channel: message.channel as CommunicationChannel || 'broadcast',
         priority: message.priority || 3
       }]);
       
@@ -118,7 +120,7 @@ const CommunicationThread: React.FC = () => {
       senderRole: 'Human Operator',
       content: newMessage,
       timestamp: new Date(),
-      channel: 'broadcast',
+      channel: 'broadcast' as CommunicationChannel,
       priority: 5
     };
     
