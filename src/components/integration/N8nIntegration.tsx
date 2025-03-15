@@ -156,6 +156,7 @@ const N8nIntegration: React.FC = () => {
   const addCredential = async () => {
     // In a real implementation, this would open a form modal to collect credential details
     toast.info('This would open a credential creation form');
+    return true; // Fixed: Return a boolean instead of undefined
   };
 
   // Refresh workflow list
@@ -172,6 +173,12 @@ const N8nIntegration: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Handle toast info messages to fix type errors
+  const handleToastInfo = (message: string): boolean => {
+    toast.info(message);
+    return true; // Fixed: Return a boolean instead of a string
   };
 
   return (
@@ -252,7 +259,7 @@ const N8nIntegration: React.FC = () => {
                     variant="purple"
                     size="sm"
                     className="text-white"
-                    onClick={() => toast.info('This would open a workflow creation form')}
+                    onClick={() => handleToastInfo('This would open a workflow creation form')}
                     tooltipText="Create new workflow"
                     hasRipple={true}
                   >
@@ -327,7 +334,7 @@ const N8nIntegration: React.FC = () => {
                           <EnhancedActionButton
                             variant="outline"
                             size="sm"
-                            onClick={() => toast.info('This would open the workflow editor')}
+                            onClick={() => handleToastInfo('This would open the workflow editor')}
                             tooltipText="Edit workflow"
                             hasRipple={true}
                             className="border-white/10 text-gray-300 hover:text-white p-1"
@@ -373,8 +380,8 @@ const N8nIntegration: React.FC = () => {
                       <TableCell className="text-gray-300">{credential.createdAt}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
-                          <button className="text-purple hover:text-purple-light" onClick={() => toast.info(`Edit ${credential.name}`)}>Edit</button>
-                          <button className="text-red-400 hover:text-red-300" onClick={() => toast.info(`Delete ${credential.name}`)}>Delete</button>
+                          <button className="text-purple hover:text-purple-light" onClick={() => handleToastInfo(`Edit ${credential.name}`)}>Edit</button>
+                          <button className="text-red-400 hover:text-red-300" onClick={() => handleToastInfo(`Delete ${credential.name}`)}>Delete</button>
                         </div>
                       </TableCell>
                     </TableRow>
