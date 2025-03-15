@@ -43,4 +43,21 @@ export interface TabNavigationProps {
 
 export interface N8nFooterProps {
   disconnect: () => void;
+  toggleAgentAccess?: (enabled: boolean) => void;
+  isAgentAccessEnabled?: boolean;
+}
+
+// New interfaces for agent API access
+export interface ApiCredential {
+  id: string;
+  name: string;
+  type: string;
+  isAvailableToAgents: boolean;
+}
+
+export interface ApiAccessOptions {
+  credentials: ApiCredential[];
+  toggleCredentialAccess: (credentialId: string, isAvailable: boolean) => Promise<void>;
+  isActive: boolean;
+  toggleActive: (active: boolean) => void;
 }
