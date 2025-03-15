@@ -11,6 +11,8 @@ import IntegrationConfiguration from '@/components/integration/IntegrationConfig
 import ApiCredentialManager from '@/components/integration/ApiCredentialManager';
 import ToolTestingSandbox from '@/components/integration/ToolTestingSandbox';
 import ButtonFunctionalityDemo from '@/components/integration/ButtonFunctionalityDemo';
+import N8nIntegration from '@/components/integration/N8nIntegration';
+import { Toaster } from 'sonner';
 
 const ToolIntegration: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -114,6 +116,11 @@ const ToolIntegration: React.FC = () => {
             )}
           </div>
           
+          {/* n8n Integration */}
+          <div className="mb-6">
+            <N8nIntegration />
+          </div>
+          
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <IntegrationConfiguration />
             <ApiCredentialManager />
@@ -129,6 +136,7 @@ const ToolIntegration: React.FC = () => {
           </div>
         </main>
       </div>
+      <Toaster richColors />
     </div>
   );
 };
