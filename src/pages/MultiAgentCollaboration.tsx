@@ -34,7 +34,7 @@ const MultiAgentCollaboration: React.FC = () => {
       return () => {
         clearTimeout(timer);
         unsubscribe();
-        agentCommunication.cleanup();
+        // Remove agentCommunication.cleanup() since we're handling individual unsubscribes properly
       };
     }, 800);
     

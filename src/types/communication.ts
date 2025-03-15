@@ -25,6 +25,18 @@ export interface AgentMessage {
   timestamp: Date;
 }
 
+export interface InternalMessage {
+  id: string;
+  senderId: string;
+  senderRole?: string;
+  recipientId?: string;
+  content: string;
+  timestamp: string;
+  channel: CommunicationChannel;
+  priority: number;
+  metadata?: Record<string, any>;
+}
+
 export interface SubscriptionOptions {
   channel?: CommunicationChannel | 'all';
   senderId?: string;

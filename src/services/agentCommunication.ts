@@ -1,4 +1,3 @@
-
 // Agent Communication Service
 // This service handles the communication between agents using Supabase Realtime
 import { supabase } from '@/integrations/supabase/client';
@@ -211,6 +210,22 @@ class AgentCommunicationService {
   // Check if connected
   isConnected(): boolean {
     return this.connected;
+  }
+
+  // Clean up all channel subscriptions
+  cleanup(): void {
+    // Unsubscribe from all channels
+    this.channelSubscriptions.forEach(unsubscribe => {
+      unsubscribe();
+    });
+    
+    // Clear the subscription map
+    this.channelSubscriptions.clear();
+    
+    // Clear listeners
+    this.messageListeners = [];
+    
+    console.log("Agent communication service cleaned up");
   }
 }
 
