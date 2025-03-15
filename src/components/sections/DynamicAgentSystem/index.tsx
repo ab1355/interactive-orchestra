@@ -9,6 +9,7 @@ import CommunicationStructure from './CommunicationStructure';
 import DecisionFlow from './DecisionFlow';
 import ResourceManagement from './ResourceManagement';
 import TeamFormationProtocols from './TeamFormationProtocols';
+import DynamicAdjustment from './DynamicAdjustment';
 
 interface DynamicAgentSystemProps {
   className?: string;
@@ -40,6 +41,9 @@ const DynamicAgentSystem: React.FC<DynamicAgentSystemProps> = ({ className }) =>
         
         {/* Team Formation Protocols */}
         <TeamFormationProtocols />
+        
+        {/* Dynamic Adjustment Mechanisms */}
+        <DynamicAdjustment />
         
         {/* Team Formation Framework */}
         <TeamFormationFramework />
