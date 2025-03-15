@@ -18,7 +18,7 @@ interface AddTaskDialogProps {
     description?: string;
     complexity: string;
     priority?: number;
-  }>>;
+  } | any>>;  // Add 'any' to make it compatible with the passed setter
   onClose: () => void;
   onAddTask: () => void;
 }
