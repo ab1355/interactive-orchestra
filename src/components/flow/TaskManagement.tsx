@@ -57,6 +57,12 @@ const TaskManagement: React.FC<TaskManagementProps> = ({ projectId }) => {
     }
   };
 
+  // Here we modify the onStatusUpdate function to match the expected type
+  const onStatusUpdate = async (taskId: string, newStatus: string) => {
+    await handleStatusUpdate(taskId, newStatus);
+    // No return value needed since the function expects void
+  };
+
   return (
     <Card className="bg-dark-accent border-white/10">
       <CardHeader>
@@ -93,7 +99,7 @@ const TaskManagement: React.FC<TaskManagementProps> = ({ projectId }) => {
         
         <TaskList 
           tasks={sortedTasks} 
-          onStatusUpdate={handleStatusUpdate}
+          onStatusUpdate={onStatusUpdate}
           isLoading={isLoading}
           projectId={projectId}
           error={error}

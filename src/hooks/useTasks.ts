@@ -104,7 +104,8 @@ export const useTasks = ({ projectId }: UseTasksProps) => {
     }
   };
 
-  const handleStatusUpdate = async (taskId: string, newStatus: string) => {
+  // Changed return type to void to match the expected type in TaskManagement
+  const handleStatusUpdate = async (taskId: string, newStatus: string): Promise<void> => {
     try {
       setError(null);
       await updateTaskStatus(taskId, newStatus);
@@ -117,7 +118,6 @@ export const useTasks = ({ projectId }: UseTasksProps) => {
         title: "Task updated",
         description: `Task status changed to "${newStatus}".`
       });
-      return true;
     } catch (error) {
       console.error('Error updating task status:', error);
       setError('Failed to update task status. Please try again later.');
@@ -126,7 +126,6 @@ export const useTasks = ({ projectId }: UseTasksProps) => {
         description: "Could not update the task status. Please try again.",
         variant: "destructive"
       });
-      return false;
     }
   };
 
