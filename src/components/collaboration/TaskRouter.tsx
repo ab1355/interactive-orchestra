@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Router, Check, AlertCircle } from 'lucide-react';
+import { Router, Check, AlertCircle, ArrowUp, ArrowDown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAgentCommunication } from '@/hooks/useAgentCommunication';
@@ -10,16 +10,17 @@ interface RoutedTask {
   id: string;
   name: string;
   complexity: 'low' | 'medium' | 'high';
+  priority: number;
   status: 'routed' | 'pending' | 'failed';
   agentId?: string;
 }
 
 const TaskRouter: React.FC = () => {
   const [routedTasks, setRoutedTasks] = useState<RoutedTask[]>([
-    { id: 'task-1', name: 'Market data analysis', complexity: 'high', status: 'routed', agentId: 'analysis-agent' },
-    { id: 'task-2', name: 'Customer survey', complexity: 'medium', status: 'pending' },
-    { id: 'task-3', name: 'Trend visualization', complexity: 'medium', status: 'routed', agentId: 'data-agent' },
-    { id: 'task-4', name: 'Competitor research', complexity: 'high', status: 'routed', agentId: 'research-agent' },
+    { id: 'task-1', name: 'Market data analysis', complexity: 'high', priority: 8, status: 'routed', agentId: 'analysis-agent' },
+    { id: 'task-2', name: 'Customer survey', complexity: 'medium', priority: 5, status: 'pending' },
+    { id: 'task-3', name: 'Trend visualization', complexity: 'medium', priority: 6, status: 'routed', agentId: 'data-agent' },
+    { id: 'task-4', name: 'Competitor research', complexity: 'high', priority: 9, status: 'routed', agentId: 'research-agent' },
   ]);
   
   const { toast } = useToast();
@@ -36,18 +37,32 @@ const TaskRouter: React.FC = () => {
     const taskTypes = ['Research', 'Analysis', 'Report Generation', 'Data Cleaning', 'Visualization'];
     const complexity: ('low' | 'medium' | 'high')[] = ['low', 'medium', 'high'];
     
+    // Generate random priority based on complexity
+    const complexityValue = complexity[Math.floor(Math.random() * complexity.length)];
+    let priorityBase = complexityValue === 'high' ? 7 : complexityValue === 'medium' ? 4 : 1;
+    const priorityVariance = Math.floor(Math.random() * 3);
+    const priority = Math.min(10, priorityBase + priorityVariance);
+    
     const newTask: RoutedTask = {
       id: `task-${Math.floor(Math.random() * 1000)}`,
       name: `${taskTypes[Math.floor(Math.random() * taskTypes.length)]} task`,
-      complexity: complexity[Math.floor(Math.random() * complexity.length)],
+      complexity: complexityValue,
+      priority: priority,
       status: 'pending'
     };
     
     setRoutedTasks(prev => [newTask, ...prev]);
     
-    // Simulate routing decision
+    // Simulate routing decision based on priority
     setTimeout(() => {
-      const agentTypes = ['research-agent', 'analysis-agent', 'writer-agent', 'data-agent'];
+      // Higher priority tasks get routed faster
+      const routingDelay = 11 - newTask.priority; // 1-10 scale, higher priority = less delay
+      
+      // Critical tasks (9-10) always get routed to specialized agents
+      const agentTypes = newTask.priority >= 9 
+        ? ['specialist-agent', 'expert-agent'] 
+        : ['research-agent', 'analysis-agent', 'writer-agent', 'data-agent'];
+      
       const randomAgent = agentTypes[Math.floor(Math.random() * agentTypes.length)];
       
       setRoutedTasks(prev => 
@@ -56,17 +71,25 @@ const TaskRouter: React.FC = () => {
         )
       );
       
-      // Send a message to the agent about the new task
+      // Send a message to the agent about the new task with appropriate priority
       sendMessage(`New task assigned: ${newTask.name}`, {
         recipientId: randomAgent,
-        priority: newTask.complexity === 'high' ? 8 : newTask.complexity === 'medium' ? 5 : 3
+        priority: newTask.priority,
+        channel: newTask.priority >= 8 ? 'priority' : 'direct'
       });
       
       toast({
         title: "Task Routed",
-        description: `Task "${newTask.name}" has been routed to ${randomAgent}`,
+        description: `Task "${newTask.name}" (Priority ${newTask.priority}) has been routed to ${randomAgent}`,
       });
     }, 1500);
+  };
+
+  const priorityLabel = (priority: number) => {
+    if (priority >= 9) return { label: "Critical", color: "text-red-400 border-red-500" };
+    if (priority >= 7) return { label: "High", color: "text-orange-400 border-orange-500" };
+    if (priority >= 4) return { label: "Medium", color: "text-yellow-400 border-yellow-500" };
+    return { label: "Low", color: "text-green-400 border-green-500" };
   };
 
   return (
@@ -89,6 +112,7 @@ const TaskRouter: React.FC = () => {
             <span className="text-gray-400">Task</span>
             <div className="flex gap-4">
               <span className="text-gray-400 w-24 text-center">Complexity</span>
+              <span className="text-gray-400 w-24 text-center">Priority</span>
               <span className="text-gray-400 w-24 text-center">Status</span>
               <span className="text-gray-400 w-32 text-center">Assigned Agent</span>
             </div>
@@ -110,6 +134,13 @@ const TaskRouter: React.FC = () => {
                           : 'border-green-500 text-green-400'
                     }>
                       {task.complexity}
+                    </Badge>
+                    <Badge variant="outline" className={`${priorityLabel(task.priority).color}`}>
+                      <span className="flex items-center gap-1">
+                        {task.priority >= 7 && <ArrowUp className="h-3 w-3" />}
+                        {task.priority <= 3 && <ArrowDown className="h-3 w-3" />}
+                        {task.priority}
+                      </span>
                     </Badge>
                     <div className="w-24 text-center">
                       {task.status === 'routed' ? (

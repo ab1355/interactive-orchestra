@@ -7,6 +7,8 @@ import AgentRoster from '@/components/collaboration/AgentRoster';
 import CommunicationThread from '@/components/collaboration/CommunicationThread';
 import TaskDistributionDashboard from '@/components/collaboration/TaskDistributionDashboard';
 import CollaborationFlowDiagram from '@/components/collaboration/CollaborationFlowDiagram';
+import TaskRouter from '@/components/collaboration/TaskRouter';
+import PriorityQueue from '@/components/collaboration/PriorityQueue';
 import { agentCommunication } from '@/services/agentCommunication';
 import { toast } from 'sonner';
 
@@ -63,6 +65,11 @@ const MultiAgentCollaboration: React.FC = () => {
           
           {/* Agent Roster */}
           <AgentRoster />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <TaskRouter />
+            <PriorityQueue />
+          </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <CommunicationThread />
