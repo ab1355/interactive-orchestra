@@ -1,11 +1,11 @@
-
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
-import { ChevronRight, Package, Search, Grid, Filter, ExternalLink, Plus, Star, Download, Cloud, Database, Server } from 'lucide-react';
+import { ChevronRight, Package, Search, Grid, Filter, ExternalLink, Plus, Star, Download, Cloud, Database, Server, HardDrive, Network, Box } from 'lucide-react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { ActionButton } from '@/components/ui/action-button';
 
 // Tool Card Component
 const ToolCard = ({ tool }: { tool: any }) => {
@@ -32,12 +32,15 @@ const ToolCard = ({ tool }: { tool: any }) => {
             </div>
           </div>
           <div className="flex items-center space-x-1">
-            <button 
-              onClick={() => setExpanded(!expanded)}
+            <ActionButton 
+              variant="ghost" 
+              size="sm"
               className="text-xs px-2 py-1 rounded bg-dark border border-white/10 text-gray-300 hover:text-white"
+              onClick={() => setExpanded(!expanded)}
+              tooltipText={expanded ? "Show less details" : "Show more details"}
             >
               {expanded ? 'Less' : 'More'}
-            </button>
+            </ActionButton>
           </div>
         </div>
         <div className="mt-3">
@@ -81,10 +84,15 @@ const ToolCard = ({ tool }: { tool: any }) => {
           <ExternalLink className="w-3 h-3 mr-1" />
           Documentation
         </a>
-        <button className="text-sm bg-purple hover:bg-purple/80 text-white py-1 px-3 rounded flex items-center" onClick={() => alert(`Adding ${tool.name} integration`)}>
+        <ActionButton 
+          className="text-sm bg-purple hover:bg-purple/80 text-white py-1 px-3 rounded flex items-center" 
+          onClick={() => alert(`Adding ${tool.name} integration`)}
+          tooltipText={`Add ${tool.name} integration to your project`}
+          successMessage={`${tool.name} integration added successfully`}
+        >
           <Plus className="w-3 h-3 mr-1" />
           Add Integration
-        </button>
+        </ActionButton>
       </div>
     </div>
   );
@@ -573,7 +581,7 @@ const ToolIntegration: React.FC = () => {
       name: 'Odoo',
       description: 'Integrate with Odoo ERP for business management and automation.',
       rating: 4,
-      downloads: '7.5k',
+      downloads: '8.2k',
       color: 'purple',
       icon: <Database className="w-5 h-5 text-white" />,
       category: 'ERP',
@@ -582,10 +590,11 @@ const ToolIntegration: React.FC = () => {
       developer: 'Odoo S.A.',
       docsUrl: 'https://www.odoo.com/documentation/16.0/developer/api/external_api.html',
       capabilities: [
-        'CRM data management',
-        'Inventory synchronization',
-        'Sales order processing',
-        'Customer and vendor management'
+        'Inventory management with real-time synchronization',
+        'Sales order processing with custom field mapping',
+        'Purchase order handling with automated workflows',
+        'CRM data management with validation',
+        'Manufacturing process automation'
       ]
     },
     {
@@ -625,7 +634,28 @@ const ToolIntegration: React.FC = () => {
         'Load balancer configuration',
         'Image and snapshot handling'
       ]
-    }
+    },
+    {
+      name: 'OVH Cloud',
+      description: 'Complete cloud infrastructure with European data sovereignty.',
+      rating: 4,
+      downloads: '7.8k',
+      color: 'blue-600',
+      icon: <HardDrive className="w-5 h-5 text-white" />,
+      category: 'Cloud Infrastructure',
+      type: 'API Integration',
+      auth: 'API Key / Application Credentials',
+      developer: 'OVH SAS',
+      docsUrl: 'https://docs.ovh.com/gb/en/api/first-steps-with-ovh-api/',
+      capabilities: [
+        'Virtual machine management (create, delete, list)',
+        'Storage operations (object, block, archive)',
+        'Network configuration and security',
+        'Automated infrastructure deployment',
+        'Load balancing and auto-scaling',
+        'Backup and recovery services'
+      ]
+    },
   ];
 
   return (
@@ -636,14 +666,16 @@ const ToolIntegration: React.FC = () => {
         <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
           <h1 className="text-xl font-semibold">Tool Integration</h1>
           <div className="flex items-center space-x-4">
-            <Button 
+            <ActionButton 
               variant="default" 
               className="bg-purple hover:bg-purple/80 text-white flex items-center"
               onClick={() => alert('Creating new integration')}
+              tooltipText="Create a new custom integration"
+              keyboardShortcut="Alt+N"
             >
               <Plus className="w-4 h-4 mr-1" />
               New Integration
-            </Button>
+            </ActionButton>
           </div>
         </div>
         
@@ -672,23 +704,26 @@ const ToolIntegration: React.FC = () => {
                   />
                 </div>
                 
-                <button 
+                <ActionButton 
                   className="p-2 bg-dark border border-white/10 rounded text-gray-300 hover:text-white"
                   onClick={() => alert('Filter tools')}
+                  tooltipText="Filter tools by category"
                 >
                   <Filter className="w-4 h-4" />
-                </button>
+                </ActionButton>
                 
-                <button 
+                <ActionButton 
                   className={`p-2 bg-dark border border-white/10 rounded ${viewMode === 'grid' ? 'text-white' : 'text-gray-300 hover:text-white'}`}
                   onClick={() => setViewMode('grid')}
+                  tooltipText="Grid view"
                 >
                   <Grid className="w-4 h-4" />
-                </button>
+                </ActionButton>
                 
-                <button 
+                <ActionButton 
                   className={`p-2 bg-dark border border-white/10 rounded ${viewMode === 'table' ? 'text-white' : 'text-gray-300 hover:text-white'}`}
                   onClick={() => setViewMode('table')}
+                  tooltipText="Table view"
                 >
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
@@ -706,7 +741,7 @@ const ToolIntegration: React.FC = () => {
                     <line x1="3" y1="12" x2="21" y2="12"></line>
                     <line x1="3" y1="18" x2="21" y2="18"></line>
                   </svg>
-                </button>
+                </ActionButton>
               </div>
             </div>
             
