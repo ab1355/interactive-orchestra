@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Card, 
@@ -17,7 +16,7 @@ import {
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { UserCheck, FileText, SliderHorizontal, Target } from 'lucide-react';
+import { UserCheck, FileText, SlidersHorizontal, Target } from 'lucide-react';
 
 // Mock data for skills assessment
 const skillsData = [
@@ -57,7 +56,7 @@ const EmployeeAssessment = () => {
         <Card className="bg-dark-accent border-white/10">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <SliderHorizontal className="w-5 h-5 text-purple" />
+              <SlidersHorizontal className="w-5 h-5 text-purple" />
               Skill Matrix Assessment
             </CardTitle>
             <CardDescription>Evaluate employee skills and set target levels</CardDescription>
