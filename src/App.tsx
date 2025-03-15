@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import ElevateSystem from "./pages/ElevateSystem";
 import DiscoverSystem from "./pages/DiscoverSystem";
 import SpaceSystem from "./pages/SpaceSystem";
+import { Toaster } from "sonner";
 
 import "./App.css";
 
@@ -44,7 +45,12 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <Toaster position="top-right" />
+    </>
+  );
 }
 
 export default App;
