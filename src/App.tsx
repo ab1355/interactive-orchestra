@@ -10,6 +10,7 @@ import SimpleAgentWorkflow from "./pages/SimpleAgentWorkflow";
 import MultiAgentCollaboration from "./pages/MultiAgentCollaboration";
 import ToolIntegration from "./pages/ToolIntegration";
 import CustomizableAgentBehavior from "./pages/CustomizableAgentBehavior";
+import ElevateSystem from "./pages/ElevateSystem";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/multi-agent-collaboration" element={<MultiAgentCollaboration />} />
           <Route path="/tool-integration" element={<ToolIntegration />} />
           <Route path="/customizable-agent-behavior" element={<CustomizableAgentBehavior />} />
+          <Route path="/elevate-system" element={<ElevateSystem />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight, Code, Users, Wrench, Settings } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Code, Users, Wrench, Settings, Award } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface SidebarItemProps {
@@ -52,7 +52,8 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
     { text: "Simple Agent Workflow", icon: Code, path: "/simple-agent-workflow" },
     { text: "Multi-Agent Collaboration", icon: Users, path: "/multi-agent-collaboration" },
     { text: "Tool Integration", icon: Wrench, path: "/tool-integration" },
-    { text: "Customizable Agent Behavior", icon: Settings, path: "/customizable-agent-behavior" }
+    { text: "Customizable Agent Behavior", icon: Settings, path: "/customizable-agent-behavior" },
+    { text: "ELEVATE System", icon: Award, path: "/elevate-system" }
   ];
 
   return (
