@@ -1,9 +1,24 @@
 
 import { useState, useEffect } from 'react';
 import { agentCommunication } from '@/services/agentCommunication';
-import { AgentMessage, CommunicationChannel, MessageContent } from '@/types/communication';
+import { AgentMessage, CommunicationChannel, MessageContent, InternalMessage } from '@/types/communication';
 import { UseAgentCommunicationOptions } from '@/types/agentCommunication';
 import { formatMessageToAgentMessage, shouldProcessMessage, processChannelMessage } from './messageHandlers';
+
+// Helper function to convert InternalMessage to MessageContent
+const internalToMessageContent = (message: InternalMessage): MessageContent => {
+  return {
+    id: message.id,
+    senderId: message.senderId,
+    senderRole: message.senderRole,
+    recipientId: message.recipientId,
+    content: message.content,
+    channel: message.channel,
+    priority: message.priority,
+    metadata: message.metadata,
+    timestamp: message.timestamp
+  };
+};
 
 export const useAgentSubscriptions = (
   options: UseAgentCommunicationOptions,
@@ -17,8 +32,9 @@ export const useAgentSubscriptions = (
   
     // Subscribe to messages for this agent
     const unsubscribe = agentCommunication.subscribeToMessages((message) => {
-      if (shouldProcessMessage(message, agentId, {})) {
-        onMessageReceived(formatMessageToAgentMessage(message));
+      const messageContent = internalToMessageContent(message);
+      if (shouldProcessMessage(messageContent, agentId, {})) {
+        onMessageReceived(formatMessageToAgentMessage(messageContent));
       }
     }, {
       recipientId: agentId,
@@ -30,8 +46,9 @@ export const useAgentSubscriptions = (
     // Also subscribe to broadcast channel separately if specified
     if (channels.includes('broadcast')) {
       const broadcastUnsub = agentCommunication.subscribeToMessages((message) => {
-        if (processChannelMessage(message, agentId)) {
-          onMessageReceived(formatMessageToAgentMessage(message));
+        const messageContent = internalToMessageContent(message);
+        if (processChannelMessage(messageContent, agentId)) {
+          onMessageReceived(formatMessageToAgentMessage(messageContent));
         }
       }, { channel: 'broadcast' });
       
@@ -41,7 +58,8 @@ export const useAgentSubscriptions = (
     // Subscribe to priority channel if specified
     if (channels.includes('priority')) {
       const priorityUnsub = agentCommunication.subscribeToMessages((message) => {
-        onMessageReceived(formatMessageToAgentMessage(message));
+        const messageContent = internalToMessageContent(message);
+        onMessageReceived(formatMessageToAgentMessage(messageContent));
       }, { channel: 'priority' });
       
       subscriptions.push(priorityUnsub);
@@ -51,7 +69,7 @@ export const useAgentSubscriptions = (
     return () => {
       subscriptions.forEach(unsub => unsub());
     };
-  }, [agentId, channels, priorityThreshold]);
+  }, [agentId, channels, priorityThreshold, onMessageReceived]);
   
   return { isConnected };
 };
@@ -64,5 +82,5 @@ export const loadMessageHistory = (agentId: string) => {
   });
   
   // Convert history to Message format
-  return history.map(msg => formatMessageToAgentMessage(msg));
+  return history.map(msg => formatMessageToAgentMessage(internalToMessageContent(msg)));
 };

@@ -10,7 +10,7 @@ export interface MessageContent {
   channel?: CommunicationChannel;
   priority?: number;
   metadata?: Record<string, any>;
-  timestamp?: Date;
+  timestamp?: Date | string; // Changed to accept both Date and string
   id?: string;
 }
 
