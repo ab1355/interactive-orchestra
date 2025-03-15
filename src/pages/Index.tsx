@@ -1,11 +1,28 @@
-// Update this page (the content is just a fallback if you fail to update the page)
 
-const Index = () => {
+import React, { useState, useEffect } from 'react';
+import Sidebar from '@/components/layout/Sidebar';
+import Hero from '@/components/sections/Hero';
+import Features from '@/components/sections/Features';
+import PartnerBanner from '@/components/layout/PartnerBanner';
+
+const Index: React.FC = () => {
+  // Animation states for elements
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="flex min-h-screen bg-dark text-white overflow-hidden">
+      <Sidebar />
+      
+      <div className="flex-1 flex flex-col overflow-x-hidden">
+        <main className={`flex-1 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+          <Hero />
+          <PartnerBanner />
+          <Features />
+        </main>
       </div>
     </div>
   );
