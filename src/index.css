@@ -1,101 +1,23 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 0 0% 7%;
-    --foreground: 210 40% 98%;
-
-    --card: 0 0% 10%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 0 0% 12%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 262 83% 63%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 328 100% 54%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 240 4% 16%;
-    --muted-foreground: 240 5% 65%;
-
-    --accent: 262 83% 63%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 240 4% 16%;
-    --input: 240 4% 16%;
-    --ring: 262 83% 63%;
-
-    --radius: 0.5rem;
-  }
-}
-
-@layer base {
   * {
-    @apply border-border;
+    @apply antialiased;
   }
-
-  html, body {
-    @apply scroll-smooth;
-  }
-
   body {
-    @apply bg-dark text-foreground antialiased;
+    @apply bg-background text-foreground;
   }
 }
 
-@layer components {
-  .glass-card {
-    @apply bg-gradient-glass backdrop-blur-lg border border-white/10 shadow-glass;
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
   }
-  
-  .text-glow {
-    text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
-  }
-  
-  .button-glow:hover {
-    box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
-  }
-  
-  /* Code syntax highlighting */
-  .code-syntax .keyword {
-    @apply text-code-blue;
-  }
-  
-  .code-syntax .string {
-    @apply text-code-red;
-  }
-  
-  .code-syntax .function {
-    @apply text-code-green;
-  }
-  
-  .code-syntax .comment {
-    @apply text-code-comment;
-  }
-  
-  .code-syntax .type {
-    @apply text-purple-light;
-  }
-  
-  /* Link animations */
-  .link-underline {
-    @apply relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-purple after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
-  }
-  
-  /* Feature card hover */
-  .feature-card {
-    @apply transition-all duration-300;
-  }
-  
-  .feature-card:hover {
-    @apply shadow-hover translate-y-[-5px];
-  }
+}
+
+.animate-ripple {
+  animation: ripple 0.6s linear;
 }

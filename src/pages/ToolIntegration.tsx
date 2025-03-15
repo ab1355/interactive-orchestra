@@ -10,6 +10,7 @@ import ToolTableView from '@/components/integration/ToolTableView';
 import IntegrationConfiguration from '@/components/integration/IntegrationConfiguration';
 import ApiCredentialManager from '@/components/integration/ApiCredentialManager';
 import ToolTestingSandbox from '@/components/integration/ToolTestingSandbox';
+import ButtonFunctionalityDemo from '@/components/integration/ButtonFunctionalityDemo';
 
 const ToolIntegration: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -120,6 +121,11 @@ const ToolIntegration: React.FC = () => {
           
           <div className="mb-6">
             <ToolTestingSandbox />
+          </div>
+
+          {/* Button Functionality Demo */}
+          <div className="mb-6">
+            <ButtonFunctionalityDemo />
           </div>
         </main>
       </div>
