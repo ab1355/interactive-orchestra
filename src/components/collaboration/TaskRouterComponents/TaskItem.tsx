@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { ActionButton } from '@/components/ui/action-button';
 import { Check, ArrowUp, ArrowDown, Square, AlertCircle } from 'lucide-react';
 
 interface TaskItemProps {
@@ -78,22 +78,26 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onAssign, onStop }) => {
         <div className="w-24 flex justify-center gap-1">
           {task.status !== 'stopped' && (
             <>
-              <Button 
+              <ActionButton 
                 variant="ghost" 
                 size="sm" 
                 className="h-7 px-2 text-xs"
                 onClick={() => onAssign(task)}
+                tooltipText="Assign task to an agent"
+                keyboardShortcut={task.id === 'task-1' ? 'Alt+A' : undefined}
               >
                 Assign
-              </Button>
-              <Button 
+              </ActionButton>
+              <ActionButton 
                 variant="ghost" 
                 size="sm"
                 className="h-7 px-2 text-red-400 hover:text-red-300 text-xs"
                 onClick={() => onStop(task.id)}
+                tooltipText="Stop this task"
+                successMessage="Task stopped successfully"
               >
                 Stop
-              </Button>
+              </ActionButton>
             </>
           )}
         </div>
