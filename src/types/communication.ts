@@ -3,7 +3,7 @@
 export type CommunicationChannel = 'broadcast' | 'direct' | 'priority';
 
 export interface MessageContent {
-  senderId?: string;
+  senderId: string;
   senderRole?: string;
   recipientId?: string;
   content: string;
