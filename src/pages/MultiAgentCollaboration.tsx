@@ -9,6 +9,7 @@ import TaskDistributionDashboard from '@/components/collaboration/TaskDistributi
 import CollaborationFlowDiagram from '@/components/collaboration/CollaborationFlowDiagram';
 import TaskRouter from '@/components/collaboration/TaskRouter';
 import PriorityQueue from '@/components/collaboration/PriorityQueue';
+import AgentCreationSystem from '@/components/collaboration/AgentCreationSystem';
 import { agentCommunication } from '@/services/agentCommunication';
 import { toast } from 'sonner';
 
@@ -69,6 +70,11 @@ const MultiAgentCollaboration: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <TaskRouter />
             <PriorityQueue />
+          </div>
+
+          {/* New Agent Creation System */}
+          <div className="mb-6">
+            <AgentCreationSystem />
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

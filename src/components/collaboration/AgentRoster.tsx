@@ -1,7 +1,33 @@
 
-import React from 'react';
-import { Users, Plus, Router } from 'lucide-react';
+import React, { useState } from 'react';
+import { Users, Plus, Router, AutomationIcon } from 'lucide-react';
 import AgentCard from './AgentCard';
+import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
+
+// Custom AutomationIcon since it doesn't exist in lucide-react
+const AutomationIcon = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <rect x="3" y="3" width="18" height="18" rx="2" />
+    <path d="M7 7h.01" />
+    <path d="M17 7h.01" />
+    <path d="M7 17h.01" />
+    <path d="M17 17h.01" />
+    <path d="M3 12h18" />
+    <path d="M12 3v18" />
+  </svg>
+);
 
 const agents = [
   { 
@@ -39,6 +65,20 @@ const agents = [
 ];
 
 const AgentRoster: React.FC = () => {
+  const [autoCreateEnabled, setAutoCreateEnabled] = useState(false);
+  const { toast } = useToast();
+  
+  const handleAutoCreateToggle = (checked: boolean) => {
+    setAutoCreateEnabled(checked);
+    toast({
+      title: checked ? "Autonomous Agent Creation Enabled" : "Autonomous Agent Creation Disabled",
+      description: checked 
+        ? "System will automatically create new agents based on workload and task requirements" 
+        : "New agents will only be created manually",
+      variant: "default",
+    });
+  };
+
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-4">
@@ -51,10 +91,33 @@ const AgentRoster: React.FC = () => {
             <Router className="w-4 h-4 mr-1" />
             Dynamic Routing Active
           </div>
+          <div className="bg-green-500/10 text-green-500 py-1 px-3 rounded text-sm flex items-center">
+            <AutomationIcon className="w-4 h-4 mr-1" />
+            Auto-Creation {autoCreateEnabled ? 'On' : 'Off'}
+          </div>
           <button className="bg-purple hover:bg-purple/80 text-white py-1 px-3 rounded text-sm flex items-center">
             <Plus className="w-4 h-4 mr-1" />
             Add Agent
           </button>
+        </div>
+      </div>
+      
+      <div className="mb-4 p-3 bg-dark-accent rounded-lg border border-white/10">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+              <AutomationIcon className="w-5 h-5 text-green-500" />
+            </div>
+            <div>
+              <h4 className="text-white font-medium">Autonomous Agent Creation</h4>
+              <p className="text-xs text-gray-400">Automatically create new agents based on workload and task requirements</p>
+            </div>
+          </div>
+          <Switch 
+            checked={autoCreateEnabled} 
+            onCheckedChange={handleAutoCreateToggle}
+            className="data-[state=checked]:bg-green-500"
+          />
         </div>
       </div>
       

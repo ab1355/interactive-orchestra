@@ -37,6 +37,25 @@ export interface TaskPriority {
   importance: number; // 0-10 scale
 }
 
+// New interfaces for autonomous agent creation
+export interface AgentBlueprint {
+  id: string;
+  name: string;
+  role: string;
+  confidence: number;
+  justification: string;
+  skills: string[];
+  requiredResources: AgentResource[];
+  status: 'proposed' | 'training' | 'ready' | 'deployed' | 'rejected';
+}
+
+export interface AutoCreationConfig {
+  enabled: boolean;
+  confidenceThreshold: number;
+  maxConcurrentTraining: number;
+  autoApproveThreshold: number;
+}
+
 // Communication Service
 class AgentCommunicationService {
   private messages: AgentMessage[] = [];
@@ -49,6 +68,15 @@ class AgentCommunicationService {
   };
   private listeners: Map<string, ((message: AgentMessage) => void)[]> = new Map();
   private channel: any;
+  
+  // Autonomous agent creation
+  private blueprints: AgentBlueprint[] = [];
+  private autoCreationConfig: AutoCreationConfig = {
+    enabled: false,
+    confidenceThreshold: 0.75,
+    maxConcurrentTraining: 2,
+    autoApproveThreshold: 0.9
+  };
 
   constructor() {
     this.setupRealtimeChannel();
@@ -257,6 +285,111 @@ class AgentCommunicationService {
     return this.resources.filter(resource => 
       resource.assignedAgentIds.includes(agentId)
     );
+  }
+
+  // Autonomous Agent Creation Methods
+  setAutoCreationEnabled(enabled: boolean) {
+    this.autoCreationConfig.enabled = enabled;
+    return this.autoCreationConfig;
+  }
+
+  updateAutoCreationConfig(config: Partial<AutoCreationConfig>) {
+    this.autoCreationConfig = {
+      ...this.autoCreationConfig,
+      ...config
+    };
+    return this.autoCreationConfig;
+  }
+
+  getAutoCreationConfig(): AutoCreationConfig {
+    return { ...this.autoCreationConfig };
+  }
+
+  // Propose a new agent based on workload analysis
+  proposeNewAgent(blueprint: Omit<AgentBlueprint, 'id' | 'status'>): AgentBlueprint {
+    const newBlueprint: AgentBlueprint = {
+      ...blueprint,
+      id: crypto.randomUUID(),
+      status: 'proposed',
+      requiredResources: blueprint.requiredResources || []
+    };
+    
+    this.blueprints.push(newBlueprint);
+    
+    // If auto-approval is enabled and confidence is high enough, automatically approve
+    if (this.autoCreationConfig.enabled && 
+        blueprint.confidence >= this.autoCreationConfig.autoApproveThreshold) {
+      this.approveAgentBlueprint(newBlueprint.id);
+      
+      // Notify about auto-approval
+      this.sendMessage({
+        senderId: 'system',
+        senderRole: 'manager',
+        channel: 'priority',
+        content: `Agent blueprint "${blueprint.name}" automatically approved due to high confidence (${(blueprint.confidence * 100).toFixed(0)}%)`,
+        priority: 7
+      });
+    }
+    
+    return newBlueprint;
+  }
+
+  // Get all agent blueprints, optionally filtered by status
+  getAgentBlueprints(status?: AgentBlueprint['status']) {
+    if (status) {
+      return this.blueprints.filter(bp => bp.status === status);
+    }
+    return [...this.blueprints];
+  }
+
+  // Approve an agent blueprint for training
+  approveAgentBlueprint(blueprintId: string) {
+    const blueprint = this.blueprints.find(bp => bp.id === blueprintId);
+    if (blueprint && blueprint.status === 'proposed') {
+      blueprint.status = 'training';
+      return true;
+    }
+    return false;
+  }
+
+  // Reject an agent blueprint
+  rejectAgentBlueprint(blueprintId: string) {
+    const blueprint = this.blueprints.find(bp => bp.id === blueprintId);
+    if (blueprint && blueprint.status === 'proposed') {
+      blueprint.status = 'rejected';
+      return true;
+    }
+    return false;
+  }
+
+  // Mark agent training as complete
+  completeAgentTraining(blueprintId: string) {
+    const blueprint = this.blueprints.find(bp => bp.id === blueprintId);
+    if (blueprint && blueprint.status === 'training') {
+      blueprint.status = 'ready';
+      return true;
+    }
+    return false;
+  }
+
+  // Deploy agent to the system
+  deployAgent(blueprintId: string) {
+    const blueprint = this.blueprints.find(bp => bp.id === blueprintId);
+    if (blueprint && blueprint.status === 'ready') {
+      blueprint.status = 'deployed';
+      
+      // Notify about deployment
+      this.sendMessage({
+        senderId: 'system',
+        senderRole: 'manager',
+        channel: 'broadcast',
+        content: `New agent "${blueprint.name}" has been deployed to the system`,
+        priority: 6
+      });
+      
+      return true;
+    }
+    return false;
   }
 
   // Cleanup
