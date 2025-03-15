@@ -14,11 +14,13 @@ export const simulateProposalFromAgent = (
   const agent = availableAgents.find(a => a.id === agentId);
   if (!agent) return;
 
+  const confidenceLevel = 70 + Math.floor(Math.random() * 30);
+
   toast.success(`${agent.name} has submitted a proposal for task "${task.name}"`, {
-    description: `Confidence level: ${70 + Math.floor(Math.random() * 30)}%`
+    description: `Confidence level: ${confidenceLevel}%`
   });
 
-  sendMessage(`I've submitted a proposal for task "${task.name}" with ${70 + Math.floor(Math.random() * 30)}% confidence`, {
+  sendMessage(`I've submitted a proposal for task "${task.name}" with ${confidenceLevel}% confidence`, {
     recipientId: agentId,
     channel: 'broadcast',
     priority: 5
