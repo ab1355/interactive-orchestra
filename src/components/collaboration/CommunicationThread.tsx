@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Send, AlertCircle, Bot, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,7 +32,7 @@ const CommunicationThread: React.FC = () => {
       id: '2',
       senderId: 'manager',
       senderRole: 'Manager Agent',
-      content: 'Good. Analysis Agent, please prepare to process the data once it's ready.',
+      content: "Good. Analysis Agent, please prepare to process the data once it's ready.",
       timestamp: new Date(Date.now() - 1000 * 60 * 4),
       channel: 'direct',
       priority: 4
