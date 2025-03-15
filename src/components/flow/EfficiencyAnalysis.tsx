@@ -1,13 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { BarChart3, PieChart, TrendingUp, Clock, RefreshCw, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
+import { BarChart3, PieChart, TrendingUp, Clock, RefreshCw, ArrowUpCircle, ArrowDownCircle, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { PieChart as RechartsPC, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from 'recharts';
 import { getProjectEfficiency, getTasksCompletionRate } from '@/integrations/supabase/client';
-import { Badge } from '@/components/ui/badge';
 import { EfficiencyMetrics, TaskCompletionRate } from '@/types/flow';
 
 // Chart color constants
@@ -149,7 +150,7 @@ const EfficiencyAnalysis = ({ projectId }: { projectId?: string }) => {
       <CardContent>
         <div className="flex justify-end mb-4">
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing || !projectId}>
-            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
             {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
           </Button>
         </div>
@@ -214,6 +215,7 @@ const EfficiencyAnalysis = ({ projectId }: { projectId?: string }) => {
                 </div>
               </div>
             </TabsContent>
+            
             <TabsContent value="charts">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 rounded-md border border-white/10 bg-dark/50">
