@@ -30,3 +30,11 @@ export interface SubscriptionOptions {
   recipientId?: string;
   priority?: number | 'any';
 }
+
+// Adding this interface to match what's used in TaskRouter component
+export interface MessageOptions {
+  recipientId?: string;
+  channel?: CommunicationChannel;
+  priority?: number;
+  metadata?: Record<string, any>;
+}
