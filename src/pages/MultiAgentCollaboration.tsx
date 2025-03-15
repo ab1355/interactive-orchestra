@@ -32,6 +32,7 @@ const MultiAgentCollaboration: React.FC = () => {
       
       // Clean up on unmount
       return () => {
+        clearTimeout(timer);
         unsubscribe();
         agentCommunication.cleanup();
       };
