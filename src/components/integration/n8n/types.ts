@@ -25,6 +25,7 @@ export interface CredentialListProps {
   credentials: N8nCredential[];
   addCredential: () => Promise<boolean>;
   handleToastInfo: (message: string) => boolean;
+  toggleAgentAccess?: (credentialId: string, isAvailable: boolean) => Promise<void>;
 }
 
 export interface TemplateListProps {

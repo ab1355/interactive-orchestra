@@ -34,7 +34,7 @@ export const useAgentToolAccess = (options: AgentToolAccessOptions): AgentToolAc
   useEffect(() => {
     // Listen for tool availability updates from the tool bridge
     const toolAvailabilityUpdates = messages.filter(
-      msg => msg.metadata?.type === 'available-tools'
+      msg => msg.metadata && msg.metadata.type === 'available-tools'
     );
     
     if (toolAvailabilityUpdates.length > 0) {
@@ -52,7 +52,7 @@ export const useAgentToolAccess = (options: AgentToolAccessOptions): AgentToolAc
     
     // Listen for tool access revocation
     const toolRevocations = messages.filter(
-      msg => msg.metadata?.type === 'tool-access-revoked'
+      msg => msg.metadata && msg.metadata.type === 'tool-access-revoked'
     );
     
     if (toolRevocations.length > 0) {

@@ -23,6 +23,7 @@ export interface AgentMessage {
   channel: CommunicationChannel;
   priority: number;
   timestamp: Date;
+  metadata?: Record<string, any>; // Added metadata field
 }
 
 export interface InternalMessage {

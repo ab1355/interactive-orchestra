@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { EnhancedActionButton } from '@/components/ui/enhanced-action-button';
-import { ExternalLink, Tool } from 'lucide-react';
+import { ExternalLink, Settings } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { N8nFooterProps } from './types';
 
@@ -30,7 +30,7 @@ const N8nFooter: React.FC<N8nFooterProps> = ({ disconnect, toggleAgentAccess, is
             htmlFor="agent-access-toggle" 
             className="text-sm text-gray-300 cursor-pointer flex items-center"
           >
-            <Tool className="w-4 h-4 mr-1" />
+            <Settings className="w-4 h-4 mr-1" />
             Agent API Access
           </label>
         </div>

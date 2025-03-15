@@ -14,6 +14,7 @@ export interface N8nCredential {
   name: string;
   type: string;
   createdAt: string;
+  isAvailableToAgents?: boolean;
 }
 
 export interface N8nWorkflowTemplate {

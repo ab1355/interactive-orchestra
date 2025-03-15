@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tool, Shield, RefreshCw } from 'lucide-react';
+import { Settings, Shield, RefreshCw } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -150,7 +150,7 @@ const ApiCredentialBridge: React.FC = () => {
     <Card className="bg-dark-accent rounded-lg border border-white/10">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-white font-medium flex items-center">
-          <Tool className="w-5 h-5 mr-2 text-purple" />
+          <Settings className="w-5 h-5 mr-2 text-purple" />
           Agent API Tool Bridge
         </CardTitle>
         <div className="flex items-center space-x-2">
