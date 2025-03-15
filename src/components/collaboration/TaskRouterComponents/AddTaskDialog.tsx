@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface AddTaskDialogProps {
@@ -23,18 +23,18 @@ interface AddTaskDialogProps {
   onAddTask: () => void;
 }
 
-const AddTaskDialog: React.FC<AddTaskDialogProps> = ({ 
-  newTask, 
-  setNewTask, 
-  onClose, 
-  onAddTask 
+const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
+  newTask,
+  setNewTask,
+  onClose,
+  onAddTask
 }) => {
   return (
     <DialogContent className="sm:max-w-[425px] bg-dark-accent border-white/10">
       <DialogHeader>
         <DialogTitle>Add New Task</DialogTitle>
         <DialogDescription>
-          Create a new task to be routed to agents
+          Create a new task for agents to handle
         </DialogDescription>
       </DialogHeader>
       <div className="grid gap-4 py-4">
@@ -45,8 +45,9 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
           <Input
             id="task-name"
             value={newTask.name}
-            onChange={(e) => setNewTask({...newTask, name: e.target.value})}
+            onChange={(e) => setNewTask(prev => ({ ...prev, name: e.target.value }))}
             className="col-span-3"
+            placeholder="Task name"
           />
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
@@ -55,9 +56,10 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
           </label>
           <Textarea
             id="task-description"
-            value={newTask.description}
-            onChange={(e) => setNewTask({...newTask, description: e.target.value})}
+            value={newTask.description || ''}
+            onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
             className="col-span-3"
+            placeholder="Describe the task (optional)"
           />
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
@@ -66,7 +68,7 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
           </label>
           <Select
             value={newTask.complexity}
-            onValueChange={(value) => setNewTask({...newTask, complexity: value})}
+            onValueChange={(value) => setNewTask(prev => ({ ...prev, complexity: value }))}
           >
             <SelectTrigger className="col-span-3">
               <SelectValue placeholder="Select complexity" />
@@ -80,17 +82,21 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
           <label htmlFor="task-priority" className="text-right">
-            Priority (1-10)
+            Priority
           </label>
-          <Input
-            id="task-priority"
-            type="number"
-            min="1"
-            max="10"
-            value={newTask.priority}
-            onChange={(e) => setNewTask({...newTask, priority: parseInt(e.target.value)})}
-            className="col-span-3"
-          />
+          <Select
+            value={newTask.priority?.toString() || '5'}
+            onValueChange={(value) => setNewTask(prev => ({ ...prev, priority: parseInt(value) }))}
+          >
+            <SelectTrigger className="col-span-3">
+              <SelectValue placeholder="Select priority" />
+            </SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
       <DialogFooter>

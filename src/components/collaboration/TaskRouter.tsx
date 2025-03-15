@@ -4,7 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Router, PlusCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
-import { useAgentCommunication } from '@/hooks/useAgentCommunication';
+import { useAgentCommunication } from '@/hooks/agentCommunication';
 import { MessageOptions } from '@/types/communication';
 
 import TaskHeader from './TaskRouterComponents/TaskHeader';

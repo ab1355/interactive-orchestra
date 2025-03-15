@@ -17,7 +17,6 @@ export const simulateProposalFromAgent = (
   toast({
     title: "New Proposal",
     description: `${agent.name} has submitted a proposal for task "${task.name}"`,
-    variant: "default",
   });
 
   sendMessage(`I've submitted a proposal for task "${task.name}" with ${70 + Math.floor(Math.random() * 30)}% confidence`, {
