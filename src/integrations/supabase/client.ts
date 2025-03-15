@@ -2,9 +2,9 @@
 import { createClient } from '@supabase/supabase-js';
 import { getTasks, createTask, updateTaskStatus, invalidateCacheByPrefix } from './services/taskService';
 
-// Initialize the Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-project-url.supabase.co';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key';
+// Initialize the Supabase client with correct project URL and API key
+const supabaseUrl = 'https://yvtjimbvpuclcgvnmvyh.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2dGppbWJ2cHVjbGNndm5tdnloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIwMDYzMTksImV4cCI6MjA1NzU4MjMxOX0.VnjEht3dkgBV94NbyISAabrRq4tyW04X8fZ_dvdNBrM';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
