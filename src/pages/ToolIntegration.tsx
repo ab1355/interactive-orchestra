@@ -12,6 +12,7 @@ import ApiCredentialManager from '@/components/integration/ApiCredentialManager'
 import ToolTestingSandbox from '@/components/integration/ToolTestingSandbox';
 import ButtonFunctionalityDemo from '@/components/integration/ButtonFunctionalityDemo';
 import N8nIntegration from '@/components/integration/N8nIntegration';
+import CoolifyIntegration from '@/components/integration/coolify/CoolifyIntegration';
 import { Toaster } from 'sonner';
 
 const ToolIntegration: React.FC = () => {
@@ -114,6 +115,11 @@ const ToolIntegration: React.FC = () => {
             ) : (
               <ToolTableView tools={tools} />
             )}
+          </div>
+          
+          {/* Coolify Integration */}
+          <div className="mb-6">
+            <CoolifyIntegration />
           </div>
           
           {/* n8n Integration */}
