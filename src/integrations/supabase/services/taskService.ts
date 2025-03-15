@@ -1,10 +1,23 @@
 
 import { supabase } from '../client';
 import { Task } from '@/types/flow';
+import { 
+  getCachedProjectTasks, 
+  cacheProjectTasks, 
+  invalidateProjectTasksCache 
+} from '@/services/taskCacheService';
 
 // Task Management Services
 export const getTasks = async (projectId: string): Promise<Task[]> => {
   try {
+    // Check cache first
+    const cachedTasks = getCachedProjectTasks(projectId);
+    if (cachedTasks) {
+      console.log(`Using cached tasks for project: ${projectId}`);
+      return cachedTasks;
+    }
+    
+    console.log(`Fetching tasks from database for project: ${projectId}`);
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
@@ -14,7 +27,7 @@ export const getTasks = async (projectId: string): Promise<Task[]> => {
     if (error) {
       if (error.code === "42P01") { // relation "tasks" does not exist
         console.warn("Tasks table doesn't exist, returning mock data");
-        return [
+        const mockTasks = [
           {
             id: "mock-1",
             project_id: projectId,
@@ -49,12 +62,22 @@ export const getTasks = async (projectId: string): Promise<Task[]> => {
             created_at: new Date().toISOString()
           }
         ] as Task[];
+        
+        // Cache the mock data
+        cacheProjectTasks(projectId, mockTasks);
+        return mockTasks;
       }
-      throw error;
+      
+      console.error('Database error fetching tasks:', error);
+      throw new Error(`Failed to fetch tasks: ${error.message}`);
     }
+    
+    // Cache the fetched tasks
+    cacheProjectTasks(projectId, data || []);
     return data || [];
   } catch (error) {
     console.error('Error fetching tasks:', error);
+    // Return empty array but don't cache on error
     return [] as Task[];
   }
 };
@@ -78,7 +101,7 @@ export const createTask = async (task: {
     if (error) {
       if (error.code === "42P01") { // relation "tasks" does not exist
         console.warn("Tasks table doesn't exist, returning mock data");
-        return {
+        const mockTask = {
           id: `mock-${Date.now()}`,
           ...task,
           description: task.description || null,
@@ -88,9 +111,18 @@ export const createTask = async (task: {
           assigned_to: task.assigned_to || null,
           created_at: new Date().toISOString()
         } as Task;
+        
+        // Invalidate the cache for this project
+        invalidateProjectTasksCache(task.project_id);
+        return mockTask;
       }
-      throw error;
+      
+      console.error('Database error creating task:', error);
+      throw new Error(`Failed to create task: ${error.message}`);
     }
+    
+    // Invalidate the cache since we added a new task
+    invalidateProjectTasksCache(task.project_id);
     return data;
   } catch (error) {
     console.error('Error creating task:', error);
@@ -120,7 +152,7 @@ export const updateTaskStatus = async (taskId: string, status: string): Promise<
     if (error) {
       if (error.code === "42P01") { // relation "tasks" does not exist
         console.warn("Tasks table doesn't exist, returning mock data");
-        return {
+        const mockUpdatedTask = {
           id: taskId,
           status,
           title: "Mock Task",
@@ -132,9 +164,25 @@ export const updateTaskStatus = async (taskId: string, status: string): Promise<
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         } as Task;
+        
+        // We don't know which project this task belongs to, so we can't invalidate the specific cache
+        // Invalidate all task caches
+        invalidateCacheByPrefix('tasks_');
+        return mockUpdatedTask;
       }
-      throw error;
+      
+      console.error('Database error updating task status:', error);
+      throw new Error(`Failed to update task status: ${error.message}`);
     }
+    
+    // We need to invalidate the cache for the project this task belongs to
+    if (data?.project_id) {
+      invalidateProjectTasksCache(data.project_id);
+    } else {
+      // If we don't know the project_id, invalidate all task caches
+      invalidateCacheByPrefix('tasks_');
+    }
+    
     return data;
   } catch (error) {
     console.error('Error updating task status:', error);
@@ -152,4 +200,12 @@ export const updateTaskStatus = async (taskId: string, status: string): Promise<
       updated_at: new Date().toISOString()
     } as Task;
   }
+};
+
+// Add the missing function from the import in taskCacheService
+export const invalidateCacheByPrefix = (prefix: string): void => {
+  console.log(`Invalidating cache items with prefix: ${prefix}`);
+  // This is just a proxy to the function in taskCacheService
+  // Needed because of the import in the taskService
+  invalidateProjectTasksCache(prefix);
 };
