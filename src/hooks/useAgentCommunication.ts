@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { agentCommunication } from '@/services/agentCommunication';
 import { CommunicationChannel, AgentMessage, MessageContent, MessageOptions } from '@/types/communication';
@@ -114,11 +115,11 @@ export const useAgentCommunication = (options: UseAgentCommunicationOptions) => 
   }, [agentId, agentRole, channels, priorityThreshold]);
   
   const sendMessage = (content: string, options: MessageOptions = {}) => {
-    const { senderId, senderRole, recipientId, channel = 'direct', priority = 3, metadata } = options;
+    const { recipientId, channel = 'direct', priority = 3, metadata } = options;
     
     return agentCommunication.sendMessage({
-      senderId: senderId || agentId,
-      senderRole: senderRole || agentRole,
+      senderId: agentId,
+      senderRole: agentRole,
       recipientId,
       content,
       channel,

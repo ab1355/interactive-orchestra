@@ -72,7 +72,7 @@ const MultiAgentCollaboration: React.FC = () => {
             <PriorityQueue />
           </div>
 
-          {/* New Agent Creation System */}
+          {/* Agent Creation System */}
           <div className="mb-6">
             <AgentCreationSystem />
           </div>

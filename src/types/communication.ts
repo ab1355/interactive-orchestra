@@ -32,10 +32,7 @@ export interface SubscriptionOptions {
   priority?: number | 'any';
 }
 
-// Adding this interface to match what's used in TaskRouter component
 export interface MessageOptions {
-  senderId?: string;
-  senderRole?: string;
   recipientId?: string;
   channel?: CommunicationChannel;
   priority?: number;
@@ -44,6 +41,7 @@ export interface MessageOptions {
 
 export interface CommunicationOptions {
   senderId: string;
+  senderRole?: string;
   recipientId?: string;
   channel?: CommunicationChannel;
   priority?: number;

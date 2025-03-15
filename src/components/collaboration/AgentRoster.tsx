@@ -1,13 +1,9 @@
 
 import React, { useState } from 'react';
-import { Users, Plus, Router } from 'lucide-react';
+import { Users, Router } from 'lucide-react';
 import AgentCard from './AgentCard';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Custom AutomationIcon since it doesn't exist in lucide-react
 const AutomationIcon = (props) => (
@@ -71,13 +67,6 @@ const agents = [
 const AgentRoster: React.FC = () => {
   const [autoCreateEnabled, setAutoCreateEnabled] = useState(false);
   const [agentList, setAgentList] = useState(agents);
-  const [showAddAgent, setShowAddAgent] = useState(false);
-  const [newAgent, setNewAgent] = useState({
-    name: '',
-    role: '',
-    specialty: '',
-    color: 'blue-500'
-  });
   const { toast } = useToast();
   
   const handleAutoCreateToggle = (checked: boolean) => {
@@ -87,41 +76,6 @@ const AgentRoster: React.FC = () => {
       description: checked 
         ? "System will automatically create new agents based on workload and task requirements" 
         : "New agents will only be created manually",
-      variant: "default",
-    });
-  };
-
-  const handleAddAgent = () => {
-    if (!newAgent.name || !newAgent.role) {
-      toast({
-        title: "Missing Information",
-        description: "Please provide a name and role for the agent",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const agent = {
-      name: newAgent.name,
-      role: newAgent.role,
-      status: 'Idle',
-      color: newAgent.color || 'blue-500',
-      specialty: newAgent.specialty || 'General purpose',
-      tasks: '0 completed, 0 in progress'
-    };
-
-    setAgentList([...agentList, agent]);
-    setNewAgent({
-      name: '',
-      role: '',
-      specialty: '',
-      color: 'blue-500'
-    });
-    setShowAddAgent(false);
-
-    toast({
-      title: "Agent Added",
-      description: `${agent.name} has been added to the roster`,
       variant: "default",
     });
   };
@@ -142,13 +96,6 @@ const AgentRoster: React.FC = () => {
             <AutomationIcon className="w-4 h-4 mr-1" />
             Auto-Creation {autoCreateEnabled ? 'On' : 'Off'}
           </div>
-          <button 
-            className="bg-purple hover:bg-purple/80 text-white py-1 px-3 rounded text-sm flex items-center"
-            onClick={() => setShowAddAgent(true)}
-          >
-            <Plus className="w-4 h-4 mr-1" />
-            Add Agent
-          </button>
         </div>
       </div>
       
@@ -176,77 +123,6 @@ const AgentRoster: React.FC = () => {
           <AgentCard key={index} agent={agent} />
         ))}
       </div>
-
-      {/* Add Agent Dialog */}
-      <Dialog open={showAddAgent} onOpenChange={setShowAddAgent}>
-        <DialogContent className="sm:max-w-[425px] bg-dark-accent border-white/10">
-          <DialogHeader>
-            <DialogTitle>Add New Agent</DialogTitle>
-            <DialogDescription>
-              Configure a new agent to add to your collaborative system
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="name" className="text-right">
-                Name
-              </label>
-              <Input
-                id="name"
-                value={newAgent.name}
-                onChange={(e) => setNewAgent({...newAgent, name: e.target.value})}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="role" className="text-right">
-                Role
-              </label>
-              <Input
-                id="role"
-                value={newAgent.role}
-                onChange={(e) => setNewAgent({...newAgent, role: e.target.value})}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="specialty" className="text-right">
-                Specialty
-              </label>
-              <Input
-                id="specialty"
-                value={newAgent.specialty}
-                onChange={(e) => setNewAgent({...newAgent, specialty: e.target.value})}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="color" className="text-right">
-                Color
-              </label>
-              <Select
-                value={newAgent.color}
-                onValueChange={(value) => setNewAgent({...newAgent, color: value})}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a color" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="blue-500">Blue</SelectItem>
-                  <SelectItem value="green-500">Green</SelectItem>
-                  <SelectItem value="purple">Purple</SelectItem>
-                  <SelectItem value="red-500">Red</SelectItem>
-                  <SelectItem value="yellow-500">Yellow</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddAgent(false)}>Cancel</Button>
-            <Button onClick={handleAddAgent}>Add Agent</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
