@@ -4,6 +4,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import Hero from '@/components/sections/Hero';
 import Features from '@/components/sections/Features';
 import ManagerAgent from '@/components/sections/ManagerAgent';
+import DynamicAgentSystem from '@/components/sections/DynamicAgentSystem';
 import PartnerBanner from '@/components/layout/PartnerBanner';
 
 const Index: React.FC = () => {
@@ -24,6 +25,7 @@ const Index: React.FC = () => {
           <PartnerBanner />
           <Features />
           <ManagerAgent />
+          <DynamicAgentSystem />
         </main>
       </div>
     </div>
