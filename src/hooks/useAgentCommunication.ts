@@ -1,5 +1,5 @@
 
-// Import directly from the implementation file, not the index which might be causing circular references
+// Direct import from the implementation file to avoid circular dependencies
 import { useAgentCommunication } from './agentCommunication/index';
 
 // Export the hook directly
