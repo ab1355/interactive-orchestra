@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import ManagerAgent from '@/components/sections/ManagerAgent';
+import DynamicAgentSystem from '@/components/sections/DynamicAgentSystem';
 
 const Index: React.FC = () => {
   // Animation states for elements
@@ -18,6 +19,7 @@ const Index: React.FC = () => {
       <div className="flex-1 flex flex-col overflow-x-hidden">
         <main className={`flex-1 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <ManagerAgent />
+          <DynamicAgentSystem />
         </main>
       </div>
     </div>
