@@ -7,9 +7,17 @@ interface FileWithPath extends File {
   webkitRelativePath: string;
 }
 
+// Define the chat message type
+type ChatMessageType = 'user' | 'ai';
+
+interface ChatMessage {
+  type: ChatMessageType;
+  content: string;
+}
+
 const ChatInterface: React.FC = () => {
   const [message, setMessage] = useState('');
-  const [chatHistory, setChatHistory] = useState<Array<{type: 'user' | 'ai', content: string}>>([
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
     { type: 'ai', content: 'Hello! I am your AI assistant. How can I help you today?' },
   ]);
   const [isDragging, setIsDragging] = useState(false);
@@ -22,7 +30,7 @@ const ChatInterface: React.FC = () => {
     if (message.trim() === '' && uploadedFiles.length === 0) return;
     
     // Add user message to chat
-    const updatedHistory = [...chatHistory, { type: 'user', content: message }];
+    const updatedHistory = [...chatHistory, { type: 'user' as ChatMessageType, content: message }];
     setChatHistory(updatedHistory);
     
     // Clear input field
@@ -42,7 +50,7 @@ const ChatInterface: React.FC = () => {
         responseContent += ` I've also processed the following files: ${fileNames}`;
       }
       
-      setChatHistory(prev => [...prev, { type: 'ai', content: responseContent }]);
+      setChatHistory(prev => [...prev, { type: 'ai' as ChatMessageType, content: responseContent }]);
       
       // Clear uploaded files after sending
       setUploadedFiles([]);
@@ -202,8 +210,11 @@ const ChatInterface: React.FC = () => {
             onChange={handleFolderUpload}
             className="hidden"
             multiple
-            directory=""
-            webkitdirectory=""
+            // Use attributes in a TypeScript-safe way using attribute spread
+            {...{
+              webkitdirectory: "",
+              directory: ""
+            } as React.InputHTMLAttributes<HTMLInputElement>}
           />
           <textarea
             value={message}
