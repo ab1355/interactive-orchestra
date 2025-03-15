@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -5,6 +6,7 @@ import { Sparkles, ArrowUp, ArrowDown, BarChart2, Calendar, Clock, Award } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
 import { getPrioritizedTasks, setPriorityFactors } from '@/integrations/supabase/client';
 import { PrioritizedTask, PriorityFactors } from '@/types/flow';
 
