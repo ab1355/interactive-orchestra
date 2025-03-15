@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import { ChevronRight, Package, Search, Grid, Filter, ExternalLink, Plus, Star, Download, Cloud, Database, Server, HardDrive, Network, Box } from 'lucide-react';
@@ -6,11 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ActionButton } from '@/components/ui/action-button';
+import IntegrationDialog from '@/components/integration/IntegrationDialog';
 
 // Tool Card Component
 const ToolCard = ({ tool }: { tool: any }) => {
   const [expanded, setExpanded] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
+  const openIntegrationDialog = () => {
+    setIsDialogOpen(true);
+  };
+
   return (
     <div className="bg-dark-accent rounded-lg border border-white/10 overflow-hidden">
       <div className="p-4">
@@ -86,14 +93,19 @@ const ToolCard = ({ tool }: { tool: any }) => {
         </a>
         <ActionButton 
           className="text-sm bg-purple hover:bg-purple/80 text-white py-1 px-3 rounded flex items-center" 
-          onClick={() => alert(`Adding ${tool.name} integration`)}
+          onClick={openIntegrationDialog}
           tooltipText={`Add ${tool.name} integration to your project`}
-          successMessage={`${tool.name} integration added successfully`}
         >
           <Plus className="w-3 h-3 mr-1" />
           Add Integration
         </ActionButton>
       </div>
+      
+      <IntegrationDialog 
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        tool={tool}
+      />
     </div>
   );
 };
@@ -374,6 +386,14 @@ const ToolTestingSandbox = () => {
 
 // Tool Marketplace Table Component
 const ToolMarketplaceTable = ({ tools }: { tools: any[] }) => {
+  const [selectedTool, setSelectedTool] = useState<any>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const openIntegrationDialog = (tool: any) => {
+    setSelectedTool(tool);
+    setIsDialogOpen(true);
+  };
+
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -410,7 +430,7 @@ const ToolMarketplaceTable = ({ tools }: { tools: any[] }) => {
                     API Docs
                   </a>
                   <span className="text-gray-600">•</span>
-                  <a href="#" className="text-purple hover:text-purple-light text-sm" onClick={() => alert(`${tool.name} Integration Guide`)}>
+                  <a href="#" className="text-purple hover:text-purple-light text-sm" onClick={(e) => { e.preventDefault(); alert(`${tool.name} Integration Guide would open in a new tab`); }}>
                     Integration Guide
                   </a>
                 </div>
@@ -421,7 +441,7 @@ const ToolMarketplaceTable = ({ tools }: { tools: any[] }) => {
                     variant="outline" 
                     size="sm" 
                     className="text-xs border-white/10 text-white hover:bg-purple/20 hover:text-purple-light"
-                    onClick={() => alert(`Add ${tool.name} integration`)}
+                    onClick={() => openIntegrationDialog(tool)}
                   >
                     Add Integration
                   </Button>
@@ -429,7 +449,7 @@ const ToolMarketplaceTable = ({ tools }: { tools: any[] }) => {
                     variant="outline" 
                     size="sm" 
                     className="text-xs border-white/10 text-white hover:bg-purple/20 hover:text-purple-light"
-                    onClick={() => alert(`Test ${tool.name}`)}
+                    onClick={() => alert(`A testing dialog for ${tool.name} would open here`)}
                   >
                     Test
                   </Button>
@@ -439,6 +459,14 @@ const ToolMarketplaceTable = ({ tools }: { tools: any[] }) => {
           ))}
         </TableBody>
       </Table>
+      
+      {selectedTool && (
+        <IntegrationDialog 
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          tool={selectedTool}
+        />
+      )}
     </div>
   );
 };
@@ -669,7 +697,7 @@ const ToolIntegration: React.FC = () => {
             <ActionButton 
               variant="default" 
               className="bg-purple hover:bg-purple/80 text-white flex items-center"
-              onClick={() => alert('Creating new integration')}
+              onClick={() => alert('This would open a dialog to create a custom integration')}
               tooltipText="Create a new custom integration"
               keyboardShortcut="Alt+N"
             >
