@@ -1,31 +1,26 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Clock, Calendar, Flag } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/components/ui/use-toast';
+import { getTimelineEvents } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
 
 interface TimelineEvent {
   id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  status: 'completed' | 'in-progress' | 'upcoming';
-  dependencies?: string[];
+  title: string;
+  start_date: string;
+  end_date: string;
+  status: string;
+  description?: string;
 }
 
-const SAMPLE_TIMELINE: TimelineEvent[] = [
-  { id: 't1', name: 'Market Research', startDate: '2023-07-01', endDate: '2023-07-15', status: 'completed' },
-  { id: 't2', name: 'Product Design', startDate: '2023-07-16', endDate: '2023-08-15', status: 'completed', dependencies: ['t1'] },
-  { id: 't3', name: 'Development Phase 1', startDate: '2023-08-16', endDate: '2023-09-30', status: 'in-progress', dependencies: ['t2'] },
-  { id: 't4', name: 'User Testing', startDate: '2023-10-01', endDate: '2023-10-15', status: 'upcoming', dependencies: ['t3'] },
-  { id: 't5', name: 'Launch Preparation', startDate: '2023-10-16', endDate: '2023-11-01', status: 'upcoming', dependencies: ['t4'] },
-];
-
-const getStatusColor = (status: TimelineEvent['status']) => {
-  switch (status) {
+const getStatusColor = (status: string) => {
+  switch (status.toLowerCase()) {
     case 'completed':
       return 'bg-green-500';
-    case 'in-progress':
+    case 'in_progress':
       return 'bg-blue-500';
     case 'upcoming':
       return 'bg-gray-400';
@@ -35,11 +30,58 @@ const getStatusColor = (status: TimelineEvent['status']) => {
 };
 
 const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  try {
+    return format(new Date(dateString), 'MMM d');
+  } catch (e) {
+    return dateString;
+  }
 };
 
-const TimelinePlanning = () => {
+const TimelinePlanning = ({ projectId }: { projectId?: string }) => {
+  const [events, setEvents] = useState<TimelineEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchTimelineEvents = async () => {
+      // Use a demo project ID if none is provided
+      const demoProjectId = "00000000-0000-0000-0000-000000000000";
+      const activeProjectId = projectId || demoProjectId;
+      
+      try {
+        setIsLoading(true);
+        const eventsData = await getTimelineEvents(activeProjectId);
+        setEvents(eventsData);
+      } catch (error) {
+        console.error('Error fetching timeline events:', error);
+        toast({
+          title: "Error fetching timeline",
+          description: "Could not load timeline events from the database.",
+          variant: "destructive"
+        });
+        // Set empty array if error occurs
+        setEvents([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTimelineEvents();
+  }, [projectId, toast]);
+
+  // Get the estimated completion date (the latest end_date among all events)
+  const getEstimatedCompletion = () => {
+    if (events.length === 0) return 'N/A';
+    
+    const latestEvent = events.reduce((latest, event) => {
+      const eventDate = new Date(event.end_date);
+      const latestDate = new Date(latest.end_date);
+      return eventDate > latestDate ? event : latest;
+    }, events[0]);
+    
+    return formatDate(latestEvent.end_date);
+  };
+
   return (
     <Card className="bg-dark-accent border-white/10">
       <CardHeader>
@@ -50,57 +92,64 @@ const TimelinePlanning = () => {
         <CardDescription>Schedule and track project milestones</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="relative pl-8">
-          {SAMPLE_TIMELINE.map((event, index) => (
-            <div key={event.id} className="mb-6 relative">
-              {/* Timeline connector */}
-              {index < SAMPLE_TIMELINE.length - 1 && (
-                <div className="absolute left-[-15px] top-4 h-full w-0.5 bg-gray-700"></div>
-              )}
-              
-              {/* Event node */}
-              <div className={`absolute left-[-20px] top-0.5 w-4 h-4 rounded-full ${getStatusColor(event.status)}`}></div>
-              
-              <div className="flex justify-between items-start mb-1">
-                <h4 className="font-medium">{event.name}</h4>
-                <div className="text-xs text-gray-400 flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
-                  {formatDate(event.startDate)} - {formatDate(event.endDate)}
+        {isLoading ? (
+          <div className="text-center py-4">Loading timeline...</div>
+        ) : events.length === 0 ? (
+          <div className="text-center py-4 text-gray-400">
+            No timeline events found. Add events to visualize your project timeline.
+          </div>
+        ) : (
+          <div className="relative pl-8">
+            {events.map((event, index) => (
+              <div key={event.id} className="mb-6 relative">
+                {/* Timeline connector */}
+                {index < events.length - 1 && (
+                  <div className="absolute left-[-15px] top-4 h-full w-0.5 bg-gray-700"></div>
+                )}
+                
+                {/* Event node */}
+                <div className={`absolute left-[-20px] top-0.5 w-4 h-4 rounded-full ${getStatusColor(event.status)}`}></div>
+                
+                <div className="flex justify-between items-start mb-1">
+                  <h4 className="font-medium">{event.title}</h4>
+                  <div className="text-xs text-gray-400 flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    {formatDate(event.start_date)} - {formatDate(event.end_date)}
+                  </div>
+                </div>
+                
+                {event.description && (
+                  <p className="text-sm text-gray-400 mb-2">{event.description}</p>
+                )}
+                
+                <div className="flex justify-end items-center text-sm">
+                  <div className={`text-xs px-2 py-0.5 rounded ${
+                    event.status.toLowerCase() === 'completed' ? 'bg-green-900/30 text-green-400' : 
+                    event.status.toLowerCase() === 'in_progress' ? 'bg-blue-900/30 text-blue-400' : 
+                    'bg-gray-800 text-gray-400'
+                  }`}>
+                    {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                  </div>
                 </div>
               </div>
-              
-              <div className="flex justify-between items-center text-sm">
-                <div className="text-gray-400">
-                  {event.dependencies && (
-                    <span className="text-xs bg-gray-800 px-2 py-0.5 rounded">
-                      Depends on: {event.dependencies.join(', ')}
-                    </span>
-                  )}
-                </div>
-                <div className={`text-xs px-2 py-0.5 rounded ${
-                  event.status === 'completed' ? 'bg-green-900/30 text-green-400' : 
-                  event.status === 'in-progress' ? 'bg-blue-900/30 text-blue-400' : 
-                  'bg-gray-800 text-gray-400'
-                }`}>
-                  {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                </div>
+            ))}
+            
+            <div className="mt-4 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-medium">Critical Path</div>
+                <div className="text-xs text-gray-400">Estimated completion: {getEstimatedCompletion()}</div>
               </div>
-            </div>
-          ))}
-          
-          <div className="mt-4 pt-4 border-t border-white/10">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-medium">Critical Path</div>
-              <div className="text-xs text-gray-400">Estimated completion: Nov 1, 2023</div>
-            </div>
-            <div className="flex items-center mt-1">
-              <div className="bg-amber-500/20 text-amber-400 text-xs px-2 py-0.5 rounded-md flex items-center gap-1">
-                <Flag className="w-3 h-3" />
-                <span>Market Research → Product Design → Development → Testing → Launch</span>
+              <div className="flex items-center mt-1">
+                <div className="bg-amber-500/20 text-amber-400 text-xs px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <Flag className="w-3 h-3" />
+                  <span>
+                    {events.map(event => event.title).join(' → ')}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
