@@ -4,6 +4,7 @@ import { Crown, Laptop, Smartphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import CommandLayer from './CommandLayer';
 import TeamFormationFramework from './TeamFormationFramework';
+import PodFormationPatterns from './PodFormationPatterns';
 
 interface DynamicAgentSystemProps {
   className?: string;
@@ -107,6 +108,9 @@ const DynamicAgentSystem: React.FC<DynamicAgentSystemProps> = ({ className }) =>
 
         {/* Team Formation Framework */}
         <TeamFormationFramework />
+        
+        {/* Pod Formation Patterns - New section */}
+        <PodFormationPatterns />
       </div>
     </div>
   );
