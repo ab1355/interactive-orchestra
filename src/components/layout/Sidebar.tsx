@@ -2,15 +2,24 @@
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, Code, Users, Wrench, Settings } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface SidebarItemProps {
   icon: React.ElementType;
   text: string;
   isActive?: boolean;
+  path: string;
   onClick?: () => void;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, text, isActive, onClick }) => {
+const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, text, isActive, path, onClick }) => {
+  const navigate = useNavigate();
+  
+  const handleClick = () => {
+    navigate(path);
+    if (onClick) onClick();
+  };
+  
   return (
     <div 
       className={cn(
@@ -19,7 +28,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, text, isActive, o
           ? "bg-purple/10 text-purple"
           : "hover:bg-white/5 text-gray-300 hover:text-white"
       )}
-      onClick={onClick}
+      onClick={handleClick}
     >
       <Icon className={cn(
         "w-5 h-5 transition-all duration-200",
@@ -35,14 +44,15 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ className }) => {
-  const [activeItem, setActiveItem] = useState<string>("Simple Agent Workflow");
   const [collapsed, setCollapsed] = useState<boolean>(false);
-
+  const location = useLocation();
+  const navigate = useNavigate();
+  
   const sidebarItems = [
-    { text: "Simple Agent Workflow", icon: Code },
-    { text: "Multi-Agent Collaboration", icon: Users },
-    { text: "Tool Integration", icon: Wrench },
-    { text: "Customizable Agent Behavior", icon: Settings }
+    { text: "Simple Agent Workflow", icon: Code, path: "/simple-agent-workflow" },
+    { text: "Multi-Agent Collaboration", icon: Users, path: "/multi-agent-collaboration" },
+    { text: "Tool Integration", icon: Wrench, path: "/tool-integration" },
+    { text: "Customizable Agent Behavior", icon: Settings, path: "/customizable-agent-behavior" }
   ];
 
   return (
@@ -61,11 +71,17 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       </div>
       
       <div className="flex items-center gap-3 py-6 px-4 border-b border-white/10">
-        <div className="flex items-center justify-center w-8 h-8 rounded-md bg-purple text-white">
+        <div 
+          className="flex items-center justify-center w-8 h-8 rounded-md bg-purple text-white cursor-pointer"
+          onClick={() => navigate('/')}
+        >
           AI
         </div>
         {!collapsed && (
-          <h1 className="text-lg font-semibold text-white tracking-tight animate-fade-in">
+          <h1 
+            className="text-lg font-semibold text-white tracking-tight animate-fade-in cursor-pointer"
+            onClick={() => navigate('/')}
+          >
             Agent Platform
           </h1>
         )}
@@ -78,11 +94,11 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
               <div 
                 className={cn(
                   "flex items-center justify-center p-2 mx-auto rounded-lg transition-all duration-200 cursor-pointer",
-                  activeItem === item.text 
+                  location.pathname === item.path 
                     ? "bg-purple/10 text-purple"
                     : "hover:bg-white/5 text-gray-400"
                 )}
-                onClick={() => setActiveItem(item.text)}
+                onClick={() => navigate(item.path)}
                 title={item.text}
               >
                 <item.icon className="w-5 h-5" />
@@ -91,8 +107,8 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
               <SidebarItem 
                 icon={item.icon} 
                 text={item.text} 
-                isActive={activeItem === item.text}
-                onClick={() => setActiveItem(item.text)}
+                path={item.path}
+                isActive={location.pathname === item.path}
               />
             )}
           </div>
