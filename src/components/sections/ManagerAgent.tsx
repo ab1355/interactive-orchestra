@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Crown, Network, Share, Target, Handshake } from 'lucide-react';
+import { Crown, Network, Share, Target, Handshake, GitBranch, Users, Vote, Info } from 'lucide-react';
 import FeatureCard from '../ui/FeatureCard';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,7 @@ const ManagerAgent: React.FC<ManagerAgentProps> = ({ className }) => {
           <p className="text-gray-300 max-w-2xl mx-auto">CEO-level agent that orchestrates other agents, manages communications, and ensures optimal resource allocation</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FeatureCard 
@@ -99,6 +99,150 @@ const ManagerAgent: React.FC<ManagerAgentProps> = ({ className }) => {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* New Interaction Patterns Section */}
+        <div className="mt-12">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold text-white mb-3">Interaction Patterns</h2>
+            <p className="text-gray-300 max-w-2xl mx-auto">Structured communication and decision-making frameworks for multi-agent systems</p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Hierarchical Communication */}
+            <Card className="bg-dark border-purple/20 shadow-lg shadow-purple/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-white text-xl">
+                  <GitBranch className="w-5 h-5 text-purple" />
+                  Hierarchical Communication
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-white font-medium mb-2">Vertical Communication</h3>
+                    <ul className="space-y-2 text-gray-300 text-sm">
+                      <li className="flex items-start gap-2">
+                        <span className="bg-purple/20 text-purple rounded-full p-0.5 mt-0.5">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </span>
+                        Manager Agent → Primary Agents
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="bg-purple/20 text-purple rounded-full p-0.5 mt-0.5">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </span>
+                        Primary Agents → Support Agents
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="bg-purple/20 text-purple rounded-full p-0.5 mt-0.5">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </span>
+                        Support Agents → Specialized Tools
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-white font-medium mb-2">Horizontal Communication</h3>
+                    <ul className="space-y-2 text-gray-300 text-sm">
+                      <li className="flex items-start gap-2">
+                        <span className="bg-purple/20 text-purple rounded-full p-0.5 mt-0.5">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 12H16M16 12C16 10.5 15 8 12 8M16 12C16 13.5 15 16 12 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </span>
+                        Inter-framework Collaboration
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="bg-purple/20 text-purple rounded-full p-0.5 mt-0.5">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 12H16M16 12C16 10.5 15 8 12 8M16 12C16 13.5 15 16 12 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </span>
+                        Peer Agent Consultation
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="bg-purple/20 text-purple rounded-full p-0.5 mt-0.5">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 12H16M16 12C16 10.5 15 8 12 8M16 12C16 13.5 15 16 12 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </span>
+                        Resource Sharing
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Decision Making */}
+            <Card className="bg-dark border-purple/20 shadow-lg shadow-purple/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-white text-xl">
+                  <Vote className="w-5 h-5 text-purple" />
+                  Decision Making
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-white font-medium mb-2">Autonomous Decisions</h3>
+                    <ul className="space-y-2 text-gray-300 text-sm">
+                      <li className="flex items-start gap-2">
+                        <span className="bg-purple/20 text-purple rounded-full p-0.5 mt-0.5">
+                          <Info className="w-3 h-3" />
+                        </span>
+                        Predefined Parameters
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="bg-purple/20 text-purple rounded-full p-0.5 mt-0.5">
+                          <Info className="w-3 h-3" />
+                        </span>
+                        Risk Assessment
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="bg-purple/20 text-purple rounded-full p-0.5 mt-0.5">
+                          <Info className="w-3 h-3" />
+                        </span>
+                        Impact Analysis
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-white font-medium mb-2">Collaborative Decisions</h3>
+                    <ul className="space-y-2 text-gray-300 text-sm">
+                      <li className="flex items-start gap-2">
+                        <span className="bg-purple/20 text-purple rounded-full p-0.5 mt-0.5">
+                          <Info className="w-3 h-3" />
+                        </span>
+                        Multi-agent Consensus
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="bg-purple/20 text-purple rounded-full p-0.5 mt-0.5">
+                          <Info className="w-3 h-3" />
+                        </span>
+                        Human Oversight
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="bg-purple/20 text-purple rounded-full p-0.5 mt-0.5">
+                          <Info className="w-3 h-3" />
+                        </span>
+                        Approval Workflows
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
