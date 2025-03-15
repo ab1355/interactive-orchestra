@@ -1,136 +1,218 @@
 
-import { EventEmitter } from 'events';
-import { MessageContent, CommunicationChannel, SubscriptionOptions } from '@/types/communication';
+// Agent Communication Service
+// This service handles the communication between agents using Supabase Realtime
+import { supabase } from '@/integrations/supabase/client';
+import { MessageOptions, MessageContent, CommunicationChannel, InternalMessage } from '@/types/communication';
 
-type MessageListener = (message: MessageContent) => void;
+class AgentCommunicationService {
+  private messageListeners: Array<(message: InternalMessage) => void> = [];
+  private channelSubscriptions: Map<string, () => void> = new Map();
+  private messageHistory: Map<string, InternalMessage[]> = new Map();
+  private connected = true;
 
-class AgentCommunicationSystem {
-  private eventEmitter: EventEmitter;
-  private messageHistory: MessageContent[];
-  
+  // Initialize the service
   constructor() {
-    this.eventEmitter = new EventEmitter();
-    this.messageHistory = [];
-    
-    // Increase the maximum number of listeners to avoid warnings
-    this.eventEmitter.setMaxListeners(50);
+    // Set up the main broadcast channel
+    this.setupChannel('broadcast');
   }
-  
-  sendMessage(message: MessageContent) {
-    // Default values for message properties
-    const processedMessage: MessageContent = {
-      ...message,
-      senderId: message.senderId || 'system',
-      channel: message.channel as CommunicationChannel || 'broadcast',
-      priority: message.priority || 3,
-      timestamp: new Date()
-    };
-    
-    // Store in history
-    this.messageHistory.push(processedMessage);
-    
-    // Emit to general message event
-    this.eventEmitter.emit('message', processedMessage);
-    
-    // Emit to specific channel
-    if (processedMessage.channel) {
-      this.eventEmitter.emit(`message:${processedMessage.channel}`, processedMessage);
+
+  // Set up a Supabase Realtime channel for a specific communication channel
+  private setupChannel(channelName: string) {
+    try {
+      const channel = supabase.channel(`agent-${channelName}`);
+      
+      // Listen for broadcast messages
+      channel
+        .on('broadcast', { event: 'message' }, (payload) => {
+          const message = payload.payload as InternalMessage;
+          
+          // Store in history
+          if (!this.messageHistory.has(channelName)) {
+            this.messageHistory.set(channelName, []);
+          }
+          this.messageHistory.get(channelName)?.push(message);
+          
+          // Notify listeners
+          this.messageListeners.forEach(listener => listener(message));
+        })
+        .subscribe((status) => {
+          console.log(`Agent communication channel ${channelName} status:`, status);
+          this.connected = status === 'SUBSCRIBED';
+        });
+      
+      // Store unsubscribe function
+      this.channelSubscriptions.set(channelName, () => {
+        supabase.removeChannel(channel);
+      });
+    } catch (error) {
+      console.error(`Error setting up agent communication channel ${channelName}:`, error);
+      this.connected = false;
     }
-    
-    // Emit to specific recipient if direct message
-    if (processedMessage.recipientId) {
-      this.eventEmitter.emit(`message:recipient:${processedMessage.recipientId}`, processedMessage);
-    }
-    
-    // Emit to priority threshold events
-    if (processedMessage.priority) {
-      for (let i = 1; i <= 10; i++) {
-        if (processedMessage.priority >= i) {
-          this.eventEmitter.emit(`message:priority:${i}`, processedMessage);
-        }
-      }
-    }
-    
-    console.log(`Agent Communication: [${processedMessage.channel}] ${processedMessage.senderRole || processedMessage.senderId} sent a message with priority ${processedMessage.priority}`);
-    
-    return processedMessage;
   }
-  
-  subscribeToMessages(callback: MessageListener, options: SubscriptionOptions = {}): () => void {
-    const { channel = 'all', senderId, recipientId, priority } = options;
-    
-    let eventName = 'message';
-    
-    // Determine event name based on options
-    if (channel !== 'all') {
-      eventName = `message:${channel}`;
-    }
-    
-    if (recipientId) {
-      eventName = `message:recipient:${recipientId}`;
-    }
-    
-    if (typeof priority === 'number') {
-      eventName = `message:priority:${priority}`;
-    }
-    
-    // Wrap callback to filter messages based on criteria
-    const wrappedCallback = (message: MessageContent) => {
-      let shouldProcess = true;
+
+  // Send a message
+  sendMessage(options: {
+    senderId: string;
+    senderRole?: string;
+    recipientId?: string;
+    content: string;
+    channel?: CommunicationChannel;
+    priority?: number;
+    metadata?: Record<string, any>;
+  }): boolean {
+    try {
+      const { 
+        senderId, 
+        senderRole = 'Unknown',
+        recipientId,
+        content, 
+        channel = 'broadcast', 
+        priority = 3,
+        metadata = {}
+      } = options;
       
-      // Filter by senderId if specified
-      if (senderId && message.senderId !== senderId) {
-        shouldProcess = false;
+      const timestamp = new Date().toISOString();
+      const messageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      
+      const message: InternalMessage = {
+        id: messageId,
+        senderId,
+        senderRole,
+        recipientId,
+        content,
+        timestamp,
+        channel,
+        priority,
+        metadata
+      };
+      
+      // Ensure channel exists
+      if (!this.channelSubscriptions.has(channel)) {
+        this.setupChannel(channel);
       }
       
-      // Filter by specific conditions when not already filtered by event name
-      if (channel === 'all' && options.channel && options.channel !== 'all' && message.channel !== options.channel) {
-        shouldProcess = false;
-      }
+      // Send to Supabase channel
+      const channelObj = supabase.channel(`agent-${channel}`);
+      channelObj.send({
+        type: 'broadcast',
+        event: 'message',
+        payload: message
+      });
       
-      if (shouldProcess) {
-        callback(message);
+      // Store in local history
+      if (!this.messageHistory.has(channel)) {
+        this.messageHistory.set(channel, []);
       }
-    };
-    
-    // Register the event listener
-    this.eventEmitter.on(eventName, wrappedCallback);
-    
-    // Return unsubscribe function
-    return () => {
-      this.eventEmitter.off(eventName, wrappedCallback);
-    };
-  }
-  
-  getMessageHistory(options: SubscriptionOptions = {}): MessageContent[] {
-    const { channel, senderId, recipientId, priority } = options;
-    
-    return this.messageHistory.filter(message => {
-      if (channel && channel !== 'all' && message.channel !== channel) {
-        return false;
-      }
+      this.messageHistory.get(channel)?.push(message);
       
-      if (senderId && message.senderId !== senderId) {
-        return false;
-      }
-      
-      if (recipientId && message.recipientId !== recipientId) {
-        return false;
-      }
-      
-      if (typeof priority === 'number' && (message.priority || 0) < priority) {
-        return false;
+      // Additionally notify direct listeners
+      if (recipientId) {
+        this.messageListeners.forEach(listener => listener(message));
       }
       
       return true;
-    });
+    } catch (error) {
+      console.error('Error sending agent message:', error);
+      return false;
+    }
   }
-  
-  cleanup() {
-    this.eventEmitter.removeAllListeners();
-    this.messageHistory = [];
+
+  // Subscribe to messages
+  subscribeToMessages(
+    callback: (message: InternalMessage) => void,
+    options: {
+      channel?: CommunicationChannel | 'all';
+      recipientId?: string;
+      priority?: number;
+    } = {}
+  ): () => void {
+    const { channel = 'all', recipientId, priority } = options;
+    
+    // Create new channel subscription if needed
+    if (channel !== 'all' && !this.channelSubscriptions.has(channel)) {
+      this.setupChannel(channel);
+    }
+    
+    // Create filtered listener
+    const filteredCallback = (message: InternalMessage) => {
+      // Filter by channel if specified
+      if (channel !== 'all' && message.channel !== channel) {
+        return;
+      }
+      
+      // Filter by recipient if specified
+      if (recipientId && message.recipientId && message.recipientId !== recipientId) {
+        return;
+      }
+      
+      // Filter by priority if specified
+      if (priority !== undefined && message.priority !== undefined && message.priority < priority) {
+        return;
+      }
+      
+      // Call the callback with the filtered message
+      callback(message);
+    };
+    
+    // Add to listeners
+    this.messageListeners.push(filteredCallback);
+    
+    // Return unsubscribe function
+    return () => {
+      const index = this.messageListeners.indexOf(filteredCallback);
+      if (index !== -1) {
+        this.messageListeners.splice(index, 1);
+      }
+    };
+  }
+
+  // Get message history
+  getMessageHistory(options: {
+    channel?: CommunicationChannel | 'all';
+    recipientId?: string;
+    limit?: number;
+  } = {}): InternalMessage[] {
+    const { channel = 'all', recipientId, limit } = options;
+    
+    let messages: InternalMessage[] = [];
+    
+    if (channel === 'all') {
+      // Combine all channel messages
+      Array.from(this.messageHistory.values()).forEach(channelMessages => {
+        messages = [...messages, ...channelMessages];
+      });
+    } else {
+      // Get messages for specific channel
+      const channelMessages = this.messageHistory.get(channel) || [];
+      messages = [...channelMessages];
+    }
+    
+    // Filter by recipient if specified
+    if (recipientId) {
+      messages = messages.filter(msg => 
+        msg.recipientId === recipientId || 
+        msg.channel === 'broadcast'
+      );
+    }
+    
+    // Sort by timestamp (newest first)
+    messages.sort((a, b) => 
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+    
+    // Apply limit if specified
+    if (limit) {
+      messages = messages.slice(0, limit);
+    }
+    
+    return messages;
+  }
+
+  // Check if connected
+  isConnected(): boolean {
+    return this.connected;
   }
 }
 
-// Singleton instance
-export const agentCommunication = new AgentCommunicationSystem();
+// Export singleton instance
+export const agentCommunication = new AgentCommunicationService();

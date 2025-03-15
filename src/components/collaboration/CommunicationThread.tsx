@@ -72,31 +72,52 @@ const CommunicationThread: React.FC = () => {
   const [activeChannel, setActiveChannel] = useState('all');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const [connectionStatus, setConnectionStatus] = useState('connecting');
   
   useEffect(() => {
     // Subscribe to agent communication system
-    const unsubscribe = agentCommunication.subscribeToMessages((message) => {
-      setMessages(prev => [...prev, {
-        id: Date.now().toString(),
-        senderId: message.senderId || 'unknown',
-        senderRole: message.senderRole || 'Unknown Agent',
-        content: message.content,
-        timestamp: new Date(),
-        channel: message.channel as CommunicationChannel || 'broadcast',
-        priority: message.priority || 3
-      }]);
-      
-      // Show toast for high priority messages
-      if (message.priority && message.priority >= 7) {
-        toast({
-          title: `High Priority: ${message.senderRole || 'System'}`,
-          description: message.content,
-          variant: "destructive",
-        });
-      }
-    });
+    let unsubscribe: () => void;
     
-    return () => unsubscribe();
+    try {
+      unsubscribe = agentCommunication.subscribeToMessages((message) => {
+        console.log("Message received:", message);
+        setMessages(prev => [...prev, {
+          id: message.id || Date.now().toString(),
+          senderId: message.senderId || 'unknown',
+          senderRole: message.senderRole || 'Unknown Agent',
+          content: message.content,
+          timestamp: new Date(message.timestamp || Date.now()),
+          channel: message.channel as CommunicationChannel || 'broadcast',
+          priority: message.priority || 3
+        }]);
+        
+        // Show toast for high priority messages
+        if (message.priority && message.priority >= 7) {
+          toast({
+            title: `High Priority: ${message.senderRole || 'System'}`,
+            description: message.content,
+            variant: "destructive",
+          });
+        }
+      });
+      
+      setConnectionStatus('connected');
+      console.log("Successfully connected to agent communication");
+    } catch (error) {
+      console.error("Failed to connect to agent communication:", error);
+      setConnectionStatus('error');
+      toast({
+        title: "Connection Error",
+        description: "Failed to connect to the communication system",
+        variant: "destructive",
+      });
+    }
+    
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [toast]);
   
   useEffect(() => {
@@ -126,14 +147,25 @@ const CommunicationThread: React.FC = () => {
     
     setMessages(prev => [...prev, message]);
     
-    // Also send through agent communication system
-    agentCommunication.sendMessage({
-      senderId: message.senderId,
-      senderRole: message.senderRole,
-      content: message.content,
-      channel: message.channel,
-      priority: message.priority
-    });
+    try {
+      // Also send through agent communication system
+      agentCommunication.sendMessage({
+        senderId: message.senderId,
+        senderRole: message.senderRole,
+        content: message.content,
+        channel: message.channel,
+        priority: message.priority
+      });
+      
+      console.log("Message sent successfully");
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      toast({
+        title: "Message Error",
+        description: "Failed to send your message",
+        variant: "destructive",
+      });
+    }
     
     setNewMessage('');
   };
@@ -153,6 +185,11 @@ const CommunicationThread: React.FC = () => {
         <CardTitle className="text-xl font-semibold flex items-center">
           <MessageSquare className="w-5 h-5 mr-2 text-blue-500" />
           Communication Thread
+          {connectionStatus !== 'connected' && (
+            <Badge variant="outline" className="ml-2 text-xs border-yellow-500 text-yellow-400">
+              {connectionStatus}
+            </Badge>
+          )}
         </CardTitle>
         <div className="flex gap-2">
           <Button 
