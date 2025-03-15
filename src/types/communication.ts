@@ -11,6 +11,7 @@ export interface MessageContent {
   priority?: number;
   metadata?: Record<string, any>;
   timestamp?: Date;
+  id?: string;
 }
 
 export interface AgentMessage {
@@ -35,6 +36,14 @@ export interface SubscriptionOptions {
 export interface MessageOptions {
   senderId?: string;
   senderRole?: string;
+  recipientId?: string;
+  channel?: CommunicationChannel;
+  priority?: number;
+  metadata?: Record<string, any>;
+}
+
+export interface CommunicationOptions {
+  senderId: string;
   recipientId?: string;
   channel?: CommunicationChannel;
   priority?: number;

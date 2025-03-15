@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Router, Check, AlertCircle, ArrowUp, ArrowDown, Square, PlusCircle } from 'lucide-react';
@@ -9,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAgentCommunication } from '@/hooks/useAgentCommunication';
-import { CommunicationChannel } from '@/types/communication';
+import { CommunicationChannel, MessageOptions } from '@/types/communication';
 
 interface RoutedTask {
   id: string;

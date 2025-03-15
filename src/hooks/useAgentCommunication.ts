@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { agentCommunication } from '@/services/agentCommunication';
 import { CommunicationChannel, AgentMessage, MessageContent, MessageOptions } from '@/types/communication';
