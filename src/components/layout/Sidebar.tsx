@@ -1,10 +1,8 @@
-
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { 
-  BrainCircuit, 
   Users, 
   Wrench, 
   Settings, 
@@ -43,7 +41,6 @@ const Sidebar = () => {
 
   const navItems = [
     { path: '/', label: 'Home', icon: <Home className="w-5 h-5" /> },
-    { path: '/simple-agent-workflow', label: 'Simple Agent', icon: <BrainCircuit className="w-5 h-5" /> },
     { path: '/multi-agent-collaboration', label: 'Multi-Agent', icon: <Users className="w-5 h-5" /> },
     { path: '/tool-integration', label: 'Tool Integration', icon: <Wrench className="w-5 h-5" /> },
     { path: '/customizable-agent-behavior', label: 'Agent Behavior', icon: <Settings className="w-5 h-5" /> },

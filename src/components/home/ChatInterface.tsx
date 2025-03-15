@@ -1,164 +1,76 @@
 
-import React, { useState, useRef } from 'react';
-import { PaperclipIcon, SendIcon, Mic, Image, FileText, FileSpreadsheet, Code, FileX, Folder } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState, useRef, ChangeEvent } from 'react';
+import { Send, Paperclip, FileUp, Trash2, Folder } from 'lucide-react';
 
-type Message = {
-  id: string;
-  content: string;
-  sender: 'user' | 'agent';
-  timestamp: Date;
-  status: 'sending' | 'sent' | 'seen' | 'error';
-};
-
-type UploadedFile = {
-  id: string;
-  name: string;
-  type: string;
-  size: number;
-  url: string;
+interface FileWithPath extends File {
   path?: string;
-};
+  webkitRelativePath: string;
+}
 
 const ChatInterface: React.FC = () => {
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [chatHistory, setChatHistory] = useState<Array<{type: 'user' | 'ai', content: string}>>([
+    { type: 'ai', content: 'Hello! I am your AI assistant. How can I help you today?' },
+  ]);
   const [isDragging, setIsDragging] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<FileWithPath[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!message.trim() && uploadedFiles.length === 0) return;
-
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      content: message,
-      sender: 'user',
-      timestamp: new Date(),
-      status: 'sending',
-    };
-
-    setMessages([...messages, newMessage]);
+  const handleSendMessage = () => {
+    if (message.trim() === '' && uploadedFiles.length === 0) return;
+    
+    // Add user message to chat
+    const updatedHistory = [...chatHistory, { type: 'user', content: message }];
+    setChatHistory(updatedHistory);
+    
+    // Clear input field
     setMessage('');
-    setUploadedFiles([]);
     
+    // Simulate AI response
     setTimeout(() => {
-      setMessages(prev => 
-        prev.map(msg => msg.id === newMessage.id ? {...msg, status: 'sent'} : msg)
-      );
+      let responseContent = 'I\'ve received your message.';
       
-      // Simulate agent typing
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        const agentResponse: Message = {
-          id: (Date.now() + 1).toString(),
-          content: 'I received your message and files. How else can I assist you today?',
-          sender: 'agent',
-          timestamp: new Date(),
-          status: 'sent',
-        };
-        setMessages(prev => [...prev, agentResponse]);
-        scrollToBottom();
-      }, 2000);
+      if (uploadedFiles.length > 0) {
+        const fileNames = uploadedFiles.map(file => {
+          if (file.webkitRelativePath) {
+            return file.webkitRelativePath;
+          }
+          return file.name;
+        }).join(', ');
+        responseContent += ` I've also processed the following files: ${fileNames}`;
+      }
+      
+      setChatHistory(prev => [...prev, { type: 'ai', content: responseContent }]);
+      
+      // Clear uploaded files after sending
+      setUploadedFiles([]);
     }, 1000);
-
-    scrollToBottom();
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-    processFiles(Array.from(files));
-  };
-
-  const handleFolderUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-    
-    const fileArray = Array.from(files);
-    
-    // Process folder structure
-    const processedFiles = fileArray.map(file => {
-      // The webkitRelativePath property contains the file path relative to the selected folder
-      const path = file.webkitRelativePath;
-      return {
-        file,
-        path
-      };
-    });
-    
-    // Group files by folder for display purposes
-    const folderStructure = processedFiles.reduce((acc, { file, path }) => {
-      const folderPath = path.split('/')[0]; // Get top-level folder
-      return {
-        ...acc,
-        [folderPath]: [...(acc[folderPath] || []), file]
-      };
-    }, {} as Record<string, File[]>);
-    
-    // Show toast with folder info
-    const folderCount = Object.keys(folderStructure).length;
-    const fileCount = fileArray.length;
-    
-    toast({
-      title: "Folder Upload",
-      description: `${folderCount} folder(s) with ${fileCount} files selected`,
-    });
-    
-    // Process all files normally
-    processFiles(fileArray, true);
-  };
-
-  const processFiles = (files: File[], fromFolder = false) => {
-    const allowedTypes = [
-      'application/pdf', 
-      'text/plain', 
-      'text/csv', 
-      'image/jpeg', 
-      'image/png', 
-      'image/gif',
-      'text/markdown',
-      'text/x-typescript',
-      'text/javascript',
-      'application/json'
-    ];
-    
-    const validFiles = files.filter(file => allowedTypes.includes(file.type));
-    
-    if (validFiles.length !== files.length) {
-      toast({
-        title: "Unsupported file type",
-        description: "Some files were not uploaded because they are not supported.",
-        variant: "destructive",
-      });
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
-    
-    const newFiles = validFiles.map(file => {
-      const path = fromFolder && 'webkitRelativePath' in file ? file.webkitRelativePath : undefined;
-      return {
-        id: Date.now().toString() + file.name,
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        url: URL.createObjectURL(file),
-        path
-      };
-    });
-    
-    setUploadedFiles(prev => [...prev, ...newFiles]);
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const filesArray = Array.from(e.target.files) as FileWithPath[];
+      setUploadedFiles(prev => [...prev, ...filesArray]);
+    }
+  };
+
+  const handleFolderUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const filesArray = Array.from(e.target.files) as FileWithPath[];
+      setUploadedFiles(prev => [...prev, ...filesArray]);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
   };
@@ -167,179 +79,153 @@ const ChatInterface: React.FC = () => {
     setIsDragging(false);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     
-    if (e.dataTransfer.files) {
-      processFiles(Array.from(e.dataTransfer.files));
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const filesArray = Array.from(e.dataTransfer.files) as FileWithPath[];
+      setUploadedFiles(prev => [...prev, ...filesArray]);
     }
   };
 
-  const openFileDialog = () => {
-    fileInputRef.current?.click();
-  };
-  
-  const openFolderDialog = () => {
-    folderInputRef.current?.click();
-  };
-  
-  const removeFile = (id: string) => {
-    setUploadedFiles(files => files.filter(file => file.id !== id));
+  const removeFile = (index: number) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const getFileIcon = (fileType: string) => {
-    if (fileType.includes('image')) return <Image className="w-4 h-4" />;
-    if (fileType.includes('pdf')) return <FileText className="w-4 h-4" />;
-    if (fileType.includes('csv')) return <FileSpreadsheet className="w-4 h-4" />;
-    if (fileType.includes('javascript') || fileType.includes('typescript') || fileType.includes('json')) 
-      return <Code className="w-4 h-4" />;
-    return <FileText className="w-4 h-4" />;
+  const handleOpenFileDialog = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleOpenFolderDialog = () => {
+    if (folderInputRef.current) {
+      folderInputRef.current.click();
+    }
   };
 
   return (
-    <div className="flex flex-col h-full bg-dark-accent rounded-lg border border-white/10 overflow-hidden">
-      <div className="p-4 border-b border-white/10">
-        <h2 className="text-lg font-medium">Chat with AI Assistant</h2>
-        <p className="text-sm text-gray-400">Upload files or type your message below</p>
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold">Chat Interface</h2>
+        <div className="text-sm text-gray-400">
+          Connected to AI Agent
+        </div>
       </div>
-
+      
       <div 
-        className="flex-1 overflow-y-auto p-4 space-y-4"
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto mb-4 pr-2 space-y-4"
+      >
+        {chatHistory.map((chat, index) => (
+          <div 
+            key={index} 
+            className={`flex ${chat.type === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div 
+              className={`max-w-[80%] p-3 rounded-lg ${
+                chat.type === 'user' 
+                  ? 'bg-purple text-white rounded-tr-none' 
+                  : 'bg-dark-accent text-white rounded-tl-none'
+              }`}
+            >
+              <p className="whitespace-pre-wrap">{chat.content}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {uploadedFiles.length > 0 && (
+        <div className="mb-4 p-2 bg-dark-accent rounded-lg border border-white/10">
+          <div className="text-xs font-medium mb-2">Uploaded Files:</div>
+          <div className="max-h-24 overflow-y-auto">
+            {uploadedFiles.map((file, index) => (
+              <div key={index} className="flex items-center justify-between py-1 px-2 text-sm">
+                <div className="truncate flex-1">
+                  {file.webkitRelativePath ? file.webkitRelativePath : file.name}
+                </div>
+                <button 
+                  onClick={() => removeFile(index)}
+                  className="ml-2 text-gray-400 hover:text-red-500"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      <div 
+        className={`p-1 border rounded-lg transition-colors ${
+          isDragging 
+            ? 'border-purple bg-purple/10' 
+            : 'border-white/10 bg-dark'
+        }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
         {isDragging && (
-          <div className="absolute inset-0 bg-purple/10 border-2 border-dashed border-purple rounded-lg flex items-center justify-center z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-dark/80 rounded-lg z-10">
             <div className="text-center">
-              <p className="text-xl font-semibold text-purple">Drop files to upload</p>
-              <p className="text-sm text-gray-400">Supported formats: PDF, CSV, TXT, Images, Markdown, Code files</p>
-            </div>
-          </div>
-        )}
-
-        {messages.map((msg) => (
-          <div 
-            key={msg.id} 
-            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div 
-              className={`max-w-[80%] rounded-lg p-3 ${
-                msg.sender === 'user' 
-                  ? 'bg-purple text-white rounded-tr-none' 
-                  : 'bg-dark border border-white/10 text-white rounded-tl-none'
-              }`}
-            >
-              <div className="text-sm">{msg.content}</div>
-              <div className="text-xs mt-1 flex justify-end items-center">
-                {msg.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                {msg.sender === 'user' && (
-                  <span className="ml-1">
-                    {msg.status === 'sending' && <span className="opacity-50">Sending...</span>}
-                    {msg.status === 'sent' && <span className="opacity-50">Sent</span>}
-                    {msg.status === 'seen' && <span className="opacity-50">Seen</span>}
-                    {msg.status === 'error' && <span className="text-red-500">Error</span>}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {isTyping && (
-          <div className="flex justify-start">
-            <div className="bg-dark border border-white/10 text-white rounded-lg rounded-tl-none p-3">
-              <div className="flex space-x-1">
-                <div className="w-2 h-2 rounded-full bg-white/50 animate-pulse"></div>
-                <div className="w-2 h-2 rounded-full bg-white/50 animate-pulse delay-100"></div>
-                <div className="w-2 h-2 rounded-full bg-white/50 animate-pulse delay-200"></div>
-              </div>
+              <FileUp className="w-8 h-8 mx-auto mb-2 text-purple" />
+              <p className="text-white">Drop files to upload</p>
             </div>
           </div>
         )}
         
-        <div ref={messagesEndRef} />
-      </div>
-
-      {uploadedFiles.length > 0 && (
-        <div className="px-4 py-2 border-t border-white/10 bg-dark/50 flex flex-wrap gap-2">
-          {uploadedFiles.map(file => (
-            <div key={file.id} className="flex items-center bg-dark border border-white/10 rounded px-2 py-1 text-xs">
-              {getFileIcon(file.type)}
-              <span className="ml-1 mr-2 max-w-[150px] truncate">
-                {file.path ? `${file.path.split('/')[0]}/.../${file.name}` : file.name}
-              </span>
-              <button onClick={() => removeFile(file.id)} className="text-gray-400 hover:text-white">
-                <FileX className="w-3 h-3" />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <form onSubmit={handleSendMessage} className="p-4 border-t border-white/10">
-        <div className="flex items-center">
-          <div className="flex">
-            <button 
-              type="button" 
-              onClick={openFileDialog}
-              className="p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
-              title="Upload Files"
-            >
-              <PaperclipIcon className="w-5 h-5" />
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleFileUpload} 
-                className="hidden" 
-                multiple 
-                accept=".pdf,.csv,.txt,.jpg,.jpeg,.png,.gif,.md,.ts,.js,.json"
-              />
-            </button>
-            
-            <button 
-              type="button" 
-              onClick={openFolderDialog}
-              className="p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
-              title="Upload Folder"
-            >
-              <Folder className="w-5 h-5" />
-              <input 
-                type="file" 
-                ref={folderInputRef} 
-                onChange={handleFolderUpload} 
-                className="hidden" 
-                multiple 
-                webkitdirectory="true"
-              />
-            </button>
-          </div>
-          
+        <div className="flex items-center gap-2 p-2">
+          <button 
+            className="text-gray-400 hover:text-white"
+            onClick={handleOpenFileDialog}
+          >
+            <Paperclip className="w-5 h-5" />
+          </button>
+          <button 
+            className="text-gray-400 hover:text-white"
+            onClick={handleOpenFolderDialog}
+          >
+            <Folder className="w-5 h-5" />
+          </button>
           <input
-            type="text"
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            multiple
+          />
+          <input
+            type="file"
+            ref={folderInputRef}
+            onChange={handleFolderUpload}
+            className="hidden"
+            multiple
+            directory=""
+            webkitdirectory=""
+          />
+          <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyPress}
             placeholder="Type your message..."
-            className="flex-1 bg-dark border border-white/10 rounded-md px-4 py-2 mx-2 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-purple"
+            className="flex-1 bg-transparent border-none outline-none resize-none max-h-32 text-white placeholder-gray-500"
+            rows={1}
           />
-          
           <button 
-            type="button" 
-            className="p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-colors mr-1"
+            className={`p-2 rounded-full ${
+              message.trim() || uploadedFiles.length > 0
+                ? 'bg-purple text-white' 
+                : 'bg-gray-700 text-gray-400'
+            }`}
+            onClick={handleSendMessage}
+            disabled={message.trim() === '' && uploadedFiles.length === 0}
           >
-            <Mic className="w-5 h-5" />
-          </button>
-          
-          <button
-            type="submit"
-            className="bg-purple hover:bg-purple/80 text-white rounded-full p-2 transition-colors"
-            disabled={!message.trim() && uploadedFiles.length === 0}
-          >
-            <SendIcon className="w-5 h-5" />
+            <Send className="w-4 h-4" />
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };
