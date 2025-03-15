@@ -241,3 +241,169 @@ export const updateMetricsFromGoals = async () => {
   if (error) throw error;
   return data;
 };
+
+// Task Management Services
+export const getTasks = async (projectId: string) => {
+  const { data, error } = await supabase
+    .from('tasks')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('created_at', { ascending: false });
+    
+  if (error) throw error;
+  return data || [];
+};
+
+export const createTask = async (task: {
+  project_id: string;
+  title: string;
+  description?: string;
+  status?: string;
+  priority?: string;
+  due_date?: string | null;
+  assigned_to?: string | null;
+}) => {
+  const { data, error } = await supabase
+    .from('tasks')
+    .insert(task)
+    .select()
+    .single();
+    
+  if (error) {
+    // For testing purposes, return mock data if table doesn't exist
+    if (error.code === "42P01") { // relation "tasks" does not exist
+      console.warn("Tasks table doesn't exist, returning mock data");
+      return {
+        id: `mock-${Date.now()}`,
+        ...task,
+        created_at: new Date().toISOString()
+      };
+    }
+    throw error;
+  }
+  return data;
+};
+
+export const updateTaskStatus = async (taskId: string, status: string) => {
+  const { data, error } = await supabase
+    .from('tasks')
+    .update({ status })
+    .eq('id', taskId)
+    .select()
+    .single();
+    
+  if (error) {
+    // For testing purposes, return mock data if table doesn't exist
+    if (error.code === "42P01") { // relation "tasks" does not exist
+      console.warn("Tasks table doesn't exist, returning mock data");
+      return {
+        id: taskId,
+        status,
+        updated_at: new Date().toISOString()
+      };
+    }
+    throw error;
+  }
+  return data;
+};
+
+// Efficiency Analysis Services
+export const getProjectEfficiency = async (projectId: string) => {
+  // In a real implementation, this would call the database
+  // For now, return mock data for demonstration
+  return {
+    completionRate: 78,
+    resourceUtilization: 85,
+    avgTaskDuration: 3.5
+  };
+};
+
+export const getTasksCompletionRate = async (projectId: string) => {
+  // In a real implementation, this would calculate from tasks table
+  // For now, return mock data for demonstration
+  return {
+    rate: 78,
+    total: 50,
+    completed: 39
+  };
+};
+
+// Alert System Services
+export const getProjectAlerts = async (projectId: string) => {
+  const { data, error } = await supabase
+    .from('alerts')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('created_at', { ascending: false });
+    
+  if (error) {
+    // For testing purposes, return mock data if table doesn't exist
+    if (error.code === "42P01") { // relation "alerts" does not exist
+      console.warn("Alerts table doesn't exist, returning mock data");
+      // Return an empty array - the component will generate mock data
+      return [];
+    }
+    throw error;
+  }
+  return data || [];
+};
+
+export const dismissAlert = async (alertId: string) => {
+  const { data, error } = await supabase
+    .from('alerts')
+    .update({ is_read: true })
+    .eq('id', alertId)
+    .select()
+    .single();
+    
+  if (error) {
+    // For testing purposes, return mock data if table doesn't exist
+    if (error.code === "42P01") { // relation "alerts" does not exist
+      console.warn("Alerts table doesn't exist, returning mock data");
+      return {
+        id: alertId,
+        is_read: true,
+        updated_at: new Date().toISOString()
+      };
+    }
+    throw error;
+  }
+  return data;
+};
+
+// Task Prioritization Services
+export const getPrioritizedTasks = async (projectId: string) => {
+  const { data, error } = await supabase
+    .from('prioritized_tasks')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('priority_score', { ascending: false });
+    
+  if (error) {
+    // For testing purposes, return mock data if table doesn't exist
+    if (error.code === "42P01") { // relation "prioritized_tasks" does not exist
+      console.warn("Prioritized tasks table doesn't exist, returning mock data");
+      // Return an empty array - the component will generate mock data
+      return [];
+    }
+    throw error;
+  }
+  return data || [];
+};
+
+export const setPriorityFactors = async (projectId: string, factors: {
+  deadline: number;
+  impact: number;
+  effort: number;
+  complexity: number;
+  dependencies: number;
+}) => {
+  // In a real implementation, this would update the priority factors in the database
+  // For now, just log and return mock success data
+  console.log('Setting priority factors for project', projectId, factors);
+  return {
+    success: true,
+    projectId,
+    factors
+  };
+};

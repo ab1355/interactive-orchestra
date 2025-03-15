@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { LineChart, Line, AreaChart, Area, BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChartContainer, ChartTooltip } from '@/components/ui/chart';
+import { Badge } from '@/components/ui/badge';
 import { getProjectEfficiency, getTasksCompletionRate } from '@/integrations/supabase/client';
 
 interface EfficiencyData {
