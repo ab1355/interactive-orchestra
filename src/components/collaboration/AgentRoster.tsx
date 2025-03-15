@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Users, Plus } from 'lucide-react';
+import { Users, Plus, Router } from 'lucide-react';
 import AgentCard from './AgentCard';
 
 const agents = [
@@ -46,10 +46,16 @@ const AgentRoster: React.FC = () => {
           <Users className="w-5 h-5 mr-2" />
           Agent Roster
         </h2>
-        <button className="bg-purple hover:bg-purple/80 text-white py-1 px-3 rounded text-sm flex items-center">
-          <Plus className="w-4 h-4 mr-1" />
-          Add Agent
-        </button>
+        <div className="flex gap-2">
+          <div className="bg-purple/10 text-purple py-1 px-3 rounded text-sm flex items-center">
+            <Router className="w-4 h-4 mr-1" />
+            Dynamic Routing Active
+          </div>
+          <button className="bg-purple hover:bg-purple/80 text-white py-1 px-3 rounded text-sm flex items-center">
+            <Plus className="w-4 h-4 mr-1" />
+            Add Agent
+          </button>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
