@@ -1,9 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Router, Check, AlertCircle, ArrowUp, ArrowDown } from 'lucide-react';
+import { Router, Check, AlertCircle, ArrowUp, ArrowDown, Square, PlusCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAgentCommunication } from '@/hooks/useAgentCommunication';
 
 interface RoutedTask {
@@ -11,8 +16,9 @@ interface RoutedTask {
   name: string;
   complexity: 'low' | 'medium' | 'high';
   priority: number;
-  status: 'routed' | 'pending' | 'failed';
+  status: 'routed' | 'pending' | 'failed' | 'stopped';
   agentId?: string;
+  description?: string;
 }
 
 const TaskRouter: React.FC = () => {
@@ -23,6 +29,17 @@ const TaskRouter: React.FC = () => {
     { id: 'task-4', name: 'Competitor research', complexity: 'high', priority: 9, status: 'routed', agentId: 'research-agent' },
   ]);
   
+  const [showAddTask, setShowAddTask] = useState(false);
+  const [showAssignTask, setShowAssignTask] = useState(false);
+  const [currentTask, setCurrentTask] = useState<RoutedTask | null>(null);
+  const [newTask, setNewTask] = useState<Partial<RoutedTask>>({
+    name: '',
+    description: '',
+    complexity: 'medium',
+    priority: 5
+  });
+  const [selectedAgent, setSelectedAgent] = useState('');
+  
   const { toast } = useToast();
   
   // Example of using the agent communication hook - connecting to the router agent
@@ -31,6 +48,15 @@ const TaskRouter: React.FC = () => {
     agentRole: 'manager',
     channels: ['direct', 'broadcast', 'priority']
   });
+
+  // Available agents for assignment
+  const availableAgents = [
+    { id: 'research-agent', name: 'Research Agent' },
+    { id: 'analysis-agent', name: 'Analysis Agent' },
+    { id: 'data-agent', name: 'Data Agent' },
+    { id: 'writer-agent', name: 'Writer Agent' },
+    { id: 'specialist-agent', name: 'Specialist Agent' }
+  ];
 
   // Simulate task routing
   const routeNewTask = () => {
@@ -85,6 +111,158 @@ const TaskRouter: React.FC = () => {
     }, 1500);
   };
 
+  const handleAddTask = () => {
+    if (!newTask.name) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide a name for the task",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const taskId = `task-${Date.now()}`;
+    const createdTask: RoutedTask = {
+      id: taskId,
+      name: newTask.name,
+      description: newTask.description,
+      complexity: newTask.complexity as 'low' | 'medium' | 'high' || 'medium',
+      priority: newTask.priority || 5,
+      status: 'pending'
+    };
+
+    setRoutedTasks(prev => [createdTask, ...prev]);
+    setNewTask({
+      name: '',
+      description: '',
+      complexity: 'medium',
+      priority: 5
+    });
+    setShowAddTask(false);
+
+    toast({
+      title: "Task Added",
+      description: `Task "${createdTask.name}" has been added with priority ${createdTask.priority}`,
+      variant: "default",
+    });
+
+    // Simulate proposals for the new task after a delay
+    setTimeout(() => {
+      simulateProposals(taskId);
+    }, 2000);
+  };
+
+  const handleAssignTask = () => {
+    if (!currentTask || !selectedAgent) {
+      toast({
+        title: "Missing Information",
+        description: "Please select both a task and an agent",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setRoutedTasks(prev => 
+      prev.map(task => 
+        task.id === currentTask.id ? { ...task, status: 'routed', agentId: selectedAgent } : task
+      )
+    );
+
+    // Send a message about the assignment
+    sendMessage(`Task "${currentTask.name}" manually assigned to you`, {
+      recipientId: selectedAgent,
+      priority: currentTask.priority,
+      channel: 'direct'
+    });
+
+    toast({
+      title: "Task Assigned",
+      description: `Task "${currentTask.name}" has been assigned to ${selectedAgent}`,
+      variant: "default",
+    });
+
+    setShowAssignTask(false);
+    setCurrentTask(null);
+    setSelectedAgent('');
+
+    // Simulate proposals from the assigned agent
+    setTimeout(() => {
+      simulateProposalFromAgent(currentTask.id, selectedAgent);
+    }, 1500);
+  };
+
+  const simulateProposals = (taskId: string) => {
+    // Simulate 1-3 agents making proposals
+    const numProposals = 1 + Math.floor(Math.random() * 3);
+    const possibleAgents = [...availableAgents];
+    
+    for (let i = 0; i < numProposals; i++) {
+      if (possibleAgents.length === 0) break;
+      
+      const agentIndex = Math.floor(Math.random() * possibleAgents.length);
+      const agent = possibleAgents.splice(agentIndex, 1)[0];
+      
+      // Add delay between proposals
+      setTimeout(() => {
+        simulateProposalFromAgent(taskId, agent.id);
+      }, 800 * (i + 1));
+    }
+  };
+
+  const simulateProposalFromAgent = (taskId: string, agentId: string) => {
+    const task = routedTasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    const agent = availableAgents.find(a => a.id === agentId);
+    if (!agent) return;
+
+    toast({
+      title: "New Proposal",
+      description: `${agent.name} has submitted a proposal for task "${task.name}"`,
+      variant: "default",
+    });
+
+    // Send a message about the proposal
+    sendMessage(`I've submitted a proposal for task "${task.name}" with ${70 + Math.floor(Math.random() * 30)}% confidence`, {
+      senderId: agentId,
+      senderRole: agent.name,
+      channel: 'broadcast',
+      priority: 5
+    });
+  };
+
+  const stopTask = (taskId: string) => {
+    const task = routedTasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    setRoutedTasks(prev => 
+      prev.map(t => 
+        t.id === taskId ? { ...t, status: 'stopped', agentId: undefined } : t
+      )
+    );
+
+    if (task.agentId) {
+      // Notify the agent that the task was stopped
+      sendMessage(`Task "${task.name}" has been stopped by the manager`, {
+        recipientId: task.agentId,
+        priority: 8,
+        channel: 'priority'
+      });
+    }
+
+    toast({
+      title: "Task Stopped",
+      description: `Task "${task.name}" has been stopped and unassigned`,
+      variant: "destructive",
+    });
+  };
+
+  const openAssignDialog = (task: RoutedTask) => {
+    setCurrentTask(task);
+    setSelectedAgent(task.agentId || '');
+    setShowAssignTask(true);
+  };
+
   const priorityLabel = (priority: number) => {
     if (priority >= 9) return { label: "Critical", color: "text-red-400 border-red-500" };
     if (priority >= 7) return { label: "High", color: "text-orange-400 border-orange-500" };
@@ -99,12 +277,21 @@ const TaskRouter: React.FC = () => {
           <Router className="h-5 w-5 text-purple" />
           Task Router
         </CardTitle>
-        <button 
-          onClick={routeNewTask}
-          className="bg-purple/20 hover:bg-purple/30 text-white px-3 py-1 rounded-md text-sm flex items-center"
-        >
-          Route New Task
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setShowAddTask(true)}
+            className="bg-green-500/20 hover:bg-green-500/30 text-white px-3 py-1 rounded-md text-sm flex items-center"
+          >
+            <PlusCircle className="w-4 h-4 mr-1" />
+            Add Task
+          </button>
+          <button 
+            onClick={routeNewTask}
+            className="bg-purple/20 hover:bg-purple/30 text-white px-3 py-1 rounded-md text-sm flex items-center"
+          >
+            Route New Task
+          </button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -115,6 +302,7 @@ const TaskRouter: React.FC = () => {
               <span className="text-gray-400 w-24 text-center">Priority</span>
               <span className="text-gray-400 w-24 text-center">Status</span>
               <span className="text-gray-400 w-32 text-center">Assigned Agent</span>
+              <span className="text-gray-400 w-24 text-center">Actions</span>
             </div>
           </div>
           
@@ -124,7 +312,12 @@ const TaskRouter: React.FC = () => {
             <div className="space-y-2 max-h-[300px] overflow-y-auto">
               {routedTasks.map(task => (
                 <div key={task.id} className="flex justify-between items-center bg-dark/60 p-3 rounded-md border border-white/5">
-                  <span className="text-white text-sm font-medium">{task.name}</span>
+                  <div>
+                    <span className="text-white text-sm font-medium">{task.name}</span>
+                    {task.description && (
+                      <p className="text-gray-400 text-xs mt-1">{task.description}</p>
+                    )}
+                  </div>
                   <div className="flex gap-4">
                     <Badge variant="outline" className={
                       task.complexity === 'high' 
@@ -149,6 +342,10 @@ const TaskRouter: React.FC = () => {
                         </span>
                       ) : task.status === 'pending' ? (
                         <span className="text-yellow-400 text-xs">Pending</span>
+                      ) : task.status === 'stopped' ? (
+                        <span className="text-red-400 flex items-center justify-center gap-1 text-xs">
+                          <Square className="h-3 w-3" /> Stopped
+                        </span>
                       ) : (
                         <span className="text-red-400 flex items-center justify-center gap-1 text-xs">
                           <AlertCircle className="h-3 w-3" /> Failed
@@ -162,12 +359,142 @@ const TaskRouter: React.FC = () => {
                         <span className="text-gray-500 text-xs">-</span>
                       )}
                     </div>
+                    <div className="w-24 flex justify-center gap-1">
+                      {task.status !== 'stopped' && (
+                        <>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 px-2 text-xs"
+                            onClick={() => openAssignDialog(task)}
+                          >
+                            Assign
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-7 px-2 text-red-400 hover:text-red-300 text-xs"
+                            onClick={() => stopTask(task.id)}
+                          >
+                            Stop
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
+
+        {/* Add Task Dialog */}
+        <Dialog open={showAddTask} onOpenChange={setShowAddTask}>
+          <DialogContent className="sm:max-w-[425px] bg-dark-accent border-white/10">
+            <DialogHeader>
+              <DialogTitle>Add New Task</DialogTitle>
+              <DialogDescription>
+                Create a new task to be routed to agents
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="task-name" className="text-right">
+                  Name
+                </label>
+                <Input
+                  id="task-name"
+                  value={newTask.name}
+                  onChange={(e) => setNewTask({...newTask, name: e.target.value})}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="task-description" className="text-right">
+                  Description
+                </label>
+                <Textarea
+                  id="task-description"
+                  value={newTask.description}
+                  onChange={(e) => setNewTask({...newTask, description: e.target.value})}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="task-complexity" className="text-right">
+                  Complexity
+                </label>
+                <Select
+                  value={newTask.complexity as string}
+                  onValueChange={(value) => setNewTask({...newTask, complexity: value as 'low' | 'medium' | 'high'})}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select complexity" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="task-priority" className="text-right">
+                  Priority (1-10)
+                </label>
+                <Input
+                  id="task-priority"
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={newTask.priority}
+                  onChange={(e) => setNewTask({...newTask, priority: parseInt(e.target.value)})}
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowAddTask(false)}>Cancel</Button>
+              <Button onClick={handleAddTask}>Add Task</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Assign Task Dialog */}
+        <Dialog open={showAssignTask} onOpenChange={setShowAssignTask}>
+          <DialogContent className="sm:max-w-[425px] bg-dark-accent border-white/10">
+            <DialogHeader>
+              <DialogTitle>Assign Task</DialogTitle>
+              <DialogDescription>
+                {currentTask ? `Assign "${currentTask.name}" to an agent` : 'Assign task to an agent'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="agent-select" className="text-right">
+                  Agent
+                </label>
+                <Select
+                  value={selectedAgent}
+                  onValueChange={setSelectedAgent}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select an agent" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableAgents.map(agent => (
+                      <SelectItem key={agent.id} value={agent.id}>{agent.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowAssignTask(false)}>Cancel</Button>
+              <Button onClick={handleAssignTask}>Assign</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );

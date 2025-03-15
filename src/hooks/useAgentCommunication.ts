@@ -1,121 +1,153 @@
-import { useState, useEffect, useRef } from 'react';
-import { agentCommunication, AgentMessage, CommunicationChannel, AgentRole } from '@/services/agentCommunication';
 
-interface UseAgentCommunicationProps {
+import { useState, useEffect } from 'react';
+import { agentCommunication } from '@/services/agentCommunication';
+
+interface UseAgentCommunicationOptions {
   agentId: string;
-  agentRole: AgentRole;
-  channels?: CommunicationChannel[];
+  agentRole?: string;
+  channels?: ('direct' | 'broadcast' | 'priority')[];
+  priorityThreshold?: number;
 }
 
-export function useAgentCommunication({
-  agentId,
-  agentRole,
-  channels = ['direct', 'broadcast']
-}: UseAgentCommunicationProps) {
-  const [messages, setMessages] = useState<AgentMessage[]>([]);
+interface Message {
+  id: string;
+  senderId: string;
+  senderRole?: string;
+  recipientId?: string;
+  content: string;
+  channel: string;
+  priority: number;
+  timestamp: Date;
+}
+
+export const useAgentCommunication = (options: UseAgentCommunicationOptions) => {
+  const { agentId, agentRole, channels = ['direct', 'broadcast'], priorityThreshold } = options;
+  
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(true);
-
-  // Keep track of unsubscribe functions
-  const unsubscribeRefs = useRef<(() => void)[]>([]);
-
+  
   useEffect(() => {
-    // Get initial messages
-    const initialMessages = agentCommunication.getMessages({
-      recipientId: agentId,
-    });
-    setMessages(initialMessages);
-
-    // Subscribe to relevant messages
-    const unsubscribeAll = agentCommunication.subscribeToMessages((message) => {
-      setMessages(prev => {
-        const exists = prev.some(m => m.id === message.id);
-        if (exists) return prev;
-        return [message, ...prev].sort((a, b) => {
-          if (a.priority !== b.priority) {
-            return b.priority - a.priority;
+    // Subscribe to messages for this agent
+    const unsubscribe = agentCommunication.subscribeToMessages((message) => {
+      // Only process messages intended for this agent or broadcast messages
+      if (
+        message.channel === 'broadcast' || 
+        message.recipientId === agentId || 
+        message.channel === 'priority'
+      ) {
+        setMessages(prev => [
+          ...prev, 
+          {
+            id: Date.now().toString(),
+            senderId: message.senderId || 'unknown',
+            senderRole: message.senderRole,
+            recipientId: message.recipientId,
+            content: message.content,
+            channel: message.channel || 'broadcast',
+            priority: message.priority || 3,
+            timestamp: new Date()
           }
-          return b.timestamp.getTime() - a.timestamp.getTime();
-        });
-      });
+        ]);
+      }
     }, {
-      recipientId: agentId
+      recipientId: agentId,
+      priority: priorityThreshold
     });
-
-    // Subscribe to each channel separately
-    const channelUnsubscribes = channels.map(channel => 
-      agentCommunication.subscribeToMessages((message) => {
-        setMessages(prev => {
-          const exists = prev.some(m => m.id === message.id);
-          if (exists) return prev;
-          return [message, ...prev].sort((a, b) => {
-            if (a.priority !== b.priority) {
-              return b.priority - a.priority;
+    
+    // Also subscribe to broadcast channel separately if specified
+    const subscriptions = [unsubscribe];
+    
+    if (channels.includes('broadcast')) {
+      const broadcastUnsub = agentCommunication.subscribeToMessages((message) => {
+        if (message.senderId !== agentId) { // Don't process own broadcast messages
+          setMessages(prev => [
+            ...prev, 
+            {
+              id: Date.now().toString(),
+              senderId: message.senderId || 'unknown',
+              senderRole: message.senderRole,
+              content: message.content,
+              channel: 'broadcast',
+              priority: message.priority || 3,
+              timestamp: new Date()
             }
-            return b.timestamp.getTime() - a.timestamp.getTime();
-          });
-        });
-      }, { channel })
-    );
-
-    // Store all unsubscribe functions
-    unsubscribeRefs.current = [unsubscribeAll, ...channelUnsubscribes];
-
-    return () => {
-      // Cleanup all subscriptions
-      unsubscribeRefs.current.forEach(unsubscribe => unsubscribe());
-    };
-  }, [agentId, channels]);
-
-  // Send a new message
-  const sendMessage = async (
-    content: string,
-    options: {
-      recipientId?: string;
-      channel?: CommunicationChannel;
-      priority?: number;
-      metadata?: Record<string, any>;
-    } = {}
-  ) => {
-    try {
-      const message = await agentCommunication.sendMessage({
-        senderId: agentId,
-        senderRole: agentRole,
-        recipientId: options.recipientId,
-        channel: options.channel || 'direct',
-        content,
-        priority: options.priority || 1,
-        metadata: options.metadata
-      });
+          ]);
+        }
+      }, { channel: 'broadcast' });
       
-      return message;
-    } catch (error) {
-      console.error('Failed to send message:', error);
-      return null;
+      subscriptions.push(broadcastUnsub);
     }
-  };
-
-  // Send a priority message - shorthand for high priority messages
-  const sendPriorityMessage = (content: string, recipientId?: string) => {
-    return sendMessage(content, {
+    
+    // Subscribe to priority channel if specified
+    if (channels.includes('priority')) {
+      const priorityUnsub = agentCommunication.subscribeToMessages((message) => {
+        setMessages(prev => [
+          ...prev, 
+          {
+            id: Date.now().toString(),
+            senderId: message.senderId || 'unknown',
+            senderRole: message.senderRole,
+            content: message.content,
+            channel: 'priority',
+            priority: message.priority || 7,
+            timestamp: new Date()
+          }
+        ]);
+      }, { channel: 'priority' });
+      
+      subscriptions.push(priorityUnsub);
+    }
+    
+    // Load message history
+    const history = agentCommunication.getMessageHistory({
+      recipientId: agentId,
+      channel: 'all'
+    });
+    
+    // Convert history to Message format and set initial messages
+    if (history.length > 0) {
+      setMessages(history.map(msg => ({
+        id: msg.timestamp ? new Date(msg.timestamp).getTime().toString() : Date.now().toString(),
+        senderId: msg.senderId || 'unknown',
+        senderRole: msg.senderRole,
+        recipientId: msg.recipientId,
+        content: msg.content,
+        channel: msg.channel || 'broadcast',
+        priority: msg.priority || 3,
+        timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date()
+      })));
+    }
+    
+    // Return cleanup function
+    return () => {
+      subscriptions.forEach(unsub => unsub());
+    };
+  }, [agentId, agentRole, channels, priorityThreshold]);
+  
+  const sendMessage = (content: string, options: {
+    recipientId?: string;
+    channel?: 'direct' | 'broadcast' | 'priority';
+    priority?: number;
+    metadata?: Record<string, any>;
+  } = {}) => {
+    const { recipientId, channel = 'direct', priority = 3, metadata } = options;
+    
+    return agentCommunication.sendMessage({
+      senderId: agentId,
+      senderRole: agentRole,
       recipientId,
-      channel: 'priority',
-      priority: 10
+      content,
+      channel,
+      priority,
+      metadata
     });
   };
-
-  // Broadcast to all agents
-  const broadcastMessage = (content: string, priority: number = 5) => {
-    return sendMessage(content, {
-      channel: 'broadcast',
-      priority
-    });
-  };
-
+  
   return {
     messages,
-    isConnected,
     sendMessage,
-    sendPriorityMessage,
-    broadcastMessage
+    isConnected
   };
-}
+};
+
+export default useAgentCommunication;
