@@ -8,6 +8,7 @@ import CustomizableAgentBehavior from "./pages/CustomizableAgentBehavior";
 import NotFound from "./pages/NotFound";
 import ElevateSystem from "./pages/ElevateSystem";
 import DiscoverSystem from "./pages/DiscoverSystem";
+import SpaceSystem from "./pages/SpaceSystem";
 
 import "./App.css";
 
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
   {
     path: "/discover-system",
     element: <DiscoverSystem />,
+  },
+  {
+    path: "/space-system",
+    element: <SpaceSystem />,
   },
 ]);
 

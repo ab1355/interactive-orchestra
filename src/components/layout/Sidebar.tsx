@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -11,7 +12,8 @@ import {
   Menu, 
   X,
   UserCheck,
-  Lightbulb
+  Lightbulb,
+  Target
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -47,6 +49,7 @@ const Sidebar = () => {
     { path: '/customizable-agent-behavior', label: 'Agent Behavior', icon: <Settings className="w-5 h-5" /> },
     { path: '/elevate-system', label: 'ELEVATE System', icon: <UserCheck className="w-5 h-5" /> },
     { path: '/discover-system', label: 'DISCOVER System', icon: <Lightbulb className="w-5 h-5" /> },
+    { path: '/space-system', label: 'SPACE System', icon: <Target className="w-5 h-5" /> },
   ];
 
   return (
