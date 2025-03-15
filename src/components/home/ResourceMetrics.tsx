@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { CpuIcon, MemoryStick, Database, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 
 const ResourceMetrics: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -31,7 +32,7 @@ const ResourceMetrics: React.FC = () => {
               </div>
               <span className="text-sm font-semibold">42%</span>
             </div>
-            <Progress value={42} className="h-1.5 bg-white/10" indicatorClassName="bg-blue-400" />
+            <Progress value={42} className="h-1.5 bg-white/10" />
           </div>
 
           <div className="bg-dark-accent p-3 rounded-lg border border-white/10">
@@ -42,7 +43,7 @@ const ResourceMetrics: React.FC = () => {
               </div>
               <span className="text-sm font-semibold">1.2/4 GB</span>
             </div>
-            <Progress value={30} className="h-1.5 bg-white/10" indicatorClassName="bg-green-400" />
+            <Progress value={30} className="h-1.5 bg-white/10" />
           </div>
 
           <div className="bg-dark-accent p-3 rounded-lg border border-white/10">
@@ -53,7 +54,7 @@ const ResourceMetrics: React.FC = () => {
               </div>
               <span className="text-sm font-semibold">3.8/10 GB</span>
             </div>
-            <Progress value={38} className="h-1.5 bg-white/10" indicatorClassName="bg-purple" />
+            <Progress value={38} className="h-1.5 bg-white/10" />
           </div>
 
           <div className="bg-dark-accent p-3 rounded-lg border border-white/10">
@@ -64,7 +65,7 @@ const ResourceMetrics: React.FC = () => {
               </div>
               <span className="text-sm font-semibold">3/4</span>
             </div>
-            <Progress value={75} className="h-1.5 bg-white/10" indicatorClassName="bg-yellow-400" />
+            <Progress value={75} className="h-1.5 bg-white/10" />
           </div>
 
           <div className="mt-4">
