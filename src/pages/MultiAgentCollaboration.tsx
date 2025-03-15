@@ -7,12 +7,35 @@ import AgentRoster from '@/components/collaboration/AgentRoster';
 import CommunicationThread from '@/components/collaboration/CommunicationThread';
 import TaskDistributionDashboard from '@/components/collaboration/TaskDistributionDashboard';
 import CollaborationFlowDiagram from '@/components/collaboration/CollaborationFlowDiagram';
+import { agentCommunication } from '@/services/agentCommunication';
+import { toast } from 'sonner';
 
 const MultiAgentCollaboration: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   
   useEffect(() => {
-    setIsLoaded(true);
+    // Simulate loading and setup
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+      
+      // Setup priority message handler to show toast notifications
+      const unsubscribe = agentCommunication.subscribeToMessages((message) => {
+        if (message.channel === 'priority') {
+          toast.warning(`Priority message from ${message.senderRole}: ${message.content}`, {
+            position: 'top-right',
+            duration: 5000,
+          });
+        }
+      }, { channel: 'priority' });
+      
+      // Clean up on unmount
+      return () => {
+        unsubscribe();
+        agentCommunication.cleanup();
+      };
+    }, 800);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   return (
