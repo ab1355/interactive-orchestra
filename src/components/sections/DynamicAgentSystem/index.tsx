@@ -7,6 +7,7 @@ import TeamFormationFramework from './TeamFormationFramework';
 import PodFormationPatterns from './PodFormationPatterns';
 import TeamAssembly from './TeamAssembly';
 import CommunicationStructure from './CommunicationStructure';
+import DecisionFlow from './DecisionFlow';
 
 interface DynamicAgentSystemProps {
   className?: string;
@@ -108,10 +109,13 @@ const DynamicAgentSystem: React.FC<DynamicAgentSystemProps> = ({ className }) =>
           </div>
         </div>
 
-        {/* Team Assembly - New component */}
+        {/* Decision Flow - New component */}
+        <DecisionFlow />
+
+        {/* Team Assembly */}
         <TeamAssembly />
         
-        {/* Communication Structure - New component */}
+        {/* Communication Structure */}
         <CommunicationStructure />
 
         {/* Team Formation Framework */}
