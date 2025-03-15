@@ -14,13 +14,13 @@ export const getProjectAlerts = async (projectId: string): Promise<Alert[]> => {
     if (error) {
       if (error.code === "42P01") { // relation "alerts" does not exist
         console.warn("Alerts table doesn't exist, returning mock data");
-        // Return mock alerts
+        // Return mock alerts with proper type literals
         return [
           {
             id: '1',
             title: 'Resource bottleneck detected',
             description: 'Design team is over-allocated for the next sprint, which might delay project delivery',
-            type: 'critical',
+            type: 'critical' as const,
             created_at: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
             is_read: false,
             source: 'Resource Allocation',
@@ -30,7 +30,7 @@ export const getProjectAlerts = async (projectId: string): Promise<Alert[]> => {
             id: '2',
             title: 'Task deadline approaching',
             description: 'The "Create UI wireframes" task is due in 24 hours with no progress update',
-            type: 'warning',
+            type: 'warning' as const,
             created_at: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
             is_read: false,
             source: 'Task Management',
@@ -40,7 +40,7 @@ export const getProjectAlerts = async (projectId: string): Promise<Alert[]> => {
             id: '3',
             title: 'Performance decline detected',
             description: 'Task completion rate has dropped by 15% in the last week',
-            type: 'warning',
+            type: 'warning' as const,
             created_at: new Date(Date.now() - 1000 * 60 * 360).toISOString(),
             is_read: true,
             source: 'Performance Metrics',
@@ -50,17 +50,22 @@ export const getProjectAlerts = async (projectId: string): Promise<Alert[]> => {
             id: '4',
             title: 'New team member added',
             description: 'Sarah Johnson has been added to the project team',
-            type: 'info',
+            type: 'info' as const,
             created_at: new Date(Date.now() - 1000 * 60 * 720).toISOString(),
             is_read: true,
             source: 'Team Management',
             project_id: projectId,
           }
-        ] as Alert[];
+        ];
       }
       throw error;
     }
-    return data || [];
+    
+    // Ensure data returned from Supabase conforms to our Alert type
+    return (data || []).map(item => ({
+      ...item,
+      type: item.type as "critical" | "warning" | "info"
+    }));
   } catch (error) {
     console.error('Error fetching alerts:', error);
     // Return empty array as fallback
@@ -85,15 +90,20 @@ export const dismissAlert = async (alertId: string): Promise<Alert> => {
           is_read: true,
           title: "Mock Alert",
           description: "",
-          type: "info",
+          type: "info" as const,
           source: "System",
           project_id: "",
           created_at: new Date().toISOString()
-        } as Alert;
+        };
       }
       throw error;
     }
-    return data;
+    
+    // Ensure data returned from Supabase conforms to our Alert type
+    return {
+      ...data,
+      type: data.type as "critical" | "warning" | "info"
+    };
   } catch (error) {
     console.error('Error dismissing alert:', error);
     // Return mock data as fallback
@@ -102,10 +112,10 @@ export const dismissAlert = async (alertId: string): Promise<Alert> => {
       is_read: true,
       title: "Mock Alert",
       description: "",
-      type: "info",
+      type: "info" as const,
       source: "System",
       project_id: "",
       created_at: new Date().toISOString()
-    } as Alert;
+    };
   }
 };
