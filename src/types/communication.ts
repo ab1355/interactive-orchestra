@@ -37,6 +37,8 @@ export interface MessageOptions {
   channel?: CommunicationChannel;
   priority?: number;
   metadata?: Record<string, any>;
+  senderId?: string;
+  senderRole?: string;
 }
 
 export interface CommunicationOptions {
