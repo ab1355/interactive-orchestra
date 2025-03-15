@@ -4,7 +4,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import { ChevronRight, Package, Search, Grid, Filter, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ActionButton } from '@/components/ui/action-button';
-import { tools } from '@/components/integration/ToolData';
+import { tools } from '@/components/integration/ToolData'; // The import will still work
 import ToolGridView from '@/components/integration/ToolGridView';
 import ToolTableView from '@/components/integration/ToolTableView';
 import IntegrationConfiguration from '@/components/integration/IntegrationConfiguration';

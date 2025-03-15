@@ -1,12 +1,12 @@
-
 import React, { useState } from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Star, ExternalLink } from 'lucide-react';
 import IntegrationDialog from './IntegrationDialog';
+import { Tool } from './ToolData';
 
 type ToolTableViewProps = {
-  tools: Array<any>;
+  tools: Tool[];
 };
 
 const ToolTableView: React.FC<ToolTableViewProps> = ({ tools }) => {

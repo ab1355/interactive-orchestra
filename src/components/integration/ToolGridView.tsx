@@ -1,9 +1,10 @@
 
 import React from 'react';
 import ToolCard from './ToolCard';
+import { Tool } from './ToolData';
 
 type ToolGridViewProps = {
-  tools: Array<any>;
+  tools: Tool[];
 };
 
 const ToolGridView: React.FC<ToolGridViewProps> = ({ tools }) => {

@@ -1,24 +1,11 @@
-
 import React, { useState } from 'react';
 import { Star, ExternalLink, Plus, Download, Cloud, Database, Server, HardDrive } from 'lucide-react';
 import { ActionButton } from "@/components/ui/action-button";
 import IntegrationDialog from '@/components/integration/IntegrationDialog';
+import { Tool } from './ToolData';
 
 type ToolProps = {
-  tool: {
-    name: string;
-    description: string;
-    rating: number;
-    downloads: string;
-    color: string;
-    icon: React.ReactNode;
-    category: string;
-    type: string;
-    auth: string;
-    developer: string;
-    docsUrl: string;
-    capabilities: string[];
-  };
+  tool: Tool;
 };
 
 const ToolCard: React.FC<ToolProps> = ({ tool }) => {
