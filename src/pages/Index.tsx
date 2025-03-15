@@ -1,11 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
-import Hero from '@/components/sections/Hero';
-import Features from '@/components/sections/Features';
 import ManagerAgent from '@/components/sections/ManagerAgent';
-import DynamicAgentSystem from '@/components/sections/DynamicAgentSystem';
-import PartnerBanner from '@/components/layout/PartnerBanner';
 
 const Index: React.FC = () => {
   // Animation states for elements
@@ -21,11 +17,7 @@ const Index: React.FC = () => {
       
       <div className="flex-1 flex flex-col overflow-x-hidden">
         <main className={`flex-1 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-          <Hero />
-          <PartnerBanner />
-          <Features />
           <ManagerAgent />
-          <DynamicAgentSystem />
         </main>
       </div>
     </div>
