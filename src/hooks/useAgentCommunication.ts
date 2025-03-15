@@ -115,11 +115,11 @@ export const useAgentCommunication = (options: UseAgentCommunicationOptions) => 
   }, [agentId, agentRole, channels, priorityThreshold]);
   
   const sendMessage = (content: string, options: MessageOptions = {}) => {
-    const { recipientId, channel = 'direct', priority = 3, metadata } = options;
+    const { senderId, senderRole, recipientId, channel = 'direct', priority = 3, metadata } = options;
     
     return agentCommunication.sendMessage({
-      senderId: agentId,
-      senderRole: agentRole,
+      senderId: senderId || agentId,
+      senderRole: senderRole || agentRole,
       recipientId,
       content,
       channel,
