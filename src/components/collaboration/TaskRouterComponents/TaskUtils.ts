@@ -14,9 +14,8 @@ export const simulateProposalFromAgent = (
   const agent = availableAgents.find(a => a.id === agentId);
   if (!agent) return;
 
-  toast({
-    title: "New Proposal",
-    description: `${agent.name} has submitted a proposal for task "${task.name}"`,
+  toast.success(`${agent.name} has submitted a proposal for task "${task.name}"`, {
+    description: `Confidence level: ${70 + Math.floor(Math.random() * 30)}%`
   });
 
   sendMessage(`I've submitted a proposal for task "${task.name}" with ${70 + Math.floor(Math.random() * 30)}% confidence`, {
