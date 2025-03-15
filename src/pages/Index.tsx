@@ -5,14 +5,23 @@ import ChatInterface from '@/components/home/ChatInterface';
 import ResourceMetrics from '@/components/home/ResourceMetrics';
 import ActivityFeed from '@/components/home/ActivityFeed';
 import InteractiveCanvas from '@/components/home/InteractiveCanvas';
+import NewProjectDialog from '@/components/dialogs/NewProjectDialog';
+import SettingsDialog from '@/components/dialogs/SettingsDialog';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
 const Index: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [newProjectOpen, setNewProjectOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
+
+  const handleProjectCreated = () => {
+    // In a real app, we would refresh the project list or navigate to the new project
+    console.log('Project created, refreshing data...');
+  };
 
   return (
     <div className="flex min-h-screen bg-dark text-white overflow-hidden">
@@ -22,10 +31,16 @@ const Index: React.FC = () => {
         <header className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
           <h1 className="text-xl font-semibold">AI Agent Framework</h1>
           <div className="flex items-center space-x-4">
-            <button className="bg-purple/10 text-purple px-3 py-1 rounded-md text-sm hover:bg-purple/20 transition-colors">
+            <button 
+              className="bg-purple/10 text-purple px-3 py-1 rounded-md text-sm hover:bg-purple/20 transition-colors"
+              onClick={() => setNewProjectOpen(true)}
+            >
               New Project
             </button>
-            <button className="bg-dark-accent border border-white/10 px-3 py-1 rounded-md text-sm hover:bg-white/5 transition-colors">
+            <button 
+              className="bg-dark-accent border border-white/10 px-3 py-1 rounded-md text-sm hover:bg-white/5 transition-colors"
+              onClick={() => setSettingsOpen(true)}
+            >
               Settings
             </button>
           </div>
@@ -61,6 +76,17 @@ const Index: React.FC = () => {
           </ResizablePanelGroup>
         </main>
       </div>
+
+      <NewProjectDialog 
+        open={newProjectOpen} 
+        onOpenChange={setNewProjectOpen} 
+        onProjectCreated={handleProjectCreated}
+      />
+      
+      <SettingsDialog 
+        open={settingsOpen} 
+        onOpenChange={setSettingsOpen} 
+      />
     </div>
   );
 };

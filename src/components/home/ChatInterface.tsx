@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { PaperclipIcon, SendIcon, Mic, Image, FileText, FileSpreadsheet, Code, FileX } from 'lucide-react';
+import { PaperclipIcon, SendIcon, Mic, Image, FileText, FileSpreadsheet, Code, FileX, Folder } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 type Message = {
@@ -17,6 +17,7 @@ type UploadedFile = {
   type: string;
   size: number;
   url: string;
+  path?: string;
 };
 
 const ChatInterface: React.FC = () => {
@@ -26,6 +27,7 @@ const ChatInterface: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -79,7 +81,45 @@ const ChatInterface: React.FC = () => {
     processFiles(Array.from(files));
   };
 
-  const processFiles = (files: File[]) => {
+  const handleFolderUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    
+    const fileArray = Array.from(files);
+    
+    // Process folder structure
+    const processedFiles = fileArray.map(file => {
+      // The webkitRelativePath property contains the file path relative to the selected folder
+      const path = file.webkitRelativePath;
+      return {
+        file,
+        path
+      };
+    });
+    
+    // Group files by folder for display purposes
+    const folderStructure = processedFiles.reduce((acc, { file, path }) => {
+      const folderPath = path.split('/')[0]; // Get top-level folder
+      return {
+        ...acc,
+        [folderPath]: [...(acc[folderPath] || []), file]
+      };
+    }, {} as Record<string, File[]>);
+    
+    // Show toast with folder info
+    const folderCount = Object.keys(folderStructure).length;
+    const fileCount = fileArray.length;
+    
+    toast({
+      title: "Folder Upload",
+      description: `${folderCount} folder(s) with ${fileCount} files selected`,
+    });
+    
+    // Process all files normally
+    processFiles(fileArray, true);
+  };
+
+  const processFiles = (files: File[], fromFolder = false) => {
     const allowedTypes = [
       'application/pdf', 
       'text/plain', 
@@ -103,13 +143,17 @@ const ChatInterface: React.FC = () => {
       });
     }
     
-    const newFiles = validFiles.map(file => ({
-      id: Date.now().toString() + file.name,
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      url: URL.createObjectURL(file)
-    }));
+    const newFiles = validFiles.map(file => {
+      const path = fromFolder && 'webkitRelativePath' in file ? file.webkitRelativePath : undefined;
+      return {
+        id: Date.now().toString() + file.name,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        url: URL.createObjectURL(file),
+        path
+      };
+    });
     
     setUploadedFiles(prev => [...prev, ...newFiles]);
   };
@@ -134,6 +178,10 @@ const ChatInterface: React.FC = () => {
 
   const openFileDialog = () => {
     fileInputRef.current?.click();
+  };
+  
+  const openFolderDialog = () => {
+    folderInputRef.current?.click();
   };
   
   const removeFile = (id: string) => {
@@ -219,7 +267,9 @@ const ChatInterface: React.FC = () => {
           {uploadedFiles.map(file => (
             <div key={file.id} className="flex items-center bg-dark border border-white/10 rounded px-2 py-1 text-xs">
               {getFileIcon(file.type)}
-              <span className="ml-1 mr-2 max-w-[150px] truncate">{file.name}</span>
+              <span className="ml-1 mr-2 max-w-[150px] truncate">
+                {file.path ? `${file.path.split('/')[0]}/.../${file.name}` : file.name}
+              </span>
               <button onClick={() => removeFile(file.id)} className="text-gray-400 hover:text-white">
                 <FileX className="w-3 h-3" />
               </button>
@@ -230,21 +280,41 @@ const ChatInterface: React.FC = () => {
 
       <form onSubmit={handleSendMessage} className="p-4 border-t border-white/10">
         <div className="flex items-center">
-          <button 
-            type="button" 
-            onClick={openFileDialog}
-            className="p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
-          >
-            <PaperclipIcon className="w-5 h-5" />
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleFileUpload} 
-              className="hidden" 
-              multiple 
-              accept=".pdf,.csv,.txt,.jpg,.jpeg,.png,.gif,.md,.ts,.js,.json"
-            />
-          </button>
+          <div className="flex">
+            <button 
+              type="button" 
+              onClick={openFileDialog}
+              className="p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+              title="Upload Files"
+            >
+              <PaperclipIcon className="w-5 h-5" />
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileUpload} 
+                className="hidden" 
+                multiple 
+                accept=".pdf,.csv,.txt,.jpg,.jpeg,.png,.gif,.md,.ts,.js,.json"
+              />
+            </button>
+            
+            <button 
+              type="button" 
+              onClick={openFolderDialog}
+              className="p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+              title="Upload Folder"
+            >
+              <Folder className="w-5 h-5" />
+              <input 
+                type="file" 
+                ref={folderInputRef} 
+                onChange={handleFolderUpload} 
+                className="hidden" 
+                multiple 
+                webkitdirectory="true"
+              />
+            </button>
+          </div>
           
           <input
             type="text"
