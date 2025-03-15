@@ -1,10 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { BarChart4, TrendingUp, TrendingDown, Target } from 'lucide-react';
+import { BarChart4, TrendingUp, TrendingDown, Target, Plus, Loader2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-import { getMetrics } from '@/integrations/supabase/client';
+import { getMetrics, createMetric, updateMetric } from '@/integrations/supabase/client';
 
 interface Metric {
   id: string;
@@ -39,17 +44,29 @@ const getTrendIcon = (current: number, target: number) => {
 const PerformanceMetrics = ({ projectId }: { projectId?: string }) => {
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newMetric, setNewMetric] = useState({
+    name: '',
+    description: '',
+    target: 100,
+    current_value: 0,
+    unit: '%'
+  });
+  
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchMetrics = async () => {
-      // Use a demo project ID if none is provided
-      const demoProjectId = "00000000-0000-0000-0000-000000000000";
-      const activeProjectId = projectId || demoProjectId;
+      if (!projectId) {
+        setMetrics([]);
+        setIsLoading(false);
+        return;
+      }
       
       try {
         setIsLoading(true);
-        const metricsData = await getMetrics(activeProjectId);
+        const metricsData = await getMetrics(projectId);
         setMetrics(metricsData);
       } catch (error) {
         console.error('Error fetching metrics:', error);
@@ -68,6 +85,88 @@ const PerformanceMetrics = ({ projectId }: { projectId?: string }) => {
     fetchMetrics();
   }, [projectId, toast]);
 
+  const handleAddNewMetric = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!projectId) {
+      toast({
+        title: "Error",
+        description: "No project selected",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!newMetric.name.trim()) {
+      toast({
+        title: "Error",
+        description: "Metric name is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const metricData = {
+        project_id: projectId,
+        name: newMetric.name,
+        description: newMetric.description,
+        target: newMetric.target,
+        current_value: newMetric.current_value,
+        unit: newMetric.unit
+      };
+      
+      const createdMetric = await createMetric(metricData);
+      setMetrics([...metrics, createdMetric]);
+      
+      toast({
+        title: "Metric created",
+        description: `Metric "${createdMetric.name}" has been created successfully.`
+      });
+      
+      // Reset form and close dialog
+      setNewMetric({
+        name: '',
+        description: '',
+        target: 100,
+        current_value: 0,
+        unit: '%'
+      });
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error('Error creating metric:', error);
+      toast({
+        title: "Error creating metric",
+        description: "Could not create the metric. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdateMetricValue = async (id: string, newValue: number) => {
+    try {
+      await updateMetric(id, { current_value: newValue });
+      setMetrics(metrics.map(metric => 
+        metric.id === id ? { ...metric, current_value: newValue } : metric
+      ));
+      
+      toast({
+        title: "Metric updated",
+        description: `Metric value has been updated successfully.`
+      });
+    } catch (error) {
+      console.error('Error updating metric:', error);
+      toast({
+        title: "Error updating metric",
+        description: "Could not update the metric. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <Card className="bg-dark-accent border-white/10">
       <CardHeader>
@@ -78,8 +177,108 @@ const PerformanceMetrics = ({ projectId }: { projectId?: string }) => {
         <CardDescription>Track and analyze key performance indicators</CardDescription>
       </CardHeader>
       <CardContent>
+        <div className="flex justify-between mb-4">
+          <h3 className="text-lg font-medium">Key Metrics</h3>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                disabled={!projectId}
+                onClick={() => projectId ? setIsDialogOpen(true) : null}
+              >
+                <Plus className="w-4 h-4 mr-1" /> New Metric
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <form onSubmit={handleAddNewMetric}>
+                <DialogHeader>
+                  <DialogTitle>Add New Metric</DialogTitle>
+                  <DialogDescription>
+                    Define a new key performance indicator for your project.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="name" className="text-right">
+                      Name
+                    </Label>
+                    <Input
+                      id="name"
+                      value={newMetric.name}
+                      onChange={(e) => setNewMetric({...newMetric, name: e.target.value})}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="description" className="text-right">
+                      Description
+                    </Label>
+                    <Textarea
+                      id="description"
+                      value={newMetric.description}
+                      onChange={(e) => setNewMetric({...newMetric, description: e.target.value})}
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="target" className="text-right">
+                      Target
+                    </Label>
+                    <Input
+                      id="target"
+                      type="number"
+                      value={newMetric.target}
+                      onChange={(e) => setNewMetric({...newMetric, target: parseFloat(e.target.value)})}
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="current_value" className="text-right">
+                      Current Value
+                    </Label>
+                    <Input
+                      id="current_value"
+                      type="number"
+                      value={newMetric.current_value}
+                      onChange={(e) => setNewMetric({...newMetric, current_value: parseFloat(e.target.value)})}
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="unit" className="text-right">
+                      Unit
+                    </Label>
+                    <Input
+                      id="unit"
+                      value={newMetric.unit}
+                      onChange={(e) => setNewMetric({...newMetric, unit: e.target.value})}
+                      className="col-span-3"
+                      placeholder="%, $, hrs, etc."
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Add Metric
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      
         {isLoading ? (
           <div className="text-center py-4">Loading metrics...</div>
+        ) : !projectId ? (
+          <div className="text-center py-4 text-gray-400">
+            Please select a project to view metrics.
+          </div>
         ) : metrics.length === 0 ? (
           <div className="text-center py-4 text-gray-400">
             No metrics found. Define key performance indicators to track progress.
@@ -105,6 +304,18 @@ const PerformanceMetrics = ({ projectId }: { projectId?: string }) => {
                     <div className="flex items-center text-xs text-gray-400">
                       <Target className="w-3 h-3 mr-1" />
                       Target: {metric.target}{metric.unit}
+                    </div>
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-white/10 flex justify-end">
+                    <div className="text-xs">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 px-2"
+                        onClick={() => handleUpdateMetricValue(metric.id, Math.min(metric.current_value + 5, 100))}
+                      >
+                        + Update
+                      </Button>
                     </div>
                   </div>
                 </div>

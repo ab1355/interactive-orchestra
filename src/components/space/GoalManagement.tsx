@@ -1,10 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { Target, ArrowRight, CheckCircle2, Plus } from 'lucide-react';
+import { Target, ArrowRight, CheckCircle2, Plus, Loader2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getGoals, createGoal, updateGoal } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 
@@ -14,6 +19,7 @@ interface Goal {
   status: string;
   priority: string;
   due_date: string | null;
+  description?: string;
 }
 
 const getStatusIcon = (status: string) => {
@@ -30,17 +36,29 @@ const getStatusIcon = (status: string) => {
 const GoalManagement = ({ projectId }: { projectId?: string }) => {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newGoal, setNewGoal] = useState({
+    title: '',
+    description: '',
+    priority: 'medium',
+    status: 'in_progress',
+    due_date: ''
+  });
+  
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchGoals = async () => {
-      // Use a demo project ID if none is provided
-      const demoProjectId = "00000000-0000-0000-0000-000000000000";
-      const activeProjectId = projectId || demoProjectId;
+      if (!projectId) {
+        setGoals([]);
+        setIsLoading(false);
+        return;
+      }
       
       try {
         setIsLoading(true);
-        const goalsData = await getGoals(activeProjectId);
+        const goalsData = await getGoals(projectId);
         setGoals(goalsData);
       } catch (error) {
         console.error('Error fetching goals:', error);
@@ -59,13 +77,86 @@ const GoalManagement = ({ projectId }: { projectId?: string }) => {
     fetchGoals();
   }, [projectId, toast]);
 
-  const handleAddNewGoal = async () => {
-    // This would typically open a form modal to add a new goal
-    // For simplicity, we're just showing a toast notification
-    toast({
-      title: "New Goal",
-      description: "This would open a form to add a new goal.",
-    });
+  const handleAddNewGoal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!projectId) {
+      toast({
+        title: "Error",
+        description: "No project selected",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!newGoal.title.trim()) {
+      toast({
+        title: "Error",
+        description: "Goal title is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const goalData = {
+        project_id: projectId,
+        title: newGoal.title,
+        description: newGoal.description,
+        status: newGoal.status,
+        priority: newGoal.priority,
+        due_date: newGoal.due_date || null
+      };
+      
+      const createdGoal = await createGoal(goalData);
+      setGoals([...goals, createdGoal]);
+      
+      toast({
+        title: "Goal created",
+        description: `Goal "${createdGoal.title}" has been created successfully.`
+      });
+      
+      // Reset form and close dialog
+      setNewGoal({
+        title: '',
+        description: '',
+        priority: 'medium',
+        status: 'in_progress',
+        due_date: ''
+      });
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error('Error creating goal:', error);
+      toast({
+        title: "Error creating goal",
+        description: "Could not create the goal. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdateGoalStatus = async (goalId: string, newStatus: string) => {
+    try {
+      await updateGoal(goalId, { status: newStatus });
+      setGoals(goals.map(goal => 
+        goal.id === goalId ? { ...goal, status: newStatus } : goal
+      ));
+      
+      toast({
+        title: "Goal updated",
+        description: `Goal status has been updated successfully.`
+      });
+    } catch (error) {
+      console.error('Error updating goal:', error);
+      toast({
+        title: "Error updating goal",
+        description: "Could not update the goal. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const formatDate = (dateString: string | null) => {
@@ -90,13 +181,118 @@ const GoalManagement = ({ projectId }: { projectId?: string }) => {
         <div className="space-y-4">
           <div className="flex justify-between">
             <h3 className="text-lg font-medium">Strategic Goals</h3>
-            <Button size="sm" variant="outline" onClick={handleAddNewGoal}>
-              <Plus className="w-4 h-4 mr-1" /> New Goal
-            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  disabled={!projectId}
+                  onClick={() => projectId ? setIsDialogOpen(true) : null}
+                >
+                  <Plus className="w-4 h-4 mr-1" /> New Goal
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <form onSubmit={handleAddNewGoal}>
+                  <DialogHeader>
+                    <DialogTitle>Create New Goal</DialogTitle>
+                    <DialogDescription>
+                      Add a new strategic goal to your project.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="title" className="text-right">
+                        Title
+                      </Label>
+                      <Input
+                        id="title"
+                        value={newGoal.title}
+                        onChange={(e) => setNewGoal({...newGoal, title: e.target.value})}
+                        className="col-span-3"
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="description" className="text-right">
+                        Description
+                      </Label>
+                      <Textarea
+                        id="description"
+                        value={newGoal.description}
+                        onChange={(e) => setNewGoal({...newGoal, description: e.target.value})}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="priority" className="text-right">
+                        Priority
+                      </Label>
+                      <Select
+                        value={newGoal.priority}
+                        onValueChange={(value) => setNewGoal({...newGoal, priority: value})}
+                      >
+                        <SelectTrigger id="priority" className="col-span-3">
+                          <SelectValue placeholder="Select priority" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="status" className="text-right">
+                        Status
+                      </Label>
+                      <Select
+                        value={newGoal.status}
+                        onValueChange={(value) => setNewGoal({...newGoal, status: value})}
+                      >
+                        <SelectTrigger id="status" className="col-span-3">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="not_started">Not Started</SelectItem>
+                          <SelectItem value="in_progress">In Progress</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="due_date" className="text-right">
+                        Due Date
+                      </Label>
+                      <Input
+                        id="due_date"
+                        type="date"
+                        value={newGoal.due_date}
+                        onChange={(e) => setNewGoal({...newGoal, due_date: e.target.value})}
+                        className="col-span-3"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Create Goal
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
           
           {isLoading ? (
             <div className="text-center py-4">Loading goals...</div>
+          ) : !projectId ? (
+            <div className="text-center py-4 text-gray-400">
+              Please select a project to view goals.
+            </div>
           ) : goals.length === 0 ? (
             <div className="text-center py-4 text-gray-400">
               No goals found. Create your first goal to get started.
@@ -109,6 +305,7 @@ const GoalManagement = ({ projectId }: { projectId?: string }) => {
                   <TableHead className="w-[300px]">Goal</TableHead>
                   <TableHead>Priority</TableHead>
                   <TableHead>Due Date</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -126,15 +323,26 @@ const GoalManagement = ({ projectId }: { projectId?: string }) => {
                       </span>
                     </TableCell>
                     <TableCell>{formatDate(goal.due_date)}</TableCell>
+                    <TableCell>
+                      <Select
+                        value={goal.status}
+                        onValueChange={(value) => handleUpdateGoalStatus(goal.id, value)}
+                      >
+                        <SelectTrigger className="h-8 w-[130px]">
+                          <SelectValue placeholder="Change status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="not_started">Not Started</SelectItem>
+                          <SelectItem value="in_progress">In Progress</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           )}
-          
-          <div className="flex justify-end mt-4">
-            <Button size="sm" variant="ghost">View All Goals</Button>
-          </div>
         </div>
       </CardContent>
     </Card>

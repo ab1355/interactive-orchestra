@@ -1,10 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { Users, Briefcase, HandCoins } from 'lucide-react';
+import { Users, Briefcase, HandCoins, Plus, Loader2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
-import { getResources } from '@/integrations/supabase/client';
+import { getResources, createResource } from '@/integrations/supabase/client';
 
 interface Resource {
   id: string;
@@ -38,17 +43,29 @@ const calculateAllocationPercentage = (resources: Resource[], type: string) => {
 const ResourceAllocation = ({ projectId }: { projectId?: string }) => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newResource, setNewResource] = useState({
+    name: '',
+    type: 'human',
+    quantity: 1,
+    availability: 'available',
+    allocation_details: ''
+  });
+  
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchResources = async () => {
-      // Use a demo project ID if none is provided
-      const demoProjectId = "00000000-0000-0000-0000-000000000000";
-      const activeProjectId = projectId || demoProjectId;
+      if (!projectId) {
+        setResources([]);
+        setIsLoading(false);
+        return;
+      }
       
       try {
         setIsLoading(true);
-        const resourcesData = await getResources(activeProjectId);
+        const resourcesData = await getResources(projectId);
         setResources(resourcesData);
       } catch (error) {
         console.error('Error fetching resources:', error);
@@ -66,6 +83,67 @@ const ResourceAllocation = ({ projectId }: { projectId?: string }) => {
 
     fetchResources();
   }, [projectId, toast]);
+
+  const handleAddNewResource = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!projectId) {
+      toast({
+        title: "Error",
+        description: "No project selected",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!newResource.name.trim()) {
+      toast({
+        title: "Error",
+        description: "Resource name is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const resourceData = {
+        project_id: projectId,
+        name: newResource.name,
+        type: newResource.type,
+        quantity: newResource.quantity,
+        availability: newResource.availability,
+        allocation_details: newResource.allocation_details
+      };
+      
+      const createdResource = await createResource(resourceData);
+      setResources([...resources, createdResource]);
+      
+      toast({
+        title: "Resource created",
+        description: `Resource "${createdResource.name}" has been created successfully.`
+      });
+      
+      // Reset form and close dialog
+      setNewResource({
+        name: '',
+        type: 'human',
+        quantity: 1,
+        availability: 'available',
+        allocation_details: ''
+      });
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error('Error creating resource:', error);
+      toast({
+        title: "Error creating resource",
+        description: "Could not create the resource. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const calculateAllocation = (resource: Resource) => {
     // For simplicity, we're just returning a fixed percentage
@@ -96,8 +174,110 @@ const ResourceAllocation = ({ projectId }: { projectId?: string }) => {
         <CardDescription>Optimize resource distribution across initiatives</CardDescription>
       </CardHeader>
       <CardContent>
+        <div className="flex justify-between mb-4">
+          <h3 className="text-lg font-medium">Available Resources</h3>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                disabled={!projectId}
+                onClick={() => projectId ? setIsDialogOpen(true) : null}
+              >
+                <Plus className="w-4 h-4 mr-1" /> New Resource
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <form onSubmit={handleAddNewResource}>
+                <DialogHeader>
+                  <DialogTitle>Add New Resource</DialogTitle>
+                  <DialogDescription>
+                    Add a new resource to your project.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="name" className="text-right">
+                      Name
+                    </Label>
+                    <Input
+                      id="name"
+                      value={newResource.name}
+                      onChange={(e) => setNewResource({...newResource, name: e.target.value})}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="type" className="text-right">
+                      Type
+                    </Label>
+                    <Select
+                      value={newResource.type}
+                      onValueChange={(value) => setNewResource({...newResource, type: value})}
+                    >
+                      <SelectTrigger id="type" className="col-span-3">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="human">Human</SelectItem>
+                        <SelectItem value="financial">Financial</SelectItem>
+                        <SelectItem value="equipment">Equipment</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="quantity" className="text-right">
+                      Quantity
+                    </Label>
+                    <Input
+                      id="quantity"
+                      type="number"
+                      min="1"
+                      value={newResource.quantity}
+                      onChange={(e) => setNewResource({...newResource, quantity: parseInt(e.target.value)})}
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="availability" className="text-right">
+                      Availability
+                    </Label>
+                    <Select
+                      value={newResource.availability}
+                      onValueChange={(value) => setNewResource({...newResource, availability: value})}
+                    >
+                      <SelectTrigger id="availability" className="col-span-3">
+                        <SelectValue placeholder="Select availability" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="available">Available</SelectItem>
+                        <SelectItem value="allocated">Allocated</SelectItem>
+                        <SelectItem value="unavailable">Unavailable</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Add Resource
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      
         {isLoading ? (
           <div className="text-center py-4">Loading resources...</div>
+        ) : !projectId ? (
+          <div className="text-center py-4 text-gray-400">
+            Please select a project to view resources.
+          </div>
         ) : resources.length === 0 ? (
           <div className="text-center py-4 text-gray-400">
             No resources found. Add resources to start tracking allocation.
