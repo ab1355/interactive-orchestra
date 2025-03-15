@@ -1,11 +1,23 @@
 
 import React from 'react';
-import { Shield } from 'lucide-react';
+import { Shield, Download, Terminal } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { CredentialToggleProps } from './types';
 
 const CredentialItem: React.FC<CredentialToggleProps> = ({ credential, onToggle }) => {
+  // Function to render appropriate icon based on credential type
+  const renderIcon = () => {
+    switch(credential.type) {
+      case 'download':
+        return <Download className="w-4 h-4 ml-2 text-blue-500" />;
+      case 'terminal':
+        return <Terminal className="w-4 h-4 ml-2 text-yellow-500" />;
+      default:
+        return !credential.isAvailableToAgents && <Shield className="w-4 h-4 ml-2 text-gray-500" />;
+    }
+  };
+
   return (
     <div className="flex items-center justify-between p-2 bg-black/20 rounded-md">
       <div>
@@ -27,9 +39,7 @@ const CredentialItem: React.FC<CredentialToggleProps> = ({ credential, onToggle 
           onCheckedChange={() => onToggle(credential.id)}
           className="data-[state=checked]:bg-green-500"
         />
-        {!credential.isAvailableToAgents && (
-          <Shield className="w-4 h-4 ml-2 text-gray-500" />
-        )}
+        {renderIcon()}
       </div>
     </div>
   );
