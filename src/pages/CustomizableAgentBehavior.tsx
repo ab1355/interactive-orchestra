@@ -359,7 +359,8 @@ const BehaviorComparisonTool = () => {
   );
 };
 
-const CustomizableAgentBehavior: React.FC = () => {
+// Main Content Component - This will be wrapped with the AgentBehaviorProvider
+const CustomizableAgentBehaviorContent: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState('gpt-4o');
   const { toast } = useToast();
@@ -456,6 +457,15 @@ const CustomizableAgentBehavior: React.FC = () => {
       </div>
       <Toaster />
     </div>
+  );
+};
+
+// Wrapper component with AgentBehaviorProvider
+const CustomizableAgentBehavior: React.FC = () => {
+  return (
+    <AgentBehaviorProvider>
+      <CustomizableAgentBehaviorContent />
+    </AgentBehaviorProvider>
   );
 };
 
