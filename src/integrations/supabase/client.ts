@@ -61,3 +61,7 @@ export {
   updateExecution, 
   getExecution 
 };
+
+// Data cleanup
+import { cleanupTable, cleanupAllData } from './services/cleanupService';
+export { cleanupTable, cleanupAllData };
