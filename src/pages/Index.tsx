@@ -1,33 +1,45 @@
 
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
-import ChatInterface from '@/components/home/ChatInterface';
-import ResourceMetrics from '@/components/home/ResourceMetrics';
-import ActivityFeed from '@/components/home/ActivityFeed';
-import InteractiveCanvas from '@/components/home/InteractiveCanvas';
-import NewProjectDialog from '@/components/dialogs/NewProjectDialog';
-import SettingsDialog from '@/components/dialogs/SettingsDialog';
-import { DataCleanupDialog } from '@/components/ui/data-cleanup-dialog';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import UnifiedCanvas from '@/components/canvas/UnifiedCanvas';
+import { useProjectStore } from '@/stores/projectStore';
+import { useAgentStore } from '@/stores/agentStore';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { DataCleanupDialog } from '@/components/ui/data-cleanup-dialog';
 
 const Index: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [newProjectOpen, setNewProjectOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const { toast } = useToast();
+  const { createProject, currentProject } = useProjectStore();
+  const { agents, initializeMainAgent } = useAgentStore();
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
 
-  const handleProjectCreated = () => {
-    // In a real app, we would refresh the project list or navigate to the new project
-    console.log('Project created successfully!');
-    toast({
-      title: "Success",
-      description: "New project created successfully.",
-    });
+  const handleNewProject = async () => {
+    try {
+      const projectData = {
+        name: 'New Project',
+        description: 'Project description',
+        timestamp: new Date().toISOString(),
+      };
+      
+      const newProject = await createProject(projectData);
+      await initializeMainAgent();
+      
+      toast({
+        title: "Project Created",
+        description: "New project workspace is ready.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create project. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -38,64 +50,20 @@ const Index: React.FC = () => {
         <header className="px-6 py-4 border-b border-dark-200 flex items-center justify-between">
           <h1 className="text-xl font-semibold">AI Agent Framework</h1>
           <div className="flex items-center space-x-4">
-            <button 
+            <Button 
               className="bg-purple/10 text-purple px-3 py-1 rounded-md text-sm hover:bg-purple/20 transition-colors animate-fade-in"
-              onClick={() => setNewProjectOpen(true)}
+              onClick={handleNewProject}
             >
               New Project
-            </button>
+            </Button>
             <DataCleanupDialog />
-            <button 
-              className="bg-dark-accent border border-dark-200 px-3 py-1 rounded-md text-sm hover:bg-white/5 transition-colors animate-fade-in"
-              onClick={() => setSettingsOpen(true)}
-            >
-              Settings
-            </button>
           </div>
         </header>
         
         <main className={`flex-1 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-          
-          <ResizablePanelGroup direction="horizontal" className="min-h-[calc(100vh-65px)]">
-            <ResizablePanel defaultSize={25} minSize={15} maxSize={40} className="bg-dark">
-              <ResizablePanelGroup direction="vertical">
-                <ResizablePanel defaultSize={40} minSize={25} className="p-4 border-r border-dark-200">
-                  <ResourceMetrics />
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={60} className="p-4 border-r border-dark-200">
-                  <ActivityFeed />
-                </ResizablePanel>
-              </ResizablePanelGroup>
-            </ResizablePanel>
-            
-            <ResizableHandle withHandle />
-            
-            <ResizablePanel defaultSize={75} className="bg-dark">
-              <ResizablePanelGroup direction="vertical">
-                <ResizablePanel defaultSize={60} minSize={30} className="p-4 border-b border-dark-200">
-                  <ChatInterface />
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={40} className="p-4">
-                  <InteractiveCanvas />
-                </ResizablePanel>
-              </ResizablePanelGroup>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+          <UnifiedCanvas />
         </main>
       </div>
-
-      <NewProjectDialog 
-        open={newProjectOpen} 
-        onOpenChange={setNewProjectOpen} 
-        onProjectCreated={handleProjectCreated}
-      />
-      
-      <SettingsDialog 
-        open={settingsOpen} 
-        onOpenChange={setSettingsOpen} 
-      />
     </div>
   );
 };
