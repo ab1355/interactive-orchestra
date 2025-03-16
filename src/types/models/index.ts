@@ -1,7 +1,7 @@
 
-import { ModelOption, ModelSource, ModelCapabilities, ModelParameters } from './types';
 import { availableModels } from './availableModels';
 import { loadCustomModels, saveCustomModel, deleteCustomModel } from './customModels';
+import type { ModelOption, ModelSource, ModelCapabilities, ModelParameters } from './types';
 
 // Get all available models including custom ones
 export const getAllModels = (): ModelOption[] => {
@@ -23,12 +23,6 @@ export const getModelByName = (name: string): ModelOption | undefined => {
 };
 
 // Re-export everything for backwards compatibility
-export {
-  ModelOption,
-  ModelSource,
-  ModelCapabilities,
-  ModelParameters,
-  availableModels,
-  saveCustomModel,
-  deleteCustomModel
-};
+// Use `export type` for type exports when isolatedModules is enabled
+export type { ModelOption, ModelSource, ModelCapabilities, ModelParameters };
+export { availableModels, saveCustomModel, deleteCustomModel };
