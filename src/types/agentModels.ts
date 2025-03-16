@@ -19,7 +19,7 @@ export const availableModels: ModelOption[] = [
   {
     id: 'gpt-4o',
     name: 'GPT-4o',
-    description: 'OpenAI's most advanced multimodal model with vision capabilities',
+    description: 'OpenAI\'s most advanced multimodal model with vision capabilities',
     source: 'proprietary',
     maxTokens: 32768,
     contextSize: 128000,
@@ -43,7 +43,7 @@ export const availableModels: ModelOption[] = [
   {
     id: 'claude-3-opus',
     name: 'Claude 3 Opus',
-    description: 'Anthropic's most powerful model for highly complex tasks',
+    description: 'Anthropic\'s most powerful model for highly complex tasks',
     source: 'proprietary',
     maxTokens: 32768,
     contextSize: 200000,
@@ -57,7 +57,7 @@ export const availableModels: ModelOption[] = [
   {
     id: 'llama-3-70b',
     name: 'Llama 3 70B',
-    description: 'Meta's latest open-source large language model with 70 billion parameters',
+    description: 'Meta\'s latest open-source large language model with 70 billion parameters',
     source: 'open-source',
     maxTokens: 8192,
     contextSize: 8192,
