@@ -1,19 +1,8 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../client';
+import { AutonomousExecution } from '@/types/flow';
 
-export interface AutonomousExecution {
-  id: string;
-  agent_id: string;
-  task_id?: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'failed';
-  execution_data?: any;
-  result?: any;
-  started_at?: string;
-  completed_at?: string;
-  created_at: string;
-  updated_at: string;
-}
-
+// Autonomous Execution Services
 export const getExecutions = async (options: {
   agentId?: string;
   status?: AutonomousExecution['status'];

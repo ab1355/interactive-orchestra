@@ -1,242 +1,123 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { getExecutions, createExecution, updateExecution, getExecution } from '@/services/autonomousExecution';
-import { supabase } from '@/integrations/supabase/client';
-import { AutonomousExecution } from '@/services/autonomousExecution';
-import { dataCache } from '@/utils/cacheUtils';
-import { performanceMonitor } from '@/utils/performanceMonitor';
+import { useState, useEffect } from 'react';
+import { useToast } from '@/components/ui/use-toast';
+import { AutonomousExecution } from '@/types/flow';
+import { 
+  getExecutions, 
+  createExecution, 
+  updateExecution, 
+  getExecution 
+} from '@/integrations/supabase/client';
 
-interface UseAutonomousExecutionOptions {
-  agentId?: string;
-  taskId?: string;
-  autoFetch?: boolean;
-  fetchInterval?: number;
-}
-
-export const useAutonomousExecution = (options: UseAutonomousExecutionOptions = {}) => {
+export const useAutonomousExecution = () => {
   const [executions, setExecutions] = useState<AutonomousExecution[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  // Generate a cache key based on options
-  const getCacheKey = useCallback(() => {
-    const parts = ['executions'];
-    if (options.agentId) parts.push(`agent_${options.agentId}`);
-    if (options.taskId) parts.push(`task_${options.taskId}`);
-    return parts.join(':');
-  }, [options.agentId, options.taskId]);
-  
-  const fetchExecutions = useCallback(async () => {
-    const cacheKey = getCacheKey();
-    
-    // Check cache first
-    const cachedData = dataCache.get<AutonomousExecution[]>(cacheKey);
-    if (cachedData) {
-      setExecutions(cachedData);
-      return;
-    }
-    
-    setLoading(true);
-    setError(null);
-    
-    const perfTimer = performanceMonitor.startTimer('fetch_executions');
-    
-    try {
-      const fetchOptions: any = {};
-      
-      if (options.agentId) {
-        fetchOptions.agentId = options.agentId;
-      }
-      
-      const data = await getExecutions(fetchOptions);
-      setExecutions(data);
-      
-      // Cache the result
-      dataCache.set(cacheKey, data);
-      
-      performanceMonitor.trackEvent('executions_fetched', { 
-        count: data.length, 
-        agentId: options.agentId 
-      });
-    } catch (err) {
-      setError('Failed to fetch executions');
-      console.error('Error fetching executions:', err);
-      performanceMonitor.logError(err as Error, { 
-        context: 'fetchExecutions', 
-        options 
-      });
-    } finally {
-      setLoading(false);
-      perfTimer();
-    }
-  }, [options.agentId, getCacheKey]);
-  
-  const startExecution = useCallback(async (executionData: {
-    agent_id: string;
-    task_id?: string;
-    execution_data?: any;
+  const { toast } = useToast();
+
+  const fetchExecutions = async (options?: {
+    agentId?: string;
+    status?: AutonomousExecution['status'];
+    limit?: number;
   }) => {
-    const perfTimer = performanceMonitor.startTimer('start_execution');
-    
     try {
-      const execution = await createExecution({
-        ...executionData,
-        status: 'pending'
+      setIsLoading(true);
+      setError(null);
+      const data = await getExecutions(options);
+      setExecutions(data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching executions:', error);
+      setError('Failed to load executions');
+      toast({
+        title: 'Error',
+        description: 'Failed to load executions',
+        variant: 'destructive',
       });
-      
-      if (execution) {
-        setExecutions(prev => [execution, ...prev]);
-        
-        // Invalidate cache
-        dataCache.invalidateByPrefix('executions');
-        
-        performanceMonitor.trackEvent('execution_started', { 
-          agentId: executionData.agent_id, 
-          taskId: executionData.task_id 
-        });
-        
-        return execution;
-      }
-      return null;
-    } catch (err) {
-      setError('Failed to start execution');
-      console.error('Error starting execution:', err);
-      performanceMonitor.logError(err as Error, { 
-        context: 'startExecution',
-        executionData
-      });
-      return null;
+      return [];
     } finally {
-      perfTimer();
+      setIsLoading(false);
     }
-  }, []);
-  
-  const updateExecutionStatus = useCallback(async (
-    executionId: string, 
-    status: AutonomousExecution['status'],
-    result?: any
-  ) => {
-    const perfTimer = performanceMonitor.startTimer('update_execution');
-    
+  };
+
+  const handleCreateExecution = async (execution: Omit<AutonomousExecution, 'id' | 'created_at' | 'updated_at'>) => {
     try {
-      const updates: Partial<AutonomousExecution> = { status };
-      
-      if (result) {
-        updates.result = result;
+      setError(null);
+      const newExecution = await createExecution(execution);
+      if (newExecution) {
+        setExecutions((prev) => [newExecution, ...prev]);
+        toast({
+          title: 'Success',
+          description: 'Execution created successfully',
+        });
       }
-      
-      const updated = await updateExecution(executionId, updates);
-      
-      if (updated) {
-        setExecutions(prev => 
-          prev.map(exec => exec.id === executionId ? updated : exec)
+      return newExecution;
+    } catch (error) {
+      console.error('Error creating execution:', error);
+      setError('Failed to create execution');
+      toast({
+        title: 'Error',
+        description: 'Failed to create execution',
+        variant: 'destructive',
+      });
+      return null;
+    }
+  };
+
+  const handleUpdateExecution = async (id: string, updates: Partial<AutonomousExecution>) => {
+    try {
+      setError(null);
+      const updatedExecution = await updateExecution(id, updates);
+      if (updatedExecution) {
+        setExecutions((prev) =>
+          prev.map((item) => (item.id === id ? updatedExecution : item))
         );
-        
-        // Invalidate cache
-        dataCache.invalidateByPrefix('executions');
-        
-        performanceMonitor.trackEvent('execution_updated', { 
-          executionId, 
-          status 
+        toast({
+          title: 'Success',
+          description: 'Execution updated successfully',
         });
-        
-        return updated;
       }
+      return updatedExecution;
+    } catch (error) {
+      console.error('Error updating execution:', error);
+      setError('Failed to update execution');
+      toast({
+        title: 'Error',
+        description: 'Failed to update execution',
+        variant: 'destructive',
+      });
       return null;
-    } catch (err) {
-      setError('Failed to update execution status');
-      console.error('Error updating execution status:', err);
-      performanceMonitor.logError(err as Error, { 
-        context: 'updateExecutionStatus',
-        executionId,
-        status
+    }
+  };
+
+  const fetchExecution = async (id: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const execution = await getExecution(id);
+      return execution;
+    } catch (error) {
+      console.error('Error fetching execution:', error);
+      setError('Failed to load execution');
+      toast({
+        title: 'Error',
+        description: 'Failed to load execution',
+        variant: 'destructive',
       });
       return null;
     } finally {
-      perfTimer();
+      setIsLoading(false);
     }
-  }, []);
-  
-  // Listen for realtime updates
-  useEffect(() => {
-    const channel = supabase.channel('execution-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'autonomous_executions'
-        },
-        (payload) => {
-          if (payload.eventType === 'INSERT') {
-            // Filter if agentId is specified
-            if (!options.agentId || payload.new.agent_id === options.agentId) {
-              // Ensure the payload.new conforms to AutonomousExecution type
-              const newExecution = payload.new as AutonomousExecution;
-              setExecutions(prev => [newExecution, ...prev]);
-              
-              // Invalidate cache
-              dataCache.invalidateByPrefix('executions');
-              
-              performanceMonitor.trackEvent('realtime_execution_insert', {
-                executionId: newExecution.id
-              });
-            }
-          } else if (payload.eventType === 'UPDATE') {
-            // Ensure the payload.new conforms to AutonomousExecution type
-            const updatedExecution = payload.new as AutonomousExecution;
-            setExecutions(prev => 
-              prev.map(exec => exec.id === updatedExecution.id ? updatedExecution : exec)
-            );
-            
-            // Invalidate cache
-            dataCache.invalidateByPrefix('executions');
-            
-            performanceMonitor.trackEvent('realtime_execution_update', {
-              executionId: updatedExecution.id,
-              status: updatedExecution.status
-            });
-          } else if (payload.eventType === 'DELETE') {
-            setExecutions(prev => 
-              prev.filter(exec => exec.id !== payload.old.id)
-            );
-            
-            // Invalidate cache
-            dataCache.invalidateByPrefix('executions');
-            
-            performanceMonitor.trackEvent('realtime_execution_delete', {
-              executionId: payload.old.id
-            });
-          }
-        }
-      )
-      .subscribe();
-    
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [options.agentId]);
-  
-  // Initial fetch and polling if autoFetch is enabled
-  useEffect(() => {
-    if (options.autoFetch !== false) {
-      fetchExecutions();
-      
-      if (options.fetchInterval) {
-        const interval = setInterval(fetchExecutions, options.fetchInterval);
-        return () => clearInterval(interval);
-      }
-    }
-  }, [fetchExecutions, options.autoFetch, options.fetchInterval]);
-  
+  };
+
   return {
     executions,
-    loading,
+    isLoading,
     error,
     fetchExecutions,
-    startExecution,
-    updateExecutionStatus
+    createExecution: handleCreateExecution,
+    updateExecution: handleUpdateExecution,
+    fetchExecution,
+    setError,
   };
 };
-
-export default useAutonomousExecution;
