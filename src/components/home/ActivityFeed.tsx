@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Activity, Clock, CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
 
 type ActivityItem = {
@@ -12,8 +11,8 @@ type ActivityItem = {
 };
 
 const ActivityFeed: React.FC = () => {
-  // Dummy data for activity feed
-  const activities: ActivityItem[] = [
+  // Use state to manage activities so we can clear them
+  const [activities, setActivities] = useState<ActivityItem[]>([
     {
       id: '1',
       type: 'success',
@@ -52,7 +51,11 @@ const ActivityFeed: React.FC = () => {
       action: 'Initialized new task',
       timestamp: new Date(Date.now() - 60 * 60000),
     },
-  ];
+  ]);
+
+  const clearAllActivities = () => {
+    setActivities([]);
+  };
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -97,40 +100,49 @@ const ActivityFeed: React.FC = () => {
           <Activity className="w-4 h-4 mr-2" />
           Activity Feed
         </h2>
-        <button className="text-xs text-gray-400 hover:text-white transition-colors">
+        <button 
+          className="text-xs text-gray-400 hover:text-white transition-colors"
+          onClick={clearAllActivities}
+        >
           Clear All
         </button>
       </div>
 
       <div className="space-y-3 flex-1 overflow-y-auto pr-2">
-        {activities.map((activity) => (
-          <div 
-            key={activity.id} 
-            className="bg-dark-accent p-3 rounded-lg border border-white/10 hover:border-white/20 transition-colors"
-          >
-            <div className="flex items-start">
-              <div className="mt-0.5 mr-2">
-                {getIcon(activity.type)}
-              </div>
-              <div className="flex-1">
-                <p className="text-sm">
-                  <span className={`font-medium ${getAgentColor(activity.agent)}`}>
-                    {activity.agent}
-                  </span>
-                  {' '}
-                  <span className="text-white">{activity.action}</span>
-                </p>
-                {activity.details && (
-                  <p className="text-xs text-gray-400 mt-1">{activity.details}</p>
-                )}
-                <div className="flex items-center text-xs text-gray-500 mt-1">
-                  <Clock className="w-3 h-3 mr-1" />
-                  {getTimeAgo(activity.timestamp)}
+        {activities.length === 0 ? (
+          <div className="text-center text-gray-500 py-8">
+            No activities to display
+          </div>
+        ) : (
+          activities.map((activity) => (
+            <div 
+              key={activity.id} 
+              className="bg-dark-accent p-3 rounded-lg border border-white/10 hover:border-white/20 transition-colors"
+            >
+              <div className="flex items-start">
+                <div className="mt-0.5 mr-2">
+                  {getIcon(activity.type)}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm">
+                    <span className={`font-medium ${getAgentColor(activity.agent)}`}>
+                      {activity.agent}
+                    </span>
+                    {' '}
+                    <span className="text-white">{activity.action}</span>
+                  </p>
+                  {activity.details && (
+                    <p className="text-xs text-gray-400 mt-1">{activity.details}</p>
+                  )}
+                  <div className="flex items-center text-xs text-gray-500 mt-1">
+                    <Clock className="w-3 h-3 mr-1" />
+                    {getTimeAgo(activity.timestamp)}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

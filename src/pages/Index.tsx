@@ -7,6 +7,7 @@ import ActivityFeed from '@/components/home/ActivityFeed';
 import InteractiveCanvas from '@/components/home/InteractiveCanvas';
 import NewProjectDialog from '@/components/dialogs/NewProjectDialog';
 import SettingsDialog from '@/components/dialogs/SettingsDialog';
+import { DataCleanupDialog } from '@/components/ui/data-cleanup-dialog';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
 const Index: React.FC = () => {
@@ -37,6 +38,7 @@ const Index: React.FC = () => {
             >
               New Project
             </button>
+            <DataCleanupDialog />
             <button 
               className="bg-dark-accent border border-dark-200 px-3 py-1 rounded-md text-sm hover:bg-white/5 transition-colors animate-fade-in"
               onClick={() => setSettingsOpen(true)}

@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
-import ChatInterface from '@/components/home/ChatInterface';
+import ChatInterface, { CanvasCollaborationContext } from '@/components/home/ChatInterface';
 import ResourceMetrics from '@/components/home/ResourceMetrics';
 import ActivityFeed from '@/components/home/ActivityFeed';
 import InteractiveCanvas from '@/components/home/InteractiveCanvas';
 import NewProjectDialog from '@/components/dialogs/NewProjectDialog';
 import SettingsDialog from '@/components/dialogs/SettingsDialog';
+import { DataCleanupDialog } from '@/components/ui/data-cleanup-dialog';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
 const Dashboard: React.FC = () => {
@@ -37,6 +38,7 @@ const Dashboard: React.FC = () => {
             >
               New Project
             </button>
+            <DataCleanupDialog />
             <button 
               className="bg-dark-accent border border-dark-200 px-3 py-1 rounded-md text-sm hover:bg-white/5 transition-colors"
               onClick={() => setSettingsOpen(true)}
