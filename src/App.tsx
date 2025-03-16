@@ -12,13 +12,15 @@ import DiscoverSystem from './pages/DiscoverSystem';
 import SpaceSystem from './pages/SpaceSystem';
 import FlowSystem from './pages/FlowSystem';
 import AutonomousAgentSystem from './pages/AutonomousAgentSystem';
+import Index from './pages/Index';
 
 function App() {
   return (
     <ErrorBoundary>
       <Router>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Index />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/tool-integration" element={<ToolIntegration />} />
           <Route path="/customizable-agent-behavior" element={<CustomizableAgentBehavior />} />
           <Route path="/agent-behavior-system" element={<AgentBehaviorSystem />} />
