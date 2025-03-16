@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Cloud, Server, Lock, Unlock, Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import LocalModelSetupGuide from './LocalModelSetupGuide';
 
 interface ModelSelectorProps {
   selectedModelId: string;
@@ -18,6 +19,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   onSelectModel
 }) => {
   const [activeTab, setActiveTab] = useState<ModelSource>('proprietary');
+  const [showSetupGuide, setShowSetupGuide] = useState(false);
   
   const handleSelectModel = (model: ModelOption) => {
     onSelectModel(model.id);
@@ -132,12 +134,22 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
               .map(renderModelCard)}
             
             <Card className="border-dashed border-gray-300 flex items-center justify-center p-6">
-              <Button variant="outline" className="border-gray-300">
+              <Button 
+                variant="outline" 
+                className="border-gray-300"
+                onClick={() => setShowSetupGuide(!showSetupGuide)}
+              >
                 <Info className="h-4 w-4 mr-2" />
-                Local Model Setup Guide
+                {showSetupGuide ? 'Hide Setup Guide' : 'Local Model Setup Guide'}
               </Button>
             </Card>
           </div>
+          
+          {showSetupGuide && (
+            <div className="mt-4">
+              <LocalModelSetupGuide />
+            </div>
+          )}
           
           <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-md">
             <h4 className="font-medium text-amber-800 flex items-center">

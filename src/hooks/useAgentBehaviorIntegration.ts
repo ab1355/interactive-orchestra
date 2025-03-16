@@ -61,7 +61,10 @@ export const useAgentBehaviorIntegration = (options: UseAgentBehaviorIntegration
               name: selectedModel.name,
               source: selectedModel.source,
               supportsVision: selectedModel.supportsVision || false,
-              supportsStreaming: selectedModel.supportsStreaming || false
+              supportsStreaming: selectedModel.supportsStreaming || false,
+              capabilities: selectedModel.capabilities || {},
+              parameters: selectedModel.parameters || {},
+              version: selectedModel.version || 'unknown'
             } : undefined
           }
         });
@@ -78,7 +81,11 @@ export const useAgentBehaviorIntegration = (options: UseAgentBehaviorIntegration
           });
         }
         
-        console.log(`Behavior parameters for ${agentId} (${agentRole}) have been updated with model ${modelId}:`, currentProfile.parameters);
+        console.log(`Behavior parameters for ${agentId} (${agentRole}) have been updated with model ${modelId}:`, {
+          profileParams: currentProfile.parameters,
+          modelParams: selectedModel?.parameters,
+          modelCapabilities: selectedModel?.capabilities
+        });
       } catch (error) {
         console.error('Failed to broadcast behavior parameters:', error);
         setBroadcastStatus('error');
@@ -121,6 +128,8 @@ export const useAgentBehaviorIntegration = (options: UseAgentBehaviorIntegration
     currentBehavior: currentProfile,
     behaviorParameters: currentProfile.parameters,
     model: selectedModel,
+    modelCapabilities: selectedModel?.capabilities,
+    modelParameters: selectedModel?.parameters,
     broadcastStatus,
     lastBroadcastTime,
     retryBroadcast

@@ -1,6 +1,21 @@
 
 export type ModelSource = 'proprietary' | 'open-source' | 'local';
 
+export interface ModelCapabilities {
+  streaming?: boolean;
+  multimodal?: boolean;
+  codeInterpreter?: boolean;
+  functionCalling?: boolean;
+}
+
+export interface ModelParameters {
+  temperature?: number;
+  topP?: number;
+  maxTokens?: number;
+  presencePenalty?: number;
+  frequencyPenalty?: number;
+}
+
 export interface ModelOption {
   id: string;
   name: string;
@@ -12,6 +27,9 @@ export interface ModelOption {
   supportsVision?: boolean;
   requiresApiKey?: boolean;
   hostingOptions?: ('cloud' | 'local' | 'hybrid')[];
+  capabilities?: ModelCapabilities;
+  parameters?: ModelParameters;
+  version?: string;
 }
 
 export const availableModels: ModelOption[] = [
@@ -26,7 +44,21 @@ export const availableModels: ModelOption[] = [
     supportsStreaming: true,
     supportsVision: true,
     requiresApiKey: true,
-    hostingOptions: ['cloud']
+    hostingOptions: ['cloud'],
+    capabilities: {
+      streaming: true,
+      multimodal: true,
+      codeInterpreter: true,
+      functionCalling: true
+    },
+    parameters: {
+      temperature: 0.7,
+      topP: 0.9,
+      maxTokens: 4096,
+      presencePenalty: 0.0,
+      frequencyPenalty: 0.0
+    },
+    version: '1.0'
   },
   {
     id: 'gpt-4o-mini',
@@ -38,7 +70,21 @@ export const availableModels: ModelOption[] = [
     supportsStreaming: true,
     supportsVision: true,
     requiresApiKey: true,
-    hostingOptions: ['cloud']
+    hostingOptions: ['cloud'],
+    capabilities: {
+      streaming: true,
+      multimodal: true,
+      codeInterpreter: true,
+      functionCalling: true
+    },
+    parameters: {
+      temperature: 0.7,
+      topP: 0.9,
+      maxTokens: 4096,
+      presencePenalty: 0.0,
+      frequencyPenalty: 0.0
+    },
+    version: '1.0'
   },
   {
     id: 'claude-3-opus',
@@ -50,7 +96,47 @@ export const availableModels: ModelOption[] = [
     supportsStreaming: true,
     supportsVision: true,
     requiresApiKey: true,
-    hostingOptions: ['cloud']
+    hostingOptions: ['cloud'],
+    capabilities: {
+      streaming: true,
+      multimodal: true,
+      codeInterpreter: true,
+      functionCalling: true
+    },
+    parameters: {
+      temperature: 0.7,
+      topP: 0.9,
+      maxTokens: 4096,
+      presencePenalty: 0.5,
+      frequencyPenalty: 0.5
+    },
+    version: '3.5'
+  },
+  {
+    id: 'claude-3-sonnet',
+    name: 'Claude 3 Sonnet',
+    description: 'Anthropic\'s balanced model for versatility and performance',
+    source: 'proprietary',
+    maxTokens: 32768,
+    contextSize: 200000,
+    supportsStreaming: true,
+    supportsVision: true,
+    requiresApiKey: true,
+    hostingOptions: ['cloud'],
+    capabilities: {
+      streaming: true,
+      multimodal: true,
+      codeInterpreter: true,
+      functionCalling: true
+    },
+    parameters: {
+      temperature: 0.7,
+      topP: 0.9,
+      maxTokens: 4096,
+      presencePenalty: 0.5,
+      frequencyPenalty: 0.5
+    },
+    version: '3.5'
   },
   
   // Open source models
@@ -64,7 +150,21 @@ export const availableModels: ModelOption[] = [
     supportsStreaming: true,
     supportsVision: false,
     requiresApiKey: false,
-    hostingOptions: ['cloud', 'local', 'hybrid']
+    hostingOptions: ['cloud', 'local', 'hybrid'],
+    capabilities: {
+      streaming: true,
+      multimodal: false,
+      codeInterpreter: true,
+      functionCalling: true
+    },
+    parameters: {
+      temperature: 0.7,
+      topP: 0.9,
+      maxTokens: 8192,
+      presencePenalty: 0.0,
+      frequencyPenalty: 0.0
+    },
+    version: '3.0'
   },
   {
     id: 'llama-3-8b',
@@ -76,7 +176,21 @@ export const availableModels: ModelOption[] = [
     supportsStreaming: true,
     supportsVision: false,
     requiresApiKey: false,
-    hostingOptions: ['cloud', 'local', 'hybrid']
+    hostingOptions: ['cloud', 'local', 'hybrid'],
+    capabilities: {
+      streaming: true,
+      multimodal: false,
+      codeInterpreter: true,
+      functionCalling: true
+    },
+    parameters: {
+      temperature: 0.7,
+      topP: 0.9,
+      maxTokens: 8192,
+      presencePenalty: 0.0,
+      frequencyPenalty: 0.0
+    },
+    version: '3.0'
   },
   {
     id: 'mistral-7b',
@@ -88,7 +202,21 @@ export const availableModels: ModelOption[] = [
     supportsStreaming: true,
     supportsVision: false,
     requiresApiKey: false,
-    hostingOptions: ['cloud', 'local', 'hybrid']
+    hostingOptions: ['cloud', 'local', 'hybrid'],
+    capabilities: {
+      streaming: true,
+      multimodal: false,
+      codeInterpreter: true,
+      functionCalling: false
+    },
+    parameters: {
+      temperature: 0.7,
+      topP: 0.9,
+      maxTokens: 8192,
+      presencePenalty: 0.0,
+      frequencyPenalty: 0.0
+    },
+    version: '1.0'
   },
   {
     id: 'mixtral-8x7b',
@@ -100,7 +228,21 @@ export const availableModels: ModelOption[] = [
     supportsStreaming: true,
     supportsVision: false,
     requiresApiKey: false,
-    hostingOptions: ['cloud', 'local', 'hybrid']
+    hostingOptions: ['cloud', 'local', 'hybrid'],
+    capabilities: {
+      streaming: true,
+      multimodal: false,
+      codeInterpreter: true,
+      functionCalling: true
+    },
+    parameters: {
+      temperature: 0.7,
+      topP: 0.9,
+      maxTokens: 8192,
+      presencePenalty: 0.0,
+      frequencyPenalty: 0.0
+    },
+    version: '1.0'
   },
   
   // Local models
@@ -112,7 +254,21 @@ export const availableModels: ModelOption[] = [
     supportsStreaming: true,
     supportsVision: false,
     requiresApiKey: false,
-    hostingOptions: ['local']
+    hostingOptions: ['local'],
+    capabilities: {
+      streaming: true,
+      multimodal: false,
+      codeInterpreter: true,
+      functionCalling: false
+    },
+    parameters: {
+      temperature: 0.7,
+      topP: 0.9,
+      maxTokens: 4096,
+      presencePenalty: 0.0,
+      frequencyPenalty: 0.0
+    },
+    version: '3.0'
   },
   {
     id: 'local-mistral',
@@ -122,7 +278,21 @@ export const availableModels: ModelOption[] = [
     supportsStreaming: true,
     supportsVision: false,
     requiresApiKey: false,
-    hostingOptions: ['local']
+    hostingOptions: ['local'],
+    capabilities: {
+      streaming: true,
+      multimodal: false,
+      codeInterpreter: true,
+      functionCalling: false
+    },
+    parameters: {
+      temperature: 0.7,
+      topP: 0.9,
+      maxTokens: 4096,
+      presencePenalty: 0.0,
+      frequencyPenalty: 0.0
+    },
+    version: '1.0'
   },
   {
     id: 'local-custom',
@@ -132,7 +302,21 @@ export const availableModels: ModelOption[] = [
     supportsStreaming: true,
     supportsVision: false,
     requiresApiKey: false,
-    hostingOptions: ['local']
+    hostingOptions: ['local'],
+    capabilities: {
+      streaming: true,
+      multimodal: false,
+      codeInterpreter: false,
+      functionCalling: false
+    },
+    parameters: {
+      temperature: 0.7,
+      topP: 0.9,
+      maxTokens: 4096,
+      presencePenalty: 0.0,
+      frequencyPenalty: 0.0
+    },
+    version: 'custom'
   }
 ];
 
@@ -142,4 +326,10 @@ export const getModelById = (id: string): ModelOption | undefined => {
 
 export const getModelsBySource = (source: ModelSource): ModelOption[] => {
   return availableModels.filter(model => model.source === source);
+};
+
+export const getModelByName = (name: string): ModelOption | undefined => {
+  return availableModels.find(model => 
+    model.name.toLowerCase() === name.toLowerCase()
+  );
 };
