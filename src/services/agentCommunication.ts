@@ -108,7 +108,21 @@ class AgentCommunicationService {
       if (recipientId) {
         this.messageListeners.forEach(listener => listener(message));
       }
-      
+    
+      // Store the message in the database
+      supabase.from('agent_communications').insert({
+        sender_id: senderId,
+        recipient_id: recipientId,
+        channel: channel,
+        content: content,
+        priority: priority,
+        metadata: metadata
+      }).then(({ error }) => {
+        if (error) {
+          console.error('Error storing agent message in database:', error);
+        }
+      });
+    
       return true;
     } catch (error) {
       console.error('Error sending agent message:', error);

@@ -1,68 +1,43 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import Sidebar from '@/components/layout/Sidebar';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { 
-  Lightbulb, 
-  TrendingUp, 
-  Globe, 
-  Target 
-} from 'lucide-react';
-import KnowledgeDiscovery from '@/components/discover/KnowledgeDiscovery';
-import TrendAnalysis from '@/components/discover/TrendAnalysis';
-import MarketIntelligence from '@/components/discover/MarketIntelligence';
-import InnovationTracking from '@/components/discover/InnovationTracking';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Lightbulb } from 'lucide-react';
 
-const DiscoverSystem = () => {
-  const [activeTab, setActiveTab] = useState('knowledge');
-
+const DiscoverSystem: React.FC = () => {
   return (
-    <div className="flex h-screen bg-dark">
+    <div className="flex min-h-screen bg-dark text-white">
       <Sidebar />
-      <div className="flex-1 overflow-auto">
-        <div className="p-6 max-w-7xl mx-auto">
-          <header className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">DISCOVER Research & Innovation System</h1>
-            <p className="text-gray-400">Advanced market intelligence, trend analysis, and innovation tracking platform</p>
-          </header>
-          
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-4 mb-8">
-              <TabsTrigger value="knowledge" className="flex items-center gap-2">
-                <Lightbulb className="w-4 h-4" />
-                <span>Knowledge Discovery</span>
-              </TabsTrigger>
-              <TabsTrigger value="trends" className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                <span>Trend Analysis</span>
-              </TabsTrigger>
-              <TabsTrigger value="market" className="flex items-center gap-2">
-                <Globe className="w-4 h-4" />
-                <span>Market Intelligence</span>
-              </TabsTrigger>
-              <TabsTrigger value="innovation" className="flex items-center gap-2">
-                <Target className="w-4 h-4" />
-                <span>Innovation Tracking</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="knowledge">
-              <KnowledgeDiscovery />
-            </TabsContent>
-            
-            <TabsContent value="trends">
-              <TrendAnalysis />
-            </TabsContent>
-            
-            <TabsContent value="market">
-              <MarketIntelligence />
-            </TabsContent>
-            
-            <TabsContent value="innovation">
-              <InnovationTracking />
-            </TabsContent>
-          </Tabs>
-        </div>
+      
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <header className="px-6 py-4 border-b border-dark-200">
+          <h1 className="text-xl font-semibold flex items-center">
+            <Lightbulb className="w-5 h-5 mr-2 text-yellow-500" />
+            Discover System
+          </h1>
+          <p className="text-sm text-gray-400 mt-1">
+            Explore insights and discover new patterns and opportunities
+          </p>
+        </header>
+        
+        <main className="flex-1 overflow-auto p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="bg-dark-accent border-white/10">
+              <CardHeader>
+                <CardTitle>Discovery Dashboard</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-400">
+                  The Discovery System helps you identify patterns, insights, and opportunities within your data.
+                </p>
+                
+                <div className="mt-4 p-4 bg-dark/50 rounded-md border border-white/5">
+                  <p className="text-center text-gray-500">Connect to your data sources to begin discovering insights</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
       </div>
     </div>
   );

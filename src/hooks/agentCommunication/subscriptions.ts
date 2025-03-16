@@ -1,86 +1,119 @@
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { agentCommunication } from '@/services/agentCommunication';
-import { AgentMessage, CommunicationChannel, MessageContent, InternalMessage } from '@/types/communication';
 import { UseAgentCommunicationOptions } from '@/types/agentCommunication';
-import { formatMessageToAgentMessage, shouldProcessMessage, processChannelMessage } from './messageHandlers';
+import { AgentMessage } from '@/types/communication';
+import { supabase } from '@/integrations/supabase/client';
 
-// Helper function to convert InternalMessage to MessageContent
-const internalToMessageContent = (message: InternalMessage): MessageContent => {
-  return {
-    id: message.id,
-    senderId: message.senderId,
-    senderRole: message.senderRole,
-    recipientId: message.recipientId,
-    content: message.content,
-    channel: message.channel,
-    priority: message.priority,
-    metadata: message.metadata,
-    timestamp: message.timestamp
-  };
+// Load message history from local storage (for persistent sessions)
+export const loadMessageHistory = (agentId: string): AgentMessage[] => {
+  try {
+    const key = `agent_messages_${agentId}`;
+    const stored = localStorage.getItem(key);
+    if (!stored) return [];
+    
+    return JSON.parse(stored);
+  } catch (error) {
+    console.error('Error loading message history:', error);
+    return [];
+  }
 };
 
+// Save message history to local storage
+export const saveMessageHistory = (agentId: string, messages: AgentMessage[]) => {
+  try {
+    const key = `agent_messages_${agentId}`;
+    localStorage.setItem(key, JSON.stringify(messages.slice(-100))); // Keep last 100 messages
+  } catch (error) {
+    console.error('Error saving message history:', error);
+  }
+};
+
+// Setup subscriptions for agent communications
 export const useAgentSubscriptions = (
   options: UseAgentCommunicationOptions,
   onMessageReceived: (message: AgentMessage) => void
 ) => {
-  const { agentId, channels = ['direct', 'broadcast'], priorityThreshold } = options;
-  const [isConnected, setIsConnected] = useState(true);
-  
+  const { agentId, channels = ['direct'], priorityThreshold = 0 } = options;
+  const [isConnected, setIsConnected] = useState(false);
+
+  // Listen to Supabase realtime for agent communications
   useEffect(() => {
-    const subscriptions: Array<() => void> = [];
-  
-    // Subscribe to messages for this agent
+    // First check if the service is connected
+    const connectionStatus = agentCommunication.isConnected();
+    setIsConnected(connectionStatus);
+    
+    // Set up the subscription for the agent
     const unsubscribe = agentCommunication.subscribeToMessages((message) => {
-      const messageContent = internalToMessageContent(message);
-      if (shouldProcessMessage(messageContent, agentId, {})) {
-        onMessageReceived(formatMessageToAgentMessage(messageContent));
-      }
+      // Convert to AgentMessage format with proper date
+      const agentMessage: AgentMessage = {
+        ...message,
+        timestamp: typeof message.timestamp === 'string' 
+          ? new Date(message.timestamp) 
+          : message.timestamp
+      };
+      
+      // Process the message
+      onMessageReceived(agentMessage);
+      
+      // Save to history
+      const history = loadMessageHistory(agentId);
+      const updatedHistory = [...history, agentMessage];
+      saveMessageHistory(agentId, updatedHistory);
     }, {
+      channel: 'all',
       recipientId: agentId,
       priority: priorityThreshold
     });
-    
-    subscriptions.push(unsubscribe);
-    
-    // Also subscribe to broadcast channel separately if specified
-    if (channels.includes('broadcast')) {
-      const broadcastUnsub = agentCommunication.subscribeToMessages((message) => {
-        const messageContent = internalToMessageContent(message);
-        if (processChannelMessage(messageContent, agentId)) {
-          onMessageReceived(formatMessageToAgentMessage(messageContent));
+
+    // Set up Supabase realtime subscription to the agent_communications table
+    const channel = supabase.channel('agent-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'agent_communications'
+        },
+        (payload) => {
+          const newMessage = payload.new;
+          
+          // Check if this message is for this agent
+          if (newMessage.recipient_id === agentId || 
+              newMessage.channel === 'broadcast' ||
+              channels.includes(newMessage.channel)) {
+            
+            // Convert to AgentMessage format
+            const agentMessage: AgentMessage = {
+              id: newMessage.id,
+              senderId: newMessage.sender_id,
+              recipientId: newMessage.recipient_id,
+              content: newMessage.content,
+              channel: newMessage.channel,
+              priority: newMessage.priority || 3,
+              timestamp: new Date(newMessage.created_at),
+              metadata: newMessage.metadata
+            };
+            
+            // Process the message
+            onMessageReceived(agentMessage);
+            
+            // Save to history
+            const history = loadMessageHistory(agentId);
+            const updatedHistory = [...history, agentMessage];
+            saveMessageHistory(agentId, updatedHistory);
+          }
         }
-      }, { channel: 'broadcast' });
-      
-      subscriptions.push(broadcastUnsub);
-    }
+      )
+      .subscribe();
     
-    // Subscribe to priority channel if specified
-    if (channels.includes('priority')) {
-      const priorityUnsub = agentCommunication.subscribeToMessages((message) => {
-        const messageContent = internalToMessageContent(message);
-        onMessageReceived(formatMessageToAgentMessage(messageContent));
-      }, { channel: 'priority' });
-      
-      subscriptions.push(priorityUnsub);
-    }
-    
-    // Return cleanup function
     return () => {
-      subscriptions.forEach(unsub => unsub());
+      unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [agentId, channels, priorityThreshold, onMessageReceived]);
   
   return { isConnected };
 };
 
-export const loadMessageHistory = (agentId: string) => {
-  // Load message history
-  const history = agentCommunication.getMessageHistory({
-    recipientId: agentId,
-    channel: 'all'
-  });
-  
-  // Convert history to Message format
-  return history.map(msg => formatMessageToAgentMessage(internalToMessageContent(msg)));
-};
+export default useAgentSubscriptions;

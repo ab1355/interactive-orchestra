@@ -9,6 +9,75 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      agent_communications: {
+        Row: {
+          channel: string
+          content: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          priority: number
+          recipient_id: string | null
+          sender_id: string
+          status: string
+        }
+        Insert: {
+          channel: string
+          content: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          priority?: number
+          recipient_id?: string | null
+          sender_id: string
+          status?: string
+        }
+        Update: {
+          channel?: string
+          content?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          priority?: number
+          recipient_id?: string | null
+          sender_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      agent_configurations: {
+        Row: {
+          agent_type: string
+          capabilities: string[]
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          priority: number
+          updated_at: string
+        }
+        Insert: {
+          agent_type: string
+          capabilities?: string[]
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          priority?: number
+          updated_at?: string
+        }
+        Update: {
+          agent_type?: string
+          capabilities?: string[]
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          priority?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_suggestions: {
         Row: {
           content: string
@@ -84,6 +153,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      autonomous_executions: {
+        Row: {
+          agent_id: string
+          completed_at: string | null
+          created_at: string
+          execution_data: Json | null
+          id: string
+          result: Json | null
+          started_at: string | null
+          status: string
+          task_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          completed_at?: string | null
+          created_at?: string
+          execution_data?: Json | null
+          id?: string
+          result?: Json | null
+          started_at?: string | null
+          status?: string
+          task_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          completed_at?: string | null
+          created_at?: string
+          execution_data?: Json | null
+          id?: string
+          result?: Json | null
+          started_at?: string | null
+          status?: string
+          task_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       goals: {
         Row: {
@@ -300,6 +408,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      system_integrations: {
+        Row: {
+          config: Json
+          created_at: string
+          id: string
+          integration_type: string
+          is_enabled: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          id?: string
+          integration_type: string
+          is_enabled?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          id?: string
+          integration_type?: string
+          is_enabled?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       tasks: {
         Row: {

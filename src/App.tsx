@@ -10,6 +10,7 @@ import EnhancedChatPage from './pages/EnhancedChat';
 import DiscoverSystem from './pages/DiscoverSystem';
 import SpaceSystem from './pages/SpaceSystem';
 import FlowSystem from './pages/FlowSystem';
+import AutonomousAgentSystem from './pages/AutonomousAgentSystem';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/discover-system" element={<DiscoverSystem />} />
         <Route path="/space-system" element={<SpaceSystem />} />
         <Route path="/flow-system" element={<FlowSystem />} />
+        <Route path="/autonomous-agent-system" element={<AutonomousAgentSystem />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
