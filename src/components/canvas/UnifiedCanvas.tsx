@@ -5,14 +5,14 @@ import { MessageType } from '@/types/chat';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useProjectStore } from '@/stores/projectStore';
+import { useUnifiedStore } from '@/stores/unifiedStore';
 import { Send } from 'lucide-react';
 
 const UnifiedCanvas: React.FC = () => {
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
   const { messages, sendMessage, isLoading } = useChat();
-  const { currentProject } = useProjectStore();
+  const { currentProject } = useUnifiedStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

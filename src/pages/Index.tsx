@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import UnifiedCanvas from '@/components/canvas/UnifiedCanvas';
-import { useProjectStore } from '@/stores/projectStore';
-import { useAgentStore } from '@/stores/agentStore';
+import { useUnifiedStore } from '@/stores/unifiedStore';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { DataCleanupDialog } from '@/components/ui/data-cleanup-dialog';
@@ -11,8 +10,7 @@ import { DataCleanupDialog } from '@/components/ui/data-cleanup-dialog';
 const Index: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const { toast } = useToast();
-  const { createProject, currentProject } = useProjectStore();
-  const { agents, initializeMainAgent } = useAgentStore();
+  const { createProject, currentProject } = useUnifiedStore();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -27,7 +25,6 @@ const Index: React.FC = () => {
       };
       
       const newProject = await createProject(projectData);
-      await initializeMainAgent();
       
       toast({
         title: "Project Created",
