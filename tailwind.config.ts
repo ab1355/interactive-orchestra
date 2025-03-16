@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 import enhancedTheme, { themeKeyframes } from "./src/styles/theme";
 
@@ -155,6 +156,14 @@ export default {
                     }
                 },
                 'slide-up': themeKeyframes.slideUp,
+                'bounce': {
+                    '0%, 100%': {
+                        transform: 'translateY(0)'
+                    },
+                    '50%': {
+                        transform: 'translateY(-3px)'
+                    }
+                }
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -166,6 +175,7 @@ export default {
                 'float': 'float 6s ease-in-out infinite',
                 'pulse-light': 'pulse-light 2s ease-in-out infinite',
                 'slide-up': enhancedTheme.animation['slide-up'],
+                'bounce': 'bounce 1s infinite'
 			},
             backgroundImage: {
                 'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
