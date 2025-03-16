@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { useAgentBehaviorContext } from '@/contexts/AgentBehaviorContext';
 import { agentCommunication } from '@/services/agentCommunication';
-import { useAgentCommunication } from './useAgentCommunication';
+import useAgentCommunication from './useAgentCommunication';
 
 export interface UseAgentBehaviorIntegrationOptions {
   agentId: string;
