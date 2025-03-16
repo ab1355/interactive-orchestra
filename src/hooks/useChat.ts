@@ -1,6 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { ChatMessage, MessageType } from '@/types/chat';
+import { useAgentStore } from '@/stores/agentStore';
 
 interface UseChatOptions {
   initialMessages?: ChatMessage[];
@@ -17,6 +18,29 @@ export const useChat = (options: UseChatOptions = {}) => {
     ]
   );
   const [isLoading, setIsLoading] = useState(false);
+  const { mainAgent } = useAgentStore();
+
+  const processCommand = async (content: string) => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    if (!mainAgent) {
+      return "I'm not connected to any agent yet. Please create a project first.";
+    }
+    
+    if (content.toLowerCase().includes('create task')) {
+      return `Task created from: "${content}"`;
+    }
+    if (content.toLowerCase().includes('assign agent')) {
+      return `Agent assignment processed for: "${content}"`;
+    }
+    if (content.toLowerCase().includes('status')) {
+      return `Current status: All systems operational. Project progress at 72%.`;
+    }
+    
+    // Default interaction
+    return `I've processed your request: "${content}". How can I assist you further?`;
+  };
 
   const sendMessage = useCallback(async (message: ChatMessage) => {
     // Add user message to the chat
@@ -24,9 +48,6 @@ export const useChat = (options: UseChatOptions = {}) => {
     setIsLoading(true);
     
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       // Add "thinking" message temporarily
       setMessages(prev => [
         ...prev,
@@ -37,15 +58,15 @@ export const useChat = (options: UseChatOptions = {}) => {
         }
       ]);
       
-      // Simulate more processing time
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Process the command
+      const responseContent = await processCommand(message.content);
       
       // Replace "thinking" with actual response
       setMessages(prev => [
         ...prev.slice(0, prev.length - 1),
         {
           role: 'assistant',
-          content: `I've processed your request: "${message.content}". How can I assist you further?`,
+          content: responseContent,
           type: MessageType.TEXT,
         }
       ]);
@@ -63,7 +84,7 @@ export const useChat = (options: UseChatOptions = {}) => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [mainAgent]);
 
   return {
     messages,
