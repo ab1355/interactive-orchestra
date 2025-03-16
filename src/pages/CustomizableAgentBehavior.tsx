@@ -434,10 +434,12 @@ const CustomizableAgentBehaviorContent: React.FC = () => {
                   
                   <div className="space-y-2">
                     <label className="text-sm text-gray-300">Model Selection</label>
-                    <ModelSelector 
-                      selectedModelId={selectedModelId}
-                      onSelectModel={setSelectedModelId}
-                    />
+                    <div className="bg-dark border border-white/10 rounded-lg overflow-hidden">
+                      <ModelSelector 
+                        selectedModelId={selectedModelId}
+                        onSelectModel={setSelectedModelId}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
