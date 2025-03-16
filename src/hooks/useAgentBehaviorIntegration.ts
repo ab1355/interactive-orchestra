@@ -4,21 +4,24 @@ import { useAgentBehaviorContext } from '@/contexts/AgentBehaviorContext';
 import { agentCommunication } from '@/services/agentCommunication';
 import useAgentCommunication from './useAgentCommunication';
 import { useToast } from '@/hooks/use-toast';
+import { getModelById } from '@/types/agentModels';
 
 export interface UseAgentBehaviorIntegrationOptions {
   agentId: string;
   agentRole?: string;
+  modelId?: string;
   onBehaviorChange?: (behaviorParams: any) => void;
   onError?: (error: Error) => void;
 }
 
 export const useAgentBehaviorIntegration = (options: UseAgentBehaviorIntegrationOptions) => {
-  const { agentId, agentRole = 'Agent', onBehaviorChange, onError } = options;
+  const { agentId, agentRole = 'Agent', modelId = 'gpt-4o', onBehaviorChange, onError } = options;
   const { currentProfile } = useAgentBehaviorContext();
   const { sendMessage } = useAgentCommunication({ agentId, agentRole });
   const { toast } = useToast();
   const [lastBroadcastTime, setLastBroadcastTime] = useState<number | null>(null);
   const [broadcastStatus, setBroadcastStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+  const selectedModel = getModelById(modelId);
   
   // Broadcast behavior parameters when they change
   useEffect(() => {
@@ -31,6 +34,10 @@ export const useAgentBehaviorIntegration = (options: UseAgentBehaviorIntegration
         // Validate parameters before broadcasting
         if (!currentProfile || !currentProfile.parameters) {
           throw new Error('Invalid behavior profile or parameters');
+        }
+        
+        if (!selectedModel) {
+          console.warn(`Model with ID ${modelId} not found, using default parameters`);
         }
         
         // Broadcast the behavior parameters to all agents
@@ -48,7 +55,14 @@ export const useAgentBehaviorIntegration = (options: UseAgentBehaviorIntegration
               id: currentProfile.id,
               name: currentProfile.name,
               parameters: currentProfile.parameters
-            }
+            },
+            model: selectedModel ? {
+              id: selectedModel.id,
+              name: selectedModel.name,
+              source: selectedModel.source,
+              supportsVision: selectedModel.supportsVision || false,
+              supportsStreaming: selectedModel.supportsStreaming || false
+            } : undefined
           }
         });
         
@@ -58,10 +72,13 @@ export const useAgentBehaviorIntegration = (options: UseAgentBehaviorIntegration
         
         // Notify the parent component if callback provided
         if (onBehaviorChange) {
-          onBehaviorChange(currentProfile.parameters);
+          onBehaviorChange({
+            ...currentProfile.parameters,
+            model: selectedModel
+          });
         }
         
-        console.log(`Behavior parameters for ${agentId} (${agentRole}) have been updated:`, currentProfile.parameters);
+        console.log(`Behavior parameters for ${agentId} (${agentRole}) have been updated with model ${modelId}:`, currentProfile.parameters);
       } catch (error) {
         console.error('Failed to broadcast behavior parameters:', error);
         setBroadcastStatus('error');
@@ -81,7 +98,7 @@ export const useAgentBehaviorIntegration = (options: UseAgentBehaviorIntegration
     }, 500);
     
     return () => clearTimeout(timeoutId);
-  }, [currentProfile, agentId, agentRole, onBehaviorChange, onError, sendMessage, toast]);
+  }, [currentProfile, agentId, agentRole, modelId, onBehaviorChange, onError, sendMessage, toast, selectedModel]);
   
   // Retry mechanism for failed broadcasts
   const retryBroadcast = () => {
@@ -99,10 +116,11 @@ export const useAgentBehaviorIntegration = (options: UseAgentBehaviorIntegration
     }
   };
   
-  // Return the current behavior profile for convenience
+  // Return the current behavior profile and model information for convenience
   return {
     currentBehavior: currentProfile,
     behaviorParameters: currentProfile.parameters,
+    model: selectedModel,
     broadcastStatus,
     lastBroadcastTime,
     retryBroadcast

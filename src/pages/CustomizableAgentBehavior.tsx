@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import { ChevronRight, Save, Play, GitBranch, Trash, Check, AlertCircle, Copy, BookOpen, Code } from 'lucide-react';
+import { ModelSelector } from '@/components/behavior/ModelSelector';
 
 // Parameter Adjustment Interface Component
 const ParameterAdjustmentInterface = () => {
@@ -357,6 +358,7 @@ const BehaviorComparisonTool = () => {
 
 const CustomizableAgentBehavior: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [selectedModelId, setSelectedModelId] = useState('gpt-4o');
   
   React.useEffect(() => {
     setIsLoaded(true);
@@ -405,16 +407,16 @@ const CustomizableAgentBehavior: React.FC = () => {
                     <input 
                       type="text"
                       className="w-full bg-dark border border-white/10 rounded p-2 text-white"
-                      value="Customer Support Agent"
+                      defaultValue="Customer Support Agent"
                     />
                   </div>
+                  
                   <div className="space-y-2">
-                    <label className="text-sm text-gray-300">Model</label>
-                    <select className="w-full bg-dark border border-white/10 rounded p-2 text-white">
-                      <option>GPT-4</option>
-                      <option>Claude-3</option>
-                      <option>Llama-3</option>
-                    </select>
+                    <label className="text-sm text-gray-300">Model Selection</label>
+                    <ModelSelector 
+                      selectedModelId={selectedModelId}
+                      onSelectModel={setSelectedModelId}
+                    />
                   </div>
                 </div>
               </div>

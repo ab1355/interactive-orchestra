@@ -1,243 +1,273 @@
 
-import React, { useState, useEffect } from 'react';
-import Sidebar from '@/components/layout/Sidebar';
+import React, { useState } from 'react';
 import { AgentBehaviorProvider } from '@/contexts/AgentBehaviorContext';
-import { AgentBehaviorConfiguration } from '@/components/behavior/AgentBehaviorConfiguration';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronRight, Save, RefreshCcw } from 'lucide-react';
-import { useAgentBehaviorIntegration } from '@/hooks/useAgentBehaviorIntegration';
+import Sidebar from '@/components/layout/Sidebar';
+import { BehaviorParameterSlider } from '@/components/behavior/BehaviorParameterSlider';
 import { useAgentBehaviorContext } from '@/contexts/AgentBehaviorContext';
 import { BehaviorParameterKey } from '@/types/agentBehavior';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ChevronRight, Save, RefreshCw, AlertTriangle, Server, Cpu, Settings, ArrowUpDown, Zap } from 'lucide-react';
+import { ModelSelector } from '@/components/behavior/ModelSelector';
 
-// Component to display behavior metrics
-const BehaviorMetrics: React.FC = () => {
-  const { currentProfile } = useAgentBehaviorContext();
-  const params = currentProfile.parameters;
+const BehaviorSystemContent = () => {
+  const { currentProfile, updateParameter, saveProfile } = useAgentBehaviorContext();
+  const [profileName, setProfileName] = useState(currentProfile.name);
+  const [profileDescription, setProfileDescription] = useState(currentProfile.description);
+  const [isSaving, setIsSaving] = useState(false);
+  const [selectedModelId, setSelectedModelId] = useState('gpt-4o');
   
-  // Simulate metrics based on behavior parameters
-  const responseTime = 100 + (1 - params.responseSpeed) * 900; // 100-1000ms
-  const resourceUsage = Math.round(params.resourceConsumption * 100);
-  const successRate = Math.round((params.precision * 0.7 + params.confidenceLevel * 0.3) * 100);
-  const adaptability = Math.round((params.adaptiveResponses ? 0.7 : 0.3) * 100 + params.learningRate * 30);
+  const handleParameterChange = (key: BehaviorParameterKey, value: number | boolean) => {
+    updateParameter(key, value);
+  };
   
-  // Animation for metrics
-  const [isAnimating, setIsAnimating] = useState(false);
-  
-  const handleRefresh = () => {
-    setIsAnimating(true);
-    setTimeout(() => setIsAnimating(false), 1000);
+  const handleSaveProfile = async () => {
+    setIsSaving(true);
+    try {
+      await saveProfile(profileName, profileDescription);
+      // Success toast or notification could be added here
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+      // Error toast or notification could be added here
+    } finally {
+      setIsSaving(false);
+    }
   };
   
   return (
-    <Card className="bg-dark-accent border-white/10">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-xl font-semibold flex items-center">
-          Behavior Metrics
-        </CardTitle>
-        <button 
-          onClick={handleRefresh}
-          className="text-gray-400 hover:text-white"
-        >
-          <RefreshCcw className={`w-4 h-4 ${isAnimating ? 'animate-spin' : ''}`} />
-        </button>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 gap-4">
+    <div className="container mx-auto p-6">
+      <div className="mb-6 flex items-center text-sm text-gray-500">
+        <a href="/" className="hover:text-gray-900">Dashboard</a>
+        <ChevronRight className="w-4 h-4 mx-1" />
+        <span className="text-gray-900">Agent Behavior System</span>
+      </div>
+      
+      <div className="flex flex-col space-y-6">
+        <div className="flex justify-between items-center">
           <div>
-            <h3 className="text-sm font-medium text-gray-400">Response Time</h3>
-            <div className="flex items-end">
-              <span className="text-2xl font-bold">{Math.round(responseTime)}</span>
-              <span className="text-sm text-gray-400 ml-1">ms</span>
-            </div>
-            <div className="h-2 bg-gray-700 rounded-full mt-2">
-              <div 
-                className="h-2 bg-blue-500 rounded-full" 
-                style={{ width: `${100 - (responseTime / 10)}%` }}
-              ></div>
-            </div>
+            <h1 className="text-3xl font-bold">Agent Behavior System</h1>
+            <p className="text-gray-500 mt-2">Configure and manage how your AI agents behave and make decisions</p>
+          </div>
+          <Button 
+            onClick={handleSaveProfile}
+            disabled={isSaving}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            {isSaving ? (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Save Profile
+              </>
+            )}
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-1">
+            <Card>
+              <CardHeader>
+                <CardTitle>Profile Information</CardTitle>
+                <CardDescription>Customize your behavior profile details</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="profile-name">Profile Name</Label>
+                  <Input
+                    id="profile-name"
+                    value={profileName}
+                    onChange={(e) => setProfileName(e.target.value)}
+                    placeholder="Enter profile name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="profile-description">Description</Label>
+                  <Input
+                    id="profile-description"
+                    value={profileDescription}
+                    onChange={(e) => setProfileDescription(e.target.value)}
+                    placeholder="Enter profile description"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Model Selection</Label>
+                  <ModelSelector 
+                    selectedModelId={selectedModelId}
+                    onSelectModel={setSelectedModelId}
+                  />
+                </div>
+                <div className="pt-4">
+                  <div className="flex items-center p-4 rounded-lg bg-amber-50 border border-amber-200">
+                    <AlertTriangle className="h-5 w-5 text-amber-500 mr-3 flex-shrink-0" />
+                    <p className="text-sm text-amber-700">
+                      Changes to behavior settings will affect all agents using this profile. Save your changes when ready.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
           
-          <div>
-            <h3 className="text-sm font-medium text-gray-400">Resource Usage</h3>
-            <div className="flex items-end">
-              <span className="text-2xl font-bold">{resourceUsage}</span>
-              <span className="text-sm text-gray-400 ml-1">%</span>
-            </div>
-            <div className="h-2 bg-gray-700 rounded-full mt-2">
-              <div 
-                className={`h-2 rounded-full ${resourceUsage > 80 ? 'bg-red-500' : resourceUsage > 60 ? 'bg-yellow-500' : 'bg-green-500'}`} 
-                style={{ width: `${resourceUsage}%` }}
-              ></div>
-            </div>
-          </div>
-          
-          <div>
-            <h3 className="text-sm font-medium text-gray-400">Success Rate</h3>
-            <div className="flex items-end">
-              <span className="text-2xl font-bold">{successRate}</span>
-              <span className="text-sm text-gray-400 ml-1">%</span>
-            </div>
-            <div className="h-2 bg-gray-700 rounded-full mt-2">
-              <div 
-                className={`h-2 rounded-full ${successRate > 80 ? 'bg-green-500' : successRate > 60 ? 'bg-yellow-500' : 'bg-red-500'}`} 
-                style={{ width: `${successRate}%` }}
-              ></div>
-            </div>
-          </div>
-          
-          <div>
-            <h3 className="text-sm font-medium text-gray-400">Adaptability</h3>
-            <div className="flex items-end">
-              <span className="text-2xl font-bold">{adaptability}</span>
-              <span className="text-sm text-gray-400 ml-1">%</span>
-            </div>
-            <div className="h-2 bg-gray-700 rounded-full mt-2">
-              <div 
-                className="h-2 bg-purple rounded-full" 
-                style={{ width: `${adaptability}%` }}
-              ></div>
-            </div>
+          <div className="md:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Behavior Parameters</CardTitle>
+                <CardDescription>
+                  Fine-tune how agents respond and make decisions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="decision-making">
+                  <TabsList className="grid grid-cols-3 mb-6">
+                    <TabsTrigger value="decision-making" className="flex items-center">
+                      <Settings className="w-4 h-4 mr-2" />
+                      Decision Making
+                    </TabsTrigger>
+                    <TabsTrigger value="operational" className="flex items-center">
+                      <Cpu className="w-4 h-4 mr-2" />
+                      Operational
+                    </TabsTrigger>
+                    <TabsTrigger value="learning" className="flex items-center">
+                      <ArrowUpDown className="w-4 h-4 mr-2" />
+                      Learning & Adaptation
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="decision-making" className="mt-0">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div>
+                        <BehaviorParameterSlider
+                          paramKey="decisionThreshold"
+                          value={currentProfile.parameters.decisionThreshold}
+                          onChange={handleParameterChange}
+                        />
+                        <BehaviorParameterSlider
+                          paramKey="confidenceLevel"
+                          value={currentProfile.parameters.confidenceLevel}
+                          onChange={handleParameterChange}
+                        />
+                        <BehaviorParameterSlider
+                          paramKey="adaptiveResponses"
+                          value={currentProfile.parameters.adaptiveResponses}
+                          onChange={handleParameterChange}
+                        />
+                      </div>
+                      <div>
+                        <BehaviorParameterSlider
+                          paramKey="multiTasking"
+                          value={currentProfile.parameters.multiTasking}
+                          onChange={handleParameterChange}
+                        />
+                        <BehaviorParameterSlider
+                          paramKey="errorRecovery"
+                          value={currentProfile.parameters.errorRecovery}
+                          onChange={handleParameterChange}
+                        />
+                        <BehaviorParameterSlider
+                          paramKey="contextRetention"
+                          value={currentProfile.parameters.contextRetention}
+                          onChange={handleParameterChange}
+                        />
+                      </div>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="operational" className="mt-0">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div>
+                        <BehaviorParameterSlider
+                          paramKey="creativity"
+                          value={currentProfile.parameters.creativity}
+                          onChange={handleParameterChange}
+                        />
+                        <BehaviorParameterSlider
+                          paramKey="precision"
+                          value={currentProfile.parameters.precision}
+                          onChange={handleParameterChange}
+                        />
+                      </div>
+                      <div>
+                        <BehaviorParameterSlider
+                          paramKey="responseSpeed"
+                          value={currentProfile.parameters.responseSpeed}
+                          onChange={handleParameterChange}
+                        />
+                        <BehaviorParameterSlider
+                          paramKey="resourceConsumption"
+                          value={currentProfile.parameters.resourceConsumption}
+                          onChange={handleParameterChange}
+                        />
+                      </div>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="learning" className="mt-0">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div>
+                        <BehaviorParameterSlider
+                          paramKey="learningRate"
+                          value={currentProfile.parameters.learningRate}
+                          onChange={handleParameterChange}
+                        />
+                        <BehaviorParameterSlider
+                          paramKey="adaptiveLearning"
+                          value={currentProfile.parameters.adaptiveLearning}
+                          onChange={handleParameterChange}
+                        />
+                      </div>
+                      <div>
+                        <div className="p-4 rounded-lg border border-gray-200 bg-gray-50">
+                          <h3 className="text-sm font-medium flex items-center">
+                            <Zap className="w-4 h-4 mr-2 text-purple-600" />
+                            Learning & Adaptation
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-2">
+                            These parameters control how the agent learns from interactions and adapts 
+                            to new information over time. Higher learning rates will cause the agent 
+                            to more quickly incorporate new information, while adaptive learning
+                            enables more sophisticated adjustment strategies.
+                          </p>
+                        </div>
+                        
+                        <div className="p-4 mt-4 rounded-lg border border-gray-200 bg-gray-50">
+                          <h3 className="text-sm font-medium flex items-center">
+                            <Server className="w-4 h-4 mr-2 text-purple-600" />
+                            Model Capabilities
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-2">
+                            The selected model may influence the effectiveness of certain behavior parameters.
+                            Open source and local models may have different capabilities than proprietary models.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
-// Component to visualize behavior impact
-const BehaviorVisualization: React.FC = () => {
-  const { currentProfile } = useAgentBehaviorContext();
-  const params = currentProfile.parameters;
-  
-  // Calculate visualization parameters
-  const speedFactor = params.responseSpeed;
-  const creativityFactor = params.creativity;
-  const precisionFactor = params.precision;
-  
-  // Calculate visualization center based on parameters
-  const centerX = 50 + (creativityFactor - 0.5) * 60;
-  const centerY = 50 + (precisionFactor - 0.5) * 60;
-  const radius = 20 + speedFactor * 15;
-  
-  return (
-    <Card className="bg-dark-accent border-white/10">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-xl font-semibold">Behavior Visualization</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="relative h-80 w-full border border-white/10 rounded-md bg-dark/50">
-          <div className="absolute text-xs text-gray-400 left-2 top-2">Creative</div>
-          <div className="absolute text-xs text-gray-400 right-2 top-2">Precise</div>
-          <div className="absolute text-xs text-gray-400 left-2 bottom-2">Adaptive</div>
-          <div className="absolute text-xs text-gray-400 right-2 bottom-2">Structured</div>
-          
-          {/* Quadrants */}
-          <div className="absolute left-0 top-0 w-1/2 h-1/2 border-r border-b border-white/10"></div>
-          <div className="absolute right-0 top-0 w-1/2 h-1/2 border-l border-b border-white/10"></div>
-          <div className="absolute left-0 bottom-0 w-1/2 h-1/2 border-r border-t border-white/10"></div>
-          <div className="absolute right-0 bottom-0 w-1/2 h-1/2 border-l border-t border-white/10"></div>
-          
-          {/* Agent behavior representation */}
-          <div 
-            className="absolute rounded-full bg-purple/30 border-2 border-purple transition-all duration-500"
-            style={{
-              left: `${centerX}%`,
-              top: `${centerY}%`,
-              width: `${radius}px`,
-              height: `${radius}px`,
-              transform: 'translate(-50%, -50%)',
-              boxShadow: `0 0 ${15 + radius}px ${params.resourceConsumption * 10}px rgba(147, 51, 234, 0.3)`
-            }}
-          ></div>
-          
-          {/* Parameter labels */}
-          <div className="absolute left-1/2 top-1" style={{ transform: 'translateX(-50%)' }}>
-            <div className="text-xs text-center">
-              <div className="text-gray-400">Speed</div>
-              <div className="font-bold">{Math.round(params.responseSpeed * 100)}%</div>
-            </div>
-          </div>
-          
-          <div className="absolute left-1/2 bottom-1" style={{ transform: 'translateX(-50%)' }}>
-            <div className="text-xs text-center">
-              <div className="text-gray-400">Adaptability</div>
-              <div className="font-bold">{params.adaptiveResponses ? 'On' : 'Off'}</div>
-            </div>
-          </div>
-          
-          <div className="absolute left-1 top-1/2" style={{ transform: 'translateY(-50%)' }}>
-            <div className="text-xs text-center">
-              <div className="text-gray-400">Creativity</div>
-              <div className="font-bold">{Math.round(params.creativity * 100)}%</div>
-            </div>
-          </div>
-          
-          <div className="absolute right-1 top-1/2" style={{ transform: 'translateY(-50%)' }}>
-            <div className="text-xs text-center">
-              <div className="text-gray-400">Precision</div>
-              <div className="font-bold">{Math.round(params.precision * 100)}%</div>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-// Main component for the agent behavior system
 const AgentBehaviorSystem: React.FC = () => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
-  
-  // Inside the inner component to use the context
-  const AgentBehaviorContent = () => {
-    const { behaviorParameters } = useAgentBehaviorIntegration({
-      agentId: 'behavior-system',
-      agentRole: 'BehaviorCoordinator',
-      onBehaviorChange: (params) => {
-        console.log('Behavior parameters changed:', params);
-      }
-    });
-    
-    return (
-      <>
-        <div className="flex-1 flex flex-col overflow-x-hidden">
-          <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
-            <h1 className="text-xl font-semibold">Agent Behavior System</h1>
-          </div>
-          
-          <main className={`flex-1 p-6 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="mb-4 flex items-center text-sm text-gray-400">
-              <a href="/" className="hover:text-white">Dashboard</a>
-              <ChevronRight className="w-4 h-4 mx-1" />
-              <span className="text-white">Agent Behavior System</span>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <AgentBehaviorConfiguration />
-              </div>
-              
-              <div className="lg:col-span-1 space-y-6">
-                <BehaviorMetrics />
-                <BehaviorVisualization />
-              </div>
-            </div>
-          </main>
-        </div>
-      </>
-    );
-  };
-  
   return (
-    <div className="flex min-h-screen bg-dark text-white overflow-hidden">
+    <div className="min-h-screen bg-white flex">
       <Sidebar />
-      <AgentBehaviorProvider>
-        <AgentBehaviorContent />
-      </AgentBehaviorProvider>
+      <div className="flex-1">
+        <AgentBehaviorProvider>
+          <BehaviorSystemContent />
+        </AgentBehaviorProvider>
+      </div>
     </div>
   );
 };
