@@ -1,50 +1,100 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import Sidebar from '@/components/layout/Sidebar';
+import ChatInterface from '@/components/home/ChatInterface';
+import ResourceMetrics from '@/components/home/ResourceMetrics';
+import ActivityFeed from '@/components/home/ActivityFeed';
+import InteractiveCanvas from '@/components/home/InteractiveCanvas';
+import NewProjectDialog from '@/components/dialogs/NewProjectDialog';
+import SettingsDialog from '@/components/dialogs/SettingsDialog';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import Hero from '@/components/sections/Hero';
+import Features from '@/components/sections/Features';
 
 const Dashboard: React.FC = () => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [newProjectOpen, setNewProjectOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
+
+  const handleProjectCreated = () => {
+    // In a real app, we would refresh the project list or navigate to the new project
+    console.log('Project created, refreshing data...');
+  };
+
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">AI Agent Framework Dashboard</h1>
+    <div className="flex min-h-screen bg-dark text-white overflow-hidden">
+      <Sidebar />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <DashboardCard 
-          title="Tool Integration"
-          description="Connect and manage external tools and APIs"
-          link="/tool-integration"
-        />
-        <DashboardCard 
-          title="Agent Behavior System"
-          description="Configure and manage agent behavior parameters"
-          link="/agent-behavior-system"
-        />
-        <DashboardCard 
-          title="Customizable Agent Behavior"
-          description="Fine-tune how agents respond and make decisions"
-          link="/customizable-agent-behavior"
-        />
+      <div className="flex-1 flex flex-col overflow-x-hidden">
+        <header className="px-6 py-4 border-b border-dark-200 flex items-center justify-between">
+          <h1 className="text-xl font-semibold">AI Agent Framework</h1>
+          <div className="flex items-center space-x-4">
+            <button 
+              className="bg-purple/10 text-purple px-3 py-1 rounded-md text-sm hover:bg-purple/20 transition-colors"
+              onClick={() => setNewProjectOpen(true)}
+            >
+              New Project
+            </button>
+            <button 
+              className="bg-dark-accent border border-dark-200 px-3 py-1 rounded-md text-sm hover:bg-white/5 transition-colors"
+              onClick={() => setSettingsOpen(true)}
+            >
+              Settings
+            </button>
+          </div>
+        </header>
+        
+        <main className={`flex-1 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="container mx-auto px-4 py-8">
+            <Hero className="mb-16" />
+            <Features className="mb-16" />
+          </div>
+          
+          <ResizablePanelGroup direction="horizontal" className="min-h-[calc(100vh-65px)]">
+            <ResizablePanel defaultSize={25} minSize={15} maxSize={40} className="bg-dark">
+              <ResizablePanelGroup direction="vertical">
+                <ResizablePanel defaultSize={40} minSize={25} className="p-4 border-r border-dark-200">
+                  <ResourceMetrics />
+                </ResizablePanel>
+                <ResizableHandle withHandle />
+                <ResizablePanel defaultSize={60} className="p-4 border-r border-dark-200">
+                  <ActivityFeed />
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </ResizablePanel>
+            
+            <ResizableHandle withHandle />
+            
+            <ResizablePanel defaultSize={75} className="bg-dark">
+              <ResizablePanelGroup direction="vertical">
+                <ResizablePanel defaultSize={60} minSize={30} className="p-4 border-b border-dark-200">
+                  <ChatInterface />
+                </ResizablePanel>
+                <ResizableHandle withHandle />
+                <ResizablePanel defaultSize={40} className="p-4">
+                  <InteractiveCanvas />
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </main>
       </div>
+
+      <NewProjectDialog 
+        open={newProjectOpen} 
+        onOpenChange={setNewProjectOpen} 
+        onProjectCreated={handleProjectCreated}
+      />
+      
+      <SettingsDialog 
+        open={settingsOpen} 
+        onOpenChange={setSettingsOpen} 
+      />
     </div>
-  );
-};
-
-interface DashboardCardProps {
-  title: string;
-  description: string;
-  link: string;
-}
-
-const DashboardCard: React.FC<DashboardCardProps> = ({ title, description, link }) => {
-  return (
-    <Link to={link} className="block">
-      <div className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-        <h2 className="text-xl font-semibold mb-2">{title}</h2>
-        <p className="text-gray-600">{description}</p>
-        <div className="mt-4 text-blue-600 font-medium">
-          Explore →
-        </div>
-      </div>
-    </Link>
   );
 };
 

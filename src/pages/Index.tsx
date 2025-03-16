@@ -8,6 +8,8 @@ import InteractiveCanvas from '@/components/home/InteractiveCanvas';
 import NewProjectDialog from '@/components/dialogs/NewProjectDialog';
 import SettingsDialog from '@/components/dialogs/SettingsDialog';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import Hero from '@/components/sections/Hero';
+import Features from '@/components/sections/Features';
 
 const Index: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -28,17 +30,17 @@ const Index: React.FC = () => {
       <Sidebar />
       
       <div className="flex-1 flex flex-col overflow-x-hidden">
-        <header className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+        <header className="px-6 py-4 border-b border-dark-200 flex items-center justify-between">
           <h1 className="text-xl font-semibold">AI Agent Framework</h1>
           <div className="flex items-center space-x-4">
             <button 
-              className="bg-purple/10 text-purple px-3 py-1 rounded-md text-sm hover:bg-purple/20 transition-colors"
+              className="bg-purple/10 text-purple px-3 py-1 rounded-md text-sm hover:bg-purple/20 transition-colors animate-fade-in"
               onClick={() => setNewProjectOpen(true)}
             >
               New Project
             </button>
             <button 
-              className="bg-dark-accent border border-white/10 px-3 py-1 rounded-md text-sm hover:bg-white/5 transition-colors"
+              className="bg-dark-accent border border-dark-200 px-3 py-1 rounded-md text-sm hover:bg-white/5 transition-colors animate-fade-in"
               onClick={() => setSettingsOpen(true)}
             >
               Settings
@@ -47,14 +49,19 @@ const Index: React.FC = () => {
         </header>
         
         <main className={`flex-1 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="container mx-auto px-4 py-8">
+            <Hero className="mb-16" />
+            <Features className="mb-16" />
+          </div>
+          
           <ResizablePanelGroup direction="horizontal" className="min-h-[calc(100vh-65px)]">
             <ResizablePanel defaultSize={25} minSize={15} maxSize={40} className="bg-dark">
               <ResizablePanelGroup direction="vertical">
-                <ResizablePanel defaultSize={40} minSize={25} className="p-4 border-r border-white/10">
+                <ResizablePanel defaultSize={40} minSize={25} className="p-4 border-r border-dark-200">
                   <ResourceMetrics />
                 </ResizablePanel>
                 <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={60} className="p-4 border-r border-white/10">
+                <ResizablePanel defaultSize={60} className="p-4 border-r border-dark-200">
                   <ActivityFeed />
                 </ResizablePanel>
               </ResizablePanelGroup>
@@ -64,7 +71,7 @@ const Index: React.FC = () => {
             
             <ResizablePanel defaultSize={75} className="bg-dark">
               <ResizablePanelGroup direction="vertical">
-                <ResizablePanel defaultSize={60} minSize={30} className="p-4 border-b border-white/10">
+                <ResizablePanel defaultSize={60} minSize={30} className="p-4 border-b border-dark-200">
                   <ChatInterface />
                 </ResizablePanel>
                 <ResizableHandle withHandle />
