@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp } from 'lucide-react';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { performanceMonitor } from '@/utils/performanceMonitor';
-import TaskManagement from '@/components/flow/TaskManagement';
+import TaskManagement from '@/components/flow/task-management';
 import EfficiencyAnalysis from '@/components/flow/efficiency';
 
 const FlowSystem: React.FC = () => {
