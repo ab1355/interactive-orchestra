@@ -11,4 +11,12 @@ export interface ChatMessage {
   content: string;
   type: MessageType;
   timestamp?: string;
+  metadata?: {
+    toolUsed?: string;
+    toolResult?: {
+      success: boolean;
+      data?: any;
+      message?: string;
+    };
+  };
 }

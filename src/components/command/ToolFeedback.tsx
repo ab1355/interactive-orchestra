@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Check, AlertCircle, Tool } from 'lucide-react';
+import { Check, AlertCircle, Wrench } from 'lucide-react';
 
 interface ToolFeedbackProps {
   toolName: string;
@@ -17,7 +17,7 @@ const ToolFeedback: React.FC<ToolFeedbackProps> = ({ toolName, result }) => {
   return (
     <div className="mt-3 pt-3 border-t border-dark-200/50">
       <div className="flex items-center mb-2">
-        <Tool className="h-3.5 w-3.5 mr-1.5 text-purple/70" />
+        <Wrench className="h-3.5 w-3.5 mr-1.5 text-purple/70" />
         <span className="text-xs text-gray-400">Tool: {toolName}</span>
         {isSuccess ? (
           <span className="ml-auto flex items-center text-green-500 text-xs">

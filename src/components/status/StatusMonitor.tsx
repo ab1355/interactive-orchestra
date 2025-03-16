@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Activity, AlertTriangle, Check, Clock, Database, Server, Tool, Users, Zap } from 'lucide-react';
+import { Activity, AlertTriangle, Check, Clock, Database, Server, Wrench, Users, Zap } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUnifiedStore } from '@/stores/unifiedStore';
 
@@ -178,7 +177,7 @@ const StatusMonitor: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="mr-3 bg-blue-500/20 p-2 rounded-full">
-                      <Tool className="h-5 w-5 text-blue-500" />
+                      <Wrench className="h-5 w-5 text-blue-500" />
                     </div>
                     <div>
                       <div className="text-sm font-medium">Tools</div>
@@ -285,7 +284,7 @@ const StatusMonitor: React.FC = () => {
                 <div className="flex items-center justify-between p-3 bg-dark-accent/30 rounded-lg border border-dark-200">
                   <div className="flex items-center">
                     <div className="mr-3 bg-blue-500/20 p-1.5 rounded">
-                      <Tool className="h-4 w-4 text-blue-500" />
+                      <Wrench className="h-4 w-4 text-blue-500" />
                     </div>
                     <div>
                       <div className="font-medium">Data Analysis Tool</div>
@@ -298,7 +297,7 @@ const StatusMonitor: React.FC = () => {
                 <div className="flex items-center justify-between p-3 bg-dark-accent/30 rounded-lg border border-dark-200">
                   <div className="flex items-center">
                     <div className="mr-3 bg-purple/20 p-1.5 rounded">
-                      <Tool className="h-4 w-4 text-purple" />
+                      <Wrench className="h-4 w-4 text-purple" />
                     </div>
                     <div>
                       <div className="font-medium">Web Search Integration</div>
@@ -311,7 +310,7 @@ const StatusMonitor: React.FC = () => {
                 <div className="flex items-center justify-between p-3 bg-dark-accent/30 rounded-lg border border-dark-200">
                   <div className="flex items-center">
                     <div className="mr-3 bg-green-500/20 p-1.5 rounded">
-                      <Tool className="h-4 w-4 text-green-500" />
+                      <Wrench className="h-4 w-4 text-green-500" />
                     </div>
                     <div>
                       <div className="font-medium">Document Parser</div>
@@ -324,7 +323,7 @@ const StatusMonitor: React.FC = () => {
                 <div className="flex items-center justify-between p-3 bg-dark-accent/30 rounded-lg border border-dark-200">
                   <div className="flex items-center">
                     <div className="mr-3 bg-yellow-500/20 p-1.5 rounded">
-                      <Tool className="h-4 w-4 text-yellow-500" />
+                      <Wrench className="h-4 w-4 text-yellow-500" />
                     </div>
                     <div>
                       <div className="font-medium">Code Generator</div>
@@ -337,7 +336,7 @@ const StatusMonitor: React.FC = () => {
                 <div className="flex items-center justify-between p-3 bg-dark-accent/30 rounded-lg border border-dark-200">
                   <div className="flex items-center">
                     <div className="mr-3 bg-red-500/20 p-1.5 rounded">
-                      <Tool className="h-4 w-4 text-red-500" />
+                      <Wrench className="h-4 w-4 text-red-500" />
                     </div>
                     <div>
                       <div className="font-medium">API Connector</div>
