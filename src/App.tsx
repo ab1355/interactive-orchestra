@@ -1,55 +1,24 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Dashboard from './pages/Dashboard';
+import NotFound from './pages/NotFound';
+import ToolIntegration from './pages/ToolIntegration';
+import CustomizableAgentBehavior from './pages/CustomizableAgentBehavior';
 
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Index from "./pages/Index";
-import MultiAgentCollaboration from "./pages/MultiAgentCollaboration";
-import ToolIntegration from "./pages/ToolIntegration";
-import CustomizableAgentBehavior from "./pages/CustomizableAgentBehavior";
-import NotFound from "./pages/NotFound";
-import ElevateSystem from "./pages/ElevateSystem";
-import DiscoverSystem from "./pages/DiscoverSystem";
-import SpaceSystem from "./pages/SpaceSystem";
-import { Toaster } from "sonner";
-
-import "./App.css";
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Index />,
-    errorElement: <NotFound />,
-  },
-  {
-    path: "/multi-agent-collaboration",
-    element: <MultiAgentCollaboration />,
-  },
-  {
-    path: "/tool-integration",
-    element: <ToolIntegration />,
-  },
-  {
-    path: "/customizable-agent-behavior",
-    element: <CustomizableAgentBehavior />,
-  },
-  {
-    path: "/elevate-system",
-    element: <ElevateSystem />,
-  },
-  {
-    path: "/discover-system",
-    element: <DiscoverSystem />,
-  },
-  {
-    path: "/space-system",
-    element: <SpaceSystem />,
-  },
-]);
+// Import the new agent behavior system page
+import AgentBehaviorSystem from './pages/AgentBehaviorSystem';
 
 function App() {
   return (
-    <>
-      <RouterProvider router={router} />
-      <Toaster position="top-right" />
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/tool-integration" element={<ToolIntegration />} />
+        <Route path="/customizable-agent-behavior" element={<CustomizableAgentBehavior />} />
+        <Route path="/agent-behavior-system" element={<AgentBehaviorSystem />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
 }
 
