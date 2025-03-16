@@ -7,6 +7,9 @@ import ToolIntegration from './pages/ToolIntegration';
 import CustomizableAgentBehavior from './pages/CustomizableAgentBehavior';
 import AgentBehaviorSystem from './pages/AgentBehaviorSystem';
 import EnhancedChatPage from './pages/EnhancedChat';
+import DiscoverSystem from './pages/DiscoverSystem';
+import SpaceSystem from './pages/SpaceSystem';
+import FlowSystem from './pages/FlowSystem';
 
 function App() {
   return (
@@ -17,6 +20,9 @@ function App() {
         <Route path="/customizable-agent-behavior" element={<CustomizableAgentBehavior />} />
         <Route path="/agent-behavior-system" element={<AgentBehaviorSystem />} />
         <Route path="/enhanced-chat" element={<EnhancedChatPage />} />
+        <Route path="/discover-system" element={<DiscoverSystem />} />
+        <Route path="/space-system" element={<SpaceSystem />} />
+        <Route path="/flow-system" element={<FlowSystem />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
