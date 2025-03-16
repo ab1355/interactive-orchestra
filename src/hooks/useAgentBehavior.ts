@@ -94,34 +94,37 @@ export const useAgentBehavior = (): AgentBehaviorContext => {
   });
   
   const [availableProfiles, setAvailableProfiles] = useState<AgentBehaviorProfile[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
   
   // Load profiles from localStorage or create defaults
   useEffect(() => {
     const loadProfiles = async () => {
       try {
+        console.log('Loading agent behavior profiles...');
+        
         // Try to load from localStorage first
         const savedProfilesJson = localStorage.getItem('agentBehaviorProfiles');
         let profiles: AgentBehaviorProfile[] = [];
         
         if (savedProfilesJson) {
-          const parsedProfiles = JSON.parse(savedProfilesJson);
-          // Convert string dates back to Date objects
-          profiles = parsedProfiles.map((profile: any) => ({
-            ...profile,
-            createdAt: new Date(profile.createdAt),
-            updatedAt: new Date(profile.updatedAt)
-          }));
+          try {
+            const parsedProfiles = JSON.parse(savedProfilesJson);
+            // Convert string dates back to Date objects
+            profiles = parsedProfiles.map((profile: any) => ({
+              ...profile,
+              createdAt: new Date(profile.createdAt),
+              updatedAt: new Date(profile.updatedAt)
+            }));
+            console.log('Loaded profiles from localStorage:', profiles.length);
+          } catch (parseError) {
+            console.error('Error parsing profiles from localStorage:', parseError);
+            // If parsing fails, create new profiles
+            profiles = createDefaultProfiles();
+          }
         } else {
           // Create predefined profiles if none exist
-          profiles = predefinedProfiles.map(profile => ({
-            ...profile,
-            id: uuidv4(),
-            createdAt: new Date(),
-            updatedAt: new Date()
-          }));
-          
-          // Save to localStorage
-          localStorage.setItem('agentBehaviorProfiles', JSON.stringify(profiles));
+          profiles = createDefaultProfiles();
+          console.log('Created default profiles:', profiles.length);
         }
         
         setAvailableProfiles(profiles);
@@ -130,15 +133,52 @@ export const useAgentBehavior = (): AgentBehaviorContext => {
         const defaultProfile = profiles.find(p => p.isDefault) || profiles[0];
         if (defaultProfile) {
           setCurrentProfile(defaultProfile);
+          console.log('Set current profile:', defaultProfile.name);
         }
+        
+        setIsInitialized(true);
       } catch (error) {
         console.error('Error loading agent behavior profiles:', error);
+        // Fallback to create at least one profile when there's an error
+        const fallbackProfile = {
+          id: 'fallback',
+          name: 'Fallback',
+          description: 'Created due to error in profile loading',
+          parameters: defaultBehaviorParameters,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          isDefault: true
+        };
+        
+        setAvailableProfiles([fallbackProfile]);
+        setCurrentProfile(fallbackProfile);
+        setIsInitialized(true);
+        
         toast({
           title: 'Error',
           description: 'Failed to load agent behavior profiles',
           variant: 'destructive'
         });
       }
+    };
+    
+    // Helper function to create default profiles
+    const createDefaultProfiles = (): AgentBehaviorProfile[] => {
+      const profiles = predefinedProfiles.map(profile => ({
+        ...profile,
+        id: uuidv4(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }));
+      
+      // Save to localStorage
+      try {
+        localStorage.setItem('agentBehaviorProfiles', JSON.stringify(profiles));
+      } catch (storageError) {
+        console.error('Error saving profiles to localStorage:', storageError);
+      }
+      
+      return profiles;
     };
     
     loadProfiles();
@@ -325,5 +365,3 @@ export const useAgentBehavior = (): AgentBehaviorContext => {
     deleteProfile
   };
 };
-
-// Context provider will be implemented in a separate file

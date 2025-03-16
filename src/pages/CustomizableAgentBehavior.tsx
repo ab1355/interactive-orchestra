@@ -1,8 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import { ChevronRight, Save, Play, GitBranch, Trash, Check, AlertCircle, Copy, BookOpen, Code } from 'lucide-react';
 import { ModelSelector } from '@/components/behavior/ModelSelector';
+import { AgentBehaviorProvider } from '@/contexts/AgentBehaviorContext';
+import { AgentBehaviorConfiguration } from '@/components/behavior/AgentBehaviorConfiguration';
+import { Toaster } from 'sonner';
 
 // Parameter Adjustment Interface Component
 const ParameterAdjustmentInterface = () => {
@@ -361,82 +364,90 @@ const CustomizableAgentBehavior: React.FC = () => {
   const [selectedModelId, setSelectedModelId] = useState('gpt-4o');
   
   React.useEffect(() => {
-    setIsLoaded(true);
+    // Add a small delay to ensure smoother transition
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-dark text-white overflow-hidden">
-      <Sidebar />
-      
-      <div className="flex-1 flex flex-col overflow-x-hidden">
-        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Customizable Agent Behavior</h1>
-          <div className="flex items-center space-x-4">
-            <button className="bg-dark hover:bg-dark-accent text-white py-1 px-3 rounded text-sm border border-white/10 flex items-center">
-              <BookOpen className="w-4 h-4 mr-1" />
-              Documentation
-            </button>
-            <button className="bg-purple hover:bg-purple/80 text-white py-1 px-3 rounded text-sm flex items-center">
-              <Save className="w-4 h-4 mr-1" />
-              Save Changes
-            </button>
-          </div>
-        </div>
+    <AgentBehaviorProvider>
+      <div className="flex min-h-screen bg-dark text-white overflow-hidden">
+        <Sidebar />
         
-        <main className={`flex-1 p-6 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="mb-4 flex items-center text-sm text-gray-400">
-            <a href="/" className="hover:text-white">Dashboard</a>
-            <ChevronRight className="w-4 h-4 mx-1" />
-            <span className="text-white">Customizable Agent Behavior</span>
+        <div className="flex-1 flex flex-col overflow-x-hidden">
+          <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+            <h1 className="text-xl font-semibold">Customizable Agent Behavior</h1>
+            <div className="flex items-center space-x-4">
+              <button className="bg-dark hover:bg-dark-accent text-white py-1 px-3 rounded text-sm border border-white/10 flex items-center">
+                <BookOpen className="w-4 h-4 mr-1" />
+                Documentation
+              </button>
+              <button className="bg-purple hover:bg-purple/80 text-white py-1 px-3 rounded text-sm flex items-center">
+                <Save className="w-4 h-4 mr-1" />
+                Save Changes
+              </button>
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Panel - Editor */}
-            <div className="lg:col-span-1 space-y-6">
-              <div className="bg-dark-accent p-4 rounded-lg border border-white/10">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-white font-medium flex items-center">
-                    <Code className="w-5 h-5 mr-2" />
-                    Agent Configuration
-                  </h2>
-                  <div className="text-sm text-gray-400">ID: agent-cus-2491</div>
-                </div>
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <label className="text-sm text-gray-300">Agent Name</label>
-                    <input 
-                      type="text"
-                      className="w-full bg-dark border border-white/10 rounded p-2 text-white"
-                      defaultValue="Customer Support Agent"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label className="text-sm text-gray-300">Model Selection</label>
-                    <ModelSelector 
-                      selectedModelId={selectedModelId}
-                      onSelectModel={setSelectedModelId}
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              <ParameterAdjustmentInterface />
-              <BehaviorTemplateLibrary />
+          <main className={`flex-1 p-6 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="mb-4 flex items-center text-sm text-gray-400">
+              <a href="/" className="hover:text-white">Dashboard</a>
+              <ChevronRight className="w-4 h-4 mx-1" />
+              <span className="text-white">Customizable Agent Behavior</span>
             </div>
             
-            {/* Right Panel - Testing & Version Control */}
-            <div className="lg:col-span-2 space-y-6">
-              <BehaviorTestingEnvironment />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <VersionControl />
-                <BehaviorComparisonTool />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Panel - Editor */}
+              <div className="lg:col-span-1 space-y-6">
+                <div className="bg-dark-accent p-4 rounded-lg border border-white/10">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-white font-medium flex items-center">
+                      <Code className="w-5 h-5 mr-2" />
+                      Agent Configuration
+                    </h2>
+                    <div className="text-sm text-gray-400">ID: agent-cus-2491</div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <label className="text-sm text-gray-300">Agent Name</label>
+                      <input 
+                        type="text"
+                        className="w-full bg-dark border border-white/10 rounded p-2 text-white"
+                        defaultValue="Customer Support Agent"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm text-gray-300">Model Selection</label>
+                      <ModelSelector 
+                        selectedModelId={selectedModelId}
+                        onSelectModel={setSelectedModelId}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <AgentBehaviorConfiguration />
+                <BehaviorTemplateLibrary />
+              </div>
+              
+              {/* Right Panel - Testing & Version Control */}
+              <div className="lg:col-span-2 space-y-6">
+                <BehaviorTestingEnvironment />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <VersionControl />
+                  <BehaviorComparisonTool />
+                </div>
               </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
+        <Toaster />
       </div>
-    </div>
+    </AgentBehaviorProvider>
   );
 };
 
