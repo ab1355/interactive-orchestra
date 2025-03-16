@@ -55,3 +55,17 @@ export interface PriorityFactors {
   complexity: number;
   dependencies: number;
 }
+
+// Autonomous Execution type
+export interface AutonomousExecution {
+  id: string;
+  agent_id: string;
+  task_id: string | null;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  started_at: string | null;
+  completed_at: string | null;
+  execution_data: any | null;
+  result: any | null;
+  created_at: string;
+  updated_at: string;
+}
