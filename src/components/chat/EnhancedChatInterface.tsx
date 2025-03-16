@@ -7,8 +7,8 @@ import { ChatInput } from './ChatInput';
 
 export const EnhancedChatInterface = () => {
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex-none p-4 border-b">
+    <div className="flex flex-col h-screen bg-dark-50">
+      <div className="flex-none p-4 border-b border-dark-200">
         <ModelSelector />
       </div>
       
@@ -18,7 +18,7 @@ export const EnhancedChatInterface = () => {
         </ScrollArea>
       </div>
       
-      <div className="flex-none p-4 border-t">
+      <div className="flex-none p-4 border-t border-dark-200">
         <ChatInput />
       </div>
     </div>
