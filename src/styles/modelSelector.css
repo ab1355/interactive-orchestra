@@ -1,0 +1,47 @@
+
+/* ModelSelector specific styles */
+.model-selector-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  width: 100%;
+  background-color: rgba(30, 30, 30, 0.6);
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.model-selector-tab {
+  padding: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  color: #e5e5e5;
+  transition: all 0.2s;
+}
+
+.model-selector-tab[data-state="active"] {
+  background-color: rgba(147, 51, 234, 0.2);
+  color: #e5e5e5;
+}
+
+.model-selector-tab:hover:not([data-state="active"]) {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.model-card {
+  transition: all 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: #1a1a1a;
+}
+
+.model-card:hover {
+  border-color: rgba(147, 51, 234, 0.4);
+  box-shadow: 0 0 0 1px rgba(147, 51, 234, 0.2);
+}
+
+.model-selected {
+  border-color: rgba(147, 51, 234, 0.8);
+  background-color: rgba(147, 51, 234, 0.05);
+}

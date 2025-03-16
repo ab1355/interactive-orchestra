@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import { ChevronRight, Save, Play, GitBranch, Trash, Check, AlertCircle, Copy, BookOpen, Code } from 'lucide-react';
@@ -8,6 +7,7 @@ import { AgentBehaviorConfiguration } from '@/components/behavior/AgentBehaviorC
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
 // Parameter Adjustment Interface Component
 const ParameterAdjustmentInterface = () => {
@@ -361,16 +361,20 @@ const BehaviorComparisonTool = () => {
   );
 };
 
-// Main Content Component - This will be wrapped with the AgentBehaviorProvider
+// Main Content Component
 const CustomizableAgentBehaviorContent: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState('gpt-4o');
   const { toast } = useToast();
   
   useEffect(() => {
+    // Log component mounting for debugging
+    console.log('CustomizableAgentBehaviorContent mounted');
+    
     // Add a small delay to ensure smoother transition
     const timer = setTimeout(() => {
       setIsLoaded(true);
+      console.log('Content loaded state set to true');
       // Show a toast when the page loads successfully
       toast({
         title: "Page loaded",
@@ -437,7 +441,10 @@ const CustomizableAgentBehaviorContent: React.FC = () => {
                     <div className="bg-dark border border-white/10 rounded-lg overflow-hidden">
                       <ModelSelector 
                         selectedModelId={selectedModelId}
-                        onSelectModel={setSelectedModelId}
+                        onSelectModel={(modelId) => {
+                          console.log('Model selected:', modelId);
+                          setSelectedModelId(modelId);
+                        }}
                       />
                     </div>
                   </div>
@@ -464,12 +471,26 @@ const CustomizableAgentBehaviorContent: React.FC = () => {
   );
 };
 
-// Wrapper component with AgentBehaviorProvider
+// Wrapper component with ErrorBoundary and AgentBehaviorProvider
 const CustomizableAgentBehavior: React.FC = () => {
+  useEffect(() => {
+    console.log('CustomizableAgentBehavior component mounted');
+    // Add more detailed logging for production debugging
+    console.log('Environment:', import.meta.env.MODE);
+    console.log('Using AgentBehaviorProvider from:', import.meta.env.BASE_URL);
+  }, []);
+
   return (
-    <AgentBehaviorProvider>
-      <CustomizableAgentBehaviorContent />
-    </AgentBehaviorProvider>
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        console.error('Error in CustomizableAgentBehavior:', error);
+        console.error('Component stack:', errorInfo.componentStack);
+      }}
+    >
+      <AgentBehaviorProvider>
+        <CustomizableAgentBehaviorContent />
+      </AgentBehaviorProvider>
+    </ErrorBoundary>
   );
 };
 
