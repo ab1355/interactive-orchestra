@@ -12,6 +12,16 @@
   }
 }
 
+@layer components {
+  .model-card {
+    @apply transition-all duration-200 hover:shadow-sm;
+  }
+  
+  .model-title {
+    @apply font-medium leading-tight;
+  }
+}
+
 @keyframes ripple {
   to {
     transform: scale(4);

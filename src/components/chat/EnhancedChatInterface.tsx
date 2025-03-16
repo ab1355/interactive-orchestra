@@ -8,17 +8,17 @@ import { ChatInput } from './ChatInput';
 export const EnhancedChatInterface = () => {
   return (
     <div className="flex flex-col h-screen bg-dark-50">
-      <div className="flex-none p-4 border-b border-dark-200">
+      <div className="flex-none p-3 border-b border-dark-200 bg-dark-accent/30">
         <ModelSelector />
       </div>
       
-      <div className="flex-1 overflow-auto p-4">
-        <ScrollArea className="h-full">
+      <div className="flex-1 overflow-auto">
+        <ScrollArea className="h-full px-2 py-3">
           <ChatMessages />
         </ScrollArea>
       </div>
       
-      <div className="flex-none p-4 border-t border-dark-200">
+      <div className="flex-none p-3 border-t border-dark-200 bg-dark-accent/20">
         <ChatInput />
       </div>
     </div>
