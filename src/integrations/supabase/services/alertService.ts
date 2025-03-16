@@ -1,121 +1,62 @@
 
 import { supabase } from '../client';
-import { Alert } from '@/types/flow';
 
-// Alert System Services
-export const getProjectAlerts = async (projectId: string): Promise<Alert[]> => {
+// Alert Services
+export const getProjectAlerts = async (projectId: string) => {
   try {
-    const { data, error } = await supabase
-      .from('alerts')
-      .select('*')
-      .eq('project_id', projectId)
-      .order('created_at', { ascending: false });
-      
-    if (error) {
-      if (error.code === "42P01") { // relation "alerts" does not exist
-        console.warn("Alerts table doesn't exist, returning mock data");
-        // Return mock alerts with proper type literals
-        return [
-          {
-            id: '1',
-            title: 'Resource bottleneck detected',
-            description: 'Design team is over-allocated for the next sprint, which might delay project delivery',
-            type: 'critical' as const,
-            created_at: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-            is_read: false,
-            source: 'Resource Allocation',
-            project_id: projectId,
-          },
-          {
-            id: '2',
-            title: 'Task deadline approaching',
-            description: 'The "Create UI wireframes" task is due in 24 hours with no progress update',
-            type: 'warning' as const,
-            created_at: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
-            is_read: false,
-            source: 'Task Management',
-            project_id: projectId,
-          },
-          {
-            id: '3',
-            title: 'Performance decline detected',
-            description: 'Task completion rate has dropped by 15% in the last week',
-            type: 'warning' as const,
-            created_at: new Date(Date.now() - 1000 * 60 * 360).toISOString(),
-            is_read: true,
-            source: 'Performance Metrics',
-            project_id: projectId,
-          },
-          {
-            id: '4',
-            title: 'New team member added',
-            description: 'Sarah Johnson has been added to the project team',
-            type: 'info' as const,
-            created_at: new Date(Date.now() - 1000 * 60 * 720).toISOString(),
-            is_read: true,
-            source: 'Team Management',
-            project_id: projectId,
-          }
-        ];
-      }
-      throw error;
+    const { data, error } = await supabase.from('alerts').select('*').eq('project_id', projectId);
+    if (error) throw error;
+    
+    // If no data or empty array, return mock alerts for demonstration
+    if (!data || data.length === 0) {
+      return [
+        {
+          id: '1',
+          type: 'critical',
+          title: 'Task Deadline Approaching',
+          description: 'High priority task "Database Schema Design" is due in 2 days',
+          source: 'tasks',
+          created_at: new Date().toISOString(),
+          is_read: false,
+          project_id: projectId
+        },
+        {
+          id: '2',
+          type: 'warning',
+          title: 'Resource Utilization High',
+          description: 'Development team is at 90% capacity',
+          source: 'resources',
+          created_at: new Date().toISOString(),
+          is_read: false,
+          project_id: projectId
+        },
+        {
+          id: '3',
+          type: 'info',
+          title: 'New Project Milestone',
+          description: 'Phase 1 completion scheduled for next week',
+          source: 'timeline',
+          created_at: new Date().toISOString(),
+          is_read: true,
+          project_id: projectId
+        }
+      ];
     }
     
-    // Ensure data returned from Supabase conforms to our Alert type
-    return (data || []).map(item => ({
-      ...item,
-      type: item.type as "critical" | "warning" | "info"
-    }));
+    return data;
   } catch (error) {
     console.error('Error fetching alerts:', error);
-    // Return empty array as fallback
     return [];
   }
 };
 
-export const dismissAlert = async (alertId: string): Promise<Alert> => {
+export const dismissAlert = async (alertId: string) => {
   try {
-    const { data, error } = await supabase
-      .from('alerts')
-      .update({ is_read: true })
-      .eq('id', alertId)
-      .select()
-      .single();
-      
-    if (error) {
-      if (error.code === "42P01") { // relation "alerts" does not exist
-        console.warn("Alerts table doesn't exist, returning mock data");
-        return {
-          id: alertId,
-          is_read: true,
-          title: "Mock Alert",
-          description: "",
-          type: "info" as const,
-          source: "System",
-          project_id: "",
-          created_at: new Date().toISOString()
-        };
-      }
-      throw error;
-    }
-    
-    // Ensure data returned from Supabase conforms to our Alert type
-    return {
-      ...data,
-      type: data.type as "critical" | "warning" | "info"
-    };
+    const { data, error } = await supabase.from('alerts').update({ is_read: true }).eq('id', alertId).select().single();
+    if (error) throw error;
+    return data;
   } catch (error) {
     console.error('Error dismissing alert:', error);
-    // Return mock data as fallback
-    return {
-      id: alertId,
-      is_read: true,
-      title: "Mock Alert",
-      description: "",
-      type: "info" as const,
-      source: "System",
-      project_id: "",
-      created_at: new Date().toISOString()
-    };
+    throw error;
   }
 };

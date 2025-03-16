@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { Task } from '@/types/flow';
-import { getTasks, createTask, updateTaskStatus } from '@/integrations/supabase/client';
+import { getTasks, createTask, updateTaskStatus } from '@/integrations/supabase/services/taskService';
 
 interface UseTasksProps {
   projectId?: string;
@@ -104,7 +104,6 @@ export const useTasks = ({ projectId }: UseTasksProps) => {
     }
   };
 
-  // Changed return type to void to match the expected type in TaskManagement
   const handleStatusUpdate = async (taskId: string, newStatus: string): Promise<void> => {
     try {
       setError(null);
