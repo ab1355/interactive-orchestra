@@ -102,11 +102,15 @@ export const useAutonomousExecution = (options: UseAutonomousExecutionOptions = 
           if (payload.eventType === 'INSERT') {
             // Filter if agentId is specified
             if (!options.agentId || payload.new.agent_id === options.agentId) {
-              setExecutions(prev => [payload.new, ...prev]);
+              // Ensure the payload.new conforms to AutonomousExecution type
+              const newExecution = payload.new as AutonomousExecution;
+              setExecutions(prev => [newExecution, ...prev]);
             }
           } else if (payload.eventType === 'UPDATE') {
+            // Ensure the payload.new conforms to AutonomousExecution type
+            const updatedExecution = payload.new as AutonomousExecution;
             setExecutions(prev => 
-              prev.map(exec => exec.id === payload.new.id ? payload.new : exec)
+              prev.map(exec => exec.id === updatedExecution.id ? updatedExecution : exec)
             );
           } else if (payload.eventType === 'DELETE') {
             setExecutions(prev => 
