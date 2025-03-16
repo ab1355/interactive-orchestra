@@ -33,23 +33,28 @@ export function DataCleanupDialog() {
         Reset All Data
       </Button>
       <AlertDialog open={open} onOpenChange={setOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-dark border border-white/10 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-white text-xl">Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-300">
               This action cannot be undone. It will permanently delete all your projects, 
               tasks, goals, and other data from the database.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel 
+              disabled={isLoading} 
+              className="bg-dark-accent border border-white/10 text-white hover:bg-dark-accent/80"
+            >
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 handleResetData();
               }}
               disabled={isLoading}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-white hover:bg-destructive/90"
             >
               {isLoading ? 'Resetting...' : 'Reset All Data'}
             </AlertDialogAction>
