@@ -6,7 +6,7 @@ import { TrendingUp } from 'lucide-react';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { performanceMonitor } from '@/utils/performanceMonitor';
 import TaskManagement from '@/components/flow/TaskManagement';
-import EfficiencyAnalysis from '@/components/flow/EfficiencyAnalysis';
+import EfficiencyAnalysis from '@/components/flow/efficiency';
 
 const FlowSystem: React.FC = () => {
   // Track page load time
