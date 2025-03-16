@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -141,7 +142,7 @@ const AgentPerformance: React.FC = () => {
           <CardContent>
             <div className="h-[220px]">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <RechartsPieChart>
                   <Pie
                     data={agentScores.map(agent => ({ name: agent.name, value: agent.tasks }))}
                     cx="50%"
@@ -167,7 +168,7 @@ const AgentPerformance: React.FC = () => {
                     }} 
                     formatter={(value, name) => [`${value} tasks`, name]}
                   />
-                </PieChart>
+                </RechartsPieChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
