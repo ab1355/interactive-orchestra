@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { cleanupTable, cleanupAllData } from '@/integrations/supabase/client';
 
 export const useDataCleanup = () => {
@@ -49,13 +49,19 @@ export const useDataCleanup = () => {
       setIsLoading(true);
       setError(null);
       
+      console.log("Starting data cleanup...");
       const result = await cleanupAllData();
+      console.log("Cleanup result:", result);
       
       if (result.success) {
         toast({
           title: 'Success',
           description: result.message,
         });
+        
+        // Force reload the page to reset UI state
+        window.location.reload();
+        
         return true;
       } else {
         const failedTables = Object.entries(result.details)

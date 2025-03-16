@@ -9,11 +9,13 @@ import NewProjectDialog from '@/components/dialogs/NewProjectDialog';
 import SettingsDialog from '@/components/dialogs/SettingsDialog';
 import { DataCleanupDialog } from '@/components/ui/data-cleanup-dialog';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import { useToast } from '@/hooks/use-toast';
 
 const Index: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [newProjectOpen, setNewProjectOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -21,7 +23,11 @@ const Index: React.FC = () => {
 
   const handleProjectCreated = () => {
     // In a real app, we would refresh the project list or navigate to the new project
-    console.log('Project created, refreshing data...');
+    console.log('Project created successfully!');
+    toast({
+      title: "Success",
+      description: "New project created successfully.",
+    });
   };
 
   return (

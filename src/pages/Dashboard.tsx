@@ -79,6 +79,9 @@ const Dashboard: React.FC = () => {
       title: "Success",
       description: "New project created successfully.",
     });
+    
+    // Additional feedback could be added here
+    // For example, we could trigger a refresh of project data
   };
 
   return (

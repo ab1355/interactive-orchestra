@@ -8,13 +8,14 @@ interface ChatMessageProps {
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ type, content }) => {
-  // Add more complex message rendering based on content type
+  // Render different content based on type and content
   const renderContent = () => {
+    // Handle canvas commands differently
     if (content.startsWith('/canvas')) {
-      return <div className="font-mono bg-dark-accent/50 p-2 rounded">{content}</div>;
+      return <div className="font-mono bg-dark-accent/80 p-2 rounded">{content}</div>;
     }
     
-    // Handle system messages differently
+    // Handle "message received" system message with animation
     if (type === 'ai' && content === 'message received') {
       return (
         <div className="animate-pulse">
@@ -22,6 +23,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ type, content }) => {
             <div className="w-2 h-2 bg-purple rounded-full"></div>
             <div className="w-2 h-2 bg-purple rounded-full"></div>
             <div className="w-2 h-2 bg-purple rounded-full"></div>
+            <span className="text-xs text-purple-300 ml-2">Thinking...</span>
           </div>
         </div>
       );

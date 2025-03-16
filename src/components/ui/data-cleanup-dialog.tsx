@@ -18,6 +18,7 @@ export function DataCleanupDialog() {
   const { resetAllData, isLoading } = useDataCleanup();
 
   const handleResetData = async () => {
+    console.log("Reset data button clicked");
     const success = await resetAllData();
     if (success) {
       setOpen(false);
@@ -33,10 +34,10 @@ export function DataCleanupDialog() {
         Reset All Data
       </Button>
       <AlertDialog open={open} onOpenChange={setOpen}>
-        <AlertDialogContent className="bg-dark border border-white/10 text-white">
+        <AlertDialogContent className="bg-dark border border-white/20 text-white">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white text-xl">Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-300">
+            <AlertDialogDescription className="text-gray-200">
               This action cannot be undone. It will permanently delete all your projects, 
               tasks, goals, and other data from the database.
             </AlertDialogDescription>
@@ -44,7 +45,7 @@ export function DataCleanupDialog() {
           <AlertDialogFooter>
             <AlertDialogCancel 
               disabled={isLoading} 
-              className="bg-dark-accent border border-white/10 text-white hover:bg-dark-accent/80"
+              className="bg-dark-accent/80 border border-white/20 text-white hover:bg-dark-accent/60"
             >
               Cancel
             </AlertDialogCancel>
