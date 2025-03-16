@@ -10,7 +10,6 @@ import ToolTableView from '@/components/integration/ToolTableView';
 import IntegrationConfiguration from '@/components/integration/IntegrationConfiguration';
 import ApiCredentialManager from '@/components/integration/ApiCredentialManager';
 import ToolTestingSandbox from '@/components/integration/ToolTestingSandbox';
-import ButtonFunctionalityDemo from '@/components/integration/ButtonFunctionalityDemo';
 import N8nIntegration from '@/components/integration/N8nIntegration';
 import CoolifyIntegration from '@/components/integration/coolify/CoolifyIntegration';
 import { Toaster } from 'sonner';
@@ -134,11 +133,6 @@ const ToolIntegration: React.FC = () => {
           
           <div className="mb-6">
             <ToolTestingSandbox />
-          </div>
-
-          {/* Button Functionality Demo */}
-          <div className="mb-6">
-            <ButtonFunctionalityDemo />
           </div>
         </main>
       </div>
