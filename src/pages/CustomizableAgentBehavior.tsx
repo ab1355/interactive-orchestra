@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import { ChevronRight, Save, Play, GitBranch, Trash, Check, AlertCircle, Copy, BookOpen, Code } from 'lucide-react';
@@ -6,6 +7,7 @@ import { AgentBehaviorProvider } from '@/contexts/AgentBehaviorContext';
 import { AgentBehaviorConfiguration } from '@/components/behavior/AgentBehaviorConfiguration';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 // Parameter Adjustment Interface Component
 const ParameterAdjustmentInterface = () => {
@@ -277,7 +279,7 @@ const VersionControl = () => {
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-400">Auto-save every 10 minutes</span>
           <label className="inline-flex items-center cursor-pointer">
-            <input type="checkbox" className="sr-only peer" checked />
+            <input type="checkbox" className="sr-only peer" defaultChecked />
             <div className="relative w-9 h-5 bg-gray-600 peer-checked:bg-purple rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
           </label>
         </div>
@@ -384,8 +386,8 @@ const CustomizableAgentBehaviorContent: React.FC = () => {
       <Sidebar />
       
       <div className="flex-1 flex flex-col overflow-x-hidden">
-        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Customizable Agent Behavior</h1>
+        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-dark">
+          <h1 className="text-xl font-semibold text-white">Customizable Agent Behavior</h1>
           <div className="flex items-center space-x-4">
             <button className="bg-dark hover:bg-dark-accent text-white py-1 px-3 rounded text-sm border border-white/10 flex items-center">
               <BookOpen className="w-4 h-4 mr-1" />
@@ -402,7 +404,7 @@ const CustomizableAgentBehaviorContent: React.FC = () => {
           </div>
         </div>
         
-        <main className={`flex-1 p-6 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+        <main className={`flex-1 p-6 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'} bg-dark`}>
           <div className="mb-4 flex items-center text-sm text-gray-400">
             <a href="/" className="hover:text-white">Dashboard</a>
             <ChevronRight className="w-4 h-4 mx-1" />
