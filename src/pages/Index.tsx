@@ -9,7 +9,6 @@ import NewProjectDialog from '@/components/dialogs/NewProjectDialog';
 import SettingsDialog from '@/components/dialogs/SettingsDialog';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import Hero from '@/components/sections/Hero';
-import Features from '@/components/sections/Features';
 
 const Index: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -51,7 +50,6 @@ const Index: React.FC = () => {
         <main className={`flex-1 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <div className="container mx-auto px-4 py-8">
             <Hero className="mb-16" />
-            <Features className="mb-16" />
           </div>
           
           <ResizablePanelGroup direction="horizontal" className="min-h-[calc(100vh-65px)]">
