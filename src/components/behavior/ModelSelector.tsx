@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { getAllModels, ModelOption, ModelSource, deleteCustomModel } from '@/types/agentModels';
+import { getAllModels, ModelOption, ModelSource, deleteCustomModel } from '@/types/models';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

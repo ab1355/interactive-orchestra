@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ModelOption, ModelSource, saveCustomModel } from '@/types/agentModels';
+import { ModelOption, ModelSource, saveCustomModel } from '@/types/models';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';

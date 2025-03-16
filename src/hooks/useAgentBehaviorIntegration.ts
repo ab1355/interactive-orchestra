@@ -1,10 +1,9 @@
-
 import { useEffect, useState } from 'react';
 import { useAgentBehaviorContext } from '@/contexts/AgentBehaviorContext';
 import { agentCommunication } from '@/services/agentCommunication';
 import useAgentCommunication from './useAgentCommunication';
 import { useToast } from '@/hooks/use-toast';
-import { getModelById } from '@/types/agentModels';
+import { getModelById } from '@/types/models';
 
 export interface UseAgentBehaviorIntegrationOptions {
   agentId: string;
