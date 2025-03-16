@@ -75,8 +75,8 @@ const AgentPerformance: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="hidden">
+      <Tabs defaultValue="performance" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
           <TabsTrigger value="performance">Performance</TabsTrigger>
         </TabsList>
         
