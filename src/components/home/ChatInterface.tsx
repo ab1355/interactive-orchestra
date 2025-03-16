@@ -4,12 +4,16 @@ import { FileUp } from 'lucide-react';
 import ChatHistory from './ChatHistory';
 import MessageInput from './MessageInput';
 import { ChatMessage, FileWithPath } from './types';
+import { Tool } from './canvas/types';
+import { toast } from 'sonner';
 
 // Create a context for canvas collaboration
 export interface CanvasCollaborationContextType {
   addElementToCanvas: (elementType: string, properties?: any) => void;
   clearCanvas: () => void;
   updateCanvasZoom: (zoomLevel: number) => void;
+  setCanvasTool: (tool: Tool) => void;
+  setCanvasColor: (color: string) => void;
 }
 
 export const CanvasCollaborationContext = createContext<CanvasCollaborationContextType | null>(null);
@@ -68,26 +72,59 @@ const ChatInterface: React.FC = () => {
       if (lowerMessage.includes('/canvas clear')) {
         canvasContext.clearCanvas();
         response = "Canvas cleared successfully.";
+        toast.success("Canvas cleared");
       } else if (lowerMessage.includes('/canvas add square')) {
         canvasContext.addElementToCanvas('square', { color: '#ffffff' });
         response = "Added a square to the canvas.";
+        toast.success("Square added to canvas");
       } else if (lowerMessage.includes('/canvas add circle')) {
         canvasContext.addElementToCanvas('circle', { color: '#ffffff' });
         response = "Added a circle to the canvas.";
+        toast.success("Circle added to canvas");
       } else if (lowerMessage.includes('/canvas zoom')) {
         const zoomMatch = lowerMessage.match(/\/canvas zoom (\d+)/);
         if (zoomMatch && zoomMatch[1]) {
           const zoomLevel = parseInt(zoomMatch[1]) / 100;
           canvasContext.updateCanvasZoom(zoomLevel);
           response = `Canvas zoom set to ${zoomMatch[1]}%.`;
+          toast.success(`Canvas zoom set to ${zoomMatch[1]}%`);
         } else {
           response = "Please specify a zoom level (e.g., /canvas zoom 150).";
+          toast.error("Missing zoom level");
+        }
+      } else if (lowerMessage.includes('/canvas tool')) {
+        const toolMatch = lowerMessage.match(/\/canvas tool (\w+)/);
+        if (toolMatch && toolMatch[1]) {
+          const tool = toolMatch[1].toLowerCase() as Tool;
+          if (['select', 'move', 'pen', 'square', 'circle'].includes(tool)) {
+            canvasContext.setCanvasTool(tool);
+            response = `Canvas tool set to ${tool}.`;
+            toast.success(`Canvas tool set to ${tool}`);
+          } else {
+            response = "Available tools: select, move, pen, square, circle";
+            toast.error("Invalid tool specified");
+          }
+        } else {
+          response = "Please specify a tool (e.g., /canvas tool pen).";
+          toast.error("Missing tool type");
+        }
+      } else if (lowerMessage.includes('/canvas color')) {
+        const colorMatch = lowerMessage.match(/\/canvas color (#[0-9a-f]{6}|[a-z]+)/i);
+        if (colorMatch && colorMatch[1]) {
+          const color = colorMatch[1].toLowerCase();
+          canvasContext.setCanvasColor(color);
+          response = `Canvas color set to ${color}.`;
+          toast.success(`Canvas color set to ${color}`);
+        } else {
+          response = "Please specify a color (e.g., /canvas color #ff0000 or /canvas color red).";
+          toast.error("Missing color value");
         }
       } else {
-        response = "Available canvas commands: /canvas clear, /canvas add square, /canvas add circle, /canvas zoom [percentage]";
+        response = "Available canvas commands: /canvas clear, /canvas add square, /canvas add circle, /canvas zoom [percentage], /canvas tool [tool], /canvas color [color]";
       }
     } else {
       response = "Canvas collaboration is not available. Please make sure you're on a page with an interactive canvas.";
+      toast.error("Canvas collaboration not available");
     }
 
     // Add AI response with canvas command result

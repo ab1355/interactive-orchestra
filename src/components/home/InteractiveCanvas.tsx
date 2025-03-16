@@ -4,6 +4,7 @@ import { CanvasCollaborationContext } from './ChatInterface';
 import CanvasToolbar from './canvas/CanvasToolbar';
 import ColorPicker from './canvas/ColorPicker';
 import { useCanvas } from './canvas/useCanvas';
+import { Tool } from './canvas/types';
 
 const InteractiveCanvas: React.FC = () => {
   const {
@@ -26,8 +27,17 @@ const InteractiveCanvas: React.FC = () => {
     updateCanvasZoom
   } = useCanvas();
   
+  // Enhanced context provider value with new tool and color setters
+  const providerValue = {
+    addElementToCanvas,
+    clearCanvas,
+    updateCanvasZoom,
+    setCanvasTool: (tool: Tool) => setActiveTool(tool),
+    setCanvasColor: (color: string) => setActiveColor(color)
+  };
+  
   return (
-    <CanvasCollaborationContext.Provider value={{ addElementToCanvas, clearCanvas, updateCanvasZoom }}>
+    <CanvasCollaborationContext.Provider value={providerValue}>
       <div className="h-full flex flex-col">
         <CanvasToolbar
           activeTool={activeTool}
