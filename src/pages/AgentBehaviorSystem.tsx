@@ -39,22 +39,22 @@ const BehaviorSystemContent = () => {
   
   return (
     <div className="container mx-auto p-6">
-      <div className="mb-6 flex items-center text-sm text-gray-500">
-        <a href="/" className="hover:text-gray-900">Dashboard</a>
+      <div className="mb-6 flex items-center text-sm text-gray-400">
+        <a href="/" className="hover:text-white">Dashboard</a>
         <ChevronRight className="w-4 h-4 mx-1" />
-        <span className="text-gray-900">Agent Behavior System</span>
+        <span className="text-white">Agent Behavior System</span>
       </div>
       
       <div className="flex flex-col space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">Agent Behavior System</h1>
-            <p className="text-gray-500 mt-2">Configure and manage how your AI agents behave and make decisions</p>
+            <h1 className="text-3xl font-bold text-white">Agent Behavior System</h1>
+            <p className="text-gray-400 mt-2">Configure and manage how your AI agents behave and make decisions</p>
           </div>
           <Button 
             onClick={handleSaveProfile}
             disabled={isSaving}
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-purple hover:bg-purple-dark"
           >
             {isSaving ? (
               <>
@@ -72,41 +72,43 @@ const BehaviorSystemContent = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-1">
-            <Card>
+            <Card className="bg-dark-accent border-white/10">
               <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Customize your behavior profile details</CardDescription>
+                <CardTitle className="text-white">Profile Information</CardTitle>
+                <CardDescription className="text-gray-400">Customize your behavior profile details</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="profile-name">Profile Name</Label>
+                  <Label htmlFor="profile-name" className="text-gray-300">Profile Name</Label>
                   <Input
                     id="profile-name"
                     value={profileName}
                     onChange={(e) => setProfileName(e.target.value)}
                     placeholder="Enter profile name"
+                    className="bg-dark border-white/10 text-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="profile-description">Description</Label>
+                  <Label htmlFor="profile-description" className="text-gray-300">Description</Label>
                   <Input
                     id="profile-description"
                     value={profileDescription}
                     onChange={(e) => setProfileDescription(e.target.value)}
                     placeholder="Enter profile description"
+                    className="bg-dark border-white/10 text-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Model Selection</Label>
+                  <Label className="text-gray-300">Model Selection</Label>
                   <ModelSelector 
                     selectedModelId={selectedModelId}
                     onSelectModel={setSelectedModelId}
                   />
                 </div>
                 <div className="pt-4">
-                  <div className="flex items-center p-4 rounded-lg bg-amber-50 border border-amber-200">
+                  <div className="flex items-center p-4 rounded-lg bg-dark border border-amber-700/30">
                     <AlertTriangle className="h-5 w-5 text-amber-500 mr-3 flex-shrink-0" />
-                    <p className="text-sm text-amber-700">
+                    <p className="text-sm text-amber-400">
                       Changes to behavior settings will affect all agents using this profile. Save your changes when ready.
                     </p>
                   </div>
@@ -116,25 +118,25 @@ const BehaviorSystemContent = () => {
           </div>
           
           <div className="md:col-span-2">
-            <Card>
+            <Card className="bg-dark-accent border-white/10">
               <CardHeader>
-                <CardTitle>Behavior Parameters</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-white">Behavior Parameters</CardTitle>
+                <CardDescription className="text-gray-400">
                   Fine-tune how agents respond and make decisions
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="decision-making">
-                  <TabsList className="grid grid-cols-3 mb-6">
-                    <TabsTrigger value="decision-making" className="flex items-center">
+                  <TabsList className="grid grid-cols-3 mb-6 bg-dark">
+                    <TabsTrigger value="decision-making" className="flex items-center data-[state=active]:bg-purple/20 data-[state=active]:text-purple">
                       <Settings className="w-4 h-4 mr-2" />
                       Decision Making
                     </TabsTrigger>
-                    <TabsTrigger value="operational" className="flex items-center">
+                    <TabsTrigger value="operational" className="flex items-center data-[state=active]:bg-purple/20 data-[state=active]:text-purple">
                       <Cpu className="w-4 h-4 mr-2" />
                       Operational
                     </TabsTrigger>
-                    <TabsTrigger value="learning" className="flex items-center">
+                    <TabsTrigger value="learning" className="flex items-center data-[state=active]:bg-purple/20 data-[state=active]:text-purple">
                       <ArrowUpDown className="w-4 h-4 mr-2" />
                       Learning & Adaptation
                     </TabsTrigger>
@@ -223,12 +225,12 @@ const BehaviorSystemContent = () => {
                         />
                       </div>
                       <div>
-                        <div className="p-4 rounded-lg border border-gray-200 bg-gray-50">
-                          <h3 className="text-sm font-medium flex items-center">
-                            <Zap className="w-4 h-4 mr-2 text-purple-600" />
+                        <div className="p-4 rounded-lg border border-white/10 bg-dark">
+                          <h3 className="text-sm font-medium flex items-center text-white">
+                            <Zap className="w-4 h-4 mr-2 text-purple" />
                             Learning & Adaptation
                           </h3>
-                          <p className="text-xs text-gray-500 mt-2">
+                          <p className="text-xs text-gray-400 mt-2">
                             These parameters control how the agent learns from interactions and adapts 
                             to new information over time. Higher learning rates will cause the agent 
                             to more quickly incorporate new information, while adaptive learning
@@ -236,12 +238,12 @@ const BehaviorSystemContent = () => {
                           </p>
                         </div>
                         
-                        <div className="p-4 mt-4 rounded-lg border border-gray-200 bg-gray-50">
-                          <h3 className="text-sm font-medium flex items-center">
-                            <Server className="w-4 h-4 mr-2 text-purple-600" />
+                        <div className="p-4 mt-4 rounded-lg border border-white/10 bg-dark">
+                          <h3 className="text-sm font-medium flex items-center text-white">
+                            <Server className="w-4 h-4 mr-2 text-purple" />
                             Model Capabilities
                           </h3>
-                          <p className="text-xs text-gray-500 mt-2">
+                          <p className="text-xs text-gray-400 mt-2">
                             The selected model may influence the effectiveness of certain behavior parameters.
                             Open source and local models may have different capabilities than proprietary models.
                           </p>
@@ -261,7 +263,7 @@ const BehaviorSystemContent = () => {
 
 const AgentBehaviorSystem: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="min-h-screen bg-dark flex">
       <Sidebar />
       <div className="flex-1">
         <AgentBehaviorProvider>
