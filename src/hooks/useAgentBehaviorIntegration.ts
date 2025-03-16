@@ -40,6 +40,20 @@ export const useAgentBehaviorIntegration = (options: UseAgentBehaviorIntegration
           console.warn(`Model with ID ${modelId} not found, using default parameters`);
         }
         
+        // Handle custom models appropriately
+        const modelInfo = selectedModel ? {
+          id: selectedModel.id,
+          name: selectedModel.name,
+          source: selectedModel.source,
+          isCustom: selectedModel.isCustom || false,
+          supportsVision: selectedModel.supportsVision || false,
+          supportsStreaming: selectedModel.supportsStreaming || false,
+          endpoint: selectedModel.endpoint,
+          capabilities: selectedModel.capabilities || {},
+          parameters: selectedModel.parameters || {},
+          version: selectedModel.version || 'unknown'
+        } : undefined;
+        
         // Broadcast the behavior parameters to all agents
         agentCommunication.sendMessage({
           senderId: agentId,
@@ -56,16 +70,7 @@ export const useAgentBehaviorIntegration = (options: UseAgentBehaviorIntegration
               name: currentProfile.name,
               parameters: currentProfile.parameters
             },
-            model: selectedModel ? {
-              id: selectedModel.id,
-              name: selectedModel.name,
-              source: selectedModel.source,
-              supportsVision: selectedModel.supportsVision || false,
-              supportsStreaming: selectedModel.supportsStreaming || false,
-              capabilities: selectedModel.capabilities || {},
-              parameters: selectedModel.parameters || {},
-              version: selectedModel.version || 'unknown'
-            } : undefined
+            model: modelInfo
           }
         });
         
@@ -84,7 +89,8 @@ export const useAgentBehaviorIntegration = (options: UseAgentBehaviorIntegration
         console.log(`Behavior parameters for ${agentId} (${agentRole}) have been updated with model ${modelId}:`, {
           profileParams: currentProfile.parameters,
           modelParams: selectedModel?.parameters,
-          modelCapabilities: selectedModel?.capabilities
+          modelCapabilities: selectedModel?.capabilities,
+          isCustomModel: selectedModel?.isCustom
         });
       } catch (error) {
         console.error('Failed to broadcast behavior parameters:', error);
@@ -130,6 +136,8 @@ export const useAgentBehaviorIntegration = (options: UseAgentBehaviorIntegration
     model: selectedModel,
     modelCapabilities: selectedModel?.capabilities,
     modelParameters: selectedModel?.parameters,
+    isCustomModel: selectedModel?.isCustom,
+    modelEndpoint: selectedModel?.endpoint,
     broadcastStatus,
     lastBroadcastTime,
     retryBroadcast

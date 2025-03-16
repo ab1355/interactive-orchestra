@@ -1,5 +1,4 @@
-
-export type ModelSource = 'proprietary' | 'open-source' | 'local';
+export type ModelSource = 'proprietary' | 'open-source' | 'local' | 'huggingface' | 'custom';
 
 export interface ModelCapabilities {
   streaming?: boolean;
@@ -30,6 +29,8 @@ export interface ModelOption {
   capabilities?: ModelCapabilities;
   parameters?: ModelParameters;
   version?: string;
+  endpoint?: string;
+  isCustom?: boolean;
 }
 
 export const availableModels: ModelOption[] = [
@@ -137,6 +138,89 @@ export const availableModels: ModelOption[] = [
       frequencyPenalty: 0.5
     },
     version: '3.5'
+  },
+  
+  // HuggingFace models
+  {
+    id: 'hf-llama-3-8b',
+    name: 'Llama 3 8B (HuggingFace)',
+    description: 'Meta\'s Llama 3 8B model hosted on HuggingFace Inference API',
+    source: 'huggingface',
+    maxTokens: 8192,
+    contextSize: 8192,
+    supportsStreaming: true,
+    supportsVision: false,
+    requiresApiKey: true,
+    hostingOptions: ['cloud'],
+    capabilities: {
+      streaming: true,
+      multimodal: false,
+      codeInterpreter: true,
+      functionCalling: false
+    },
+    parameters: {
+      temperature: 0.7,
+      topP: 0.9,
+      maxTokens: 4096,
+      presencePenalty: 0.0,
+      frequencyPenalty: 0.0
+    },
+    version: '3.0',
+    endpoint: 'https://api-inference.huggingface.co/models/meta-llama/Llama-3-8B-hf'
+  },
+  {
+    id: 'hf-mistral-7b',
+    name: 'Mistral 7B (HuggingFace)',
+    description: 'Mistral 7B model hosted on HuggingFace Inference API',
+    source: 'huggingface',
+    maxTokens: 8192,
+    contextSize: 8192,
+    supportsStreaming: true,
+    supportsVision: false,
+    requiresApiKey: true,
+    hostingOptions: ['cloud'],
+    capabilities: {
+      streaming: true,
+      multimodal: false,
+      codeInterpreter: true,
+      functionCalling: false
+    },
+    parameters: {
+      temperature: 0.7,
+      topP: 0.9,
+      maxTokens: 4096,
+      presencePenalty: 0.0,
+      frequencyPenalty: 0.0
+    },
+    version: '1.0',
+    endpoint: 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-v0.1'
+  },
+  {
+    id: 'hf-gemma-7b',
+    name: 'Gemma 7B (HuggingFace)',
+    description: 'Google\'s Gemma 7B model hosted on HuggingFace Inference API',
+    source: 'huggingface',
+    maxTokens: 8192,
+    contextSize: 8192,
+    supportsStreaming: true,
+    supportsVision: false,
+    requiresApiKey: true,
+    hostingOptions: ['cloud'],
+    capabilities: {
+      streaming: true,
+      multimodal: false,
+      codeInterpreter: true,
+      functionCalling: false
+    },
+    parameters: {
+      temperature: 0.7,
+      topP: 0.9,
+      maxTokens: 4096,
+      presencePenalty: 0.0,
+      frequencyPenalty: 0.0
+    },
+    version: '1.0',
+    endpoint: 'https://api-inference.huggingface.co/models/google/gemma-7b'
   },
   
   // Open source models
@@ -320,16 +404,74 @@ export const availableModels: ModelOption[] = [
   }
 ];
 
+// Create a custom storage key for storing custom models in localStorage
+const CUSTOM_MODELS_STORAGE_KEY = 'custom-models';
+
+// Load custom models from localStorage if available
+const loadCustomModels = (): ModelOption[] => {
+  try {
+    const storedModels = localStorage.getItem(CUSTOM_MODELS_STORAGE_KEY);
+    if (storedModels) {
+      return JSON.parse(storedModels);
+    }
+  } catch (error) {
+    console.error("Error loading custom models:", error);
+  }
+  return [];
+};
+
+// Save custom models to localStorage
+export const saveCustomModel = (model: ModelOption): boolean => {
+  try {
+    const customModels = loadCustomModels();
+    
+    // Check if model with same ID already exists
+    const existingIndex = customModels.findIndex(m => m.id === model.id);
+    
+    if (existingIndex >= 0) {
+      // Update existing model
+      customModels[existingIndex] = model;
+    } else {
+      // Add new model
+      customModels.push(model);
+    }
+    
+    localStorage.setItem(CUSTOM_MODELS_STORAGE_KEY, JSON.stringify(customModels));
+    return true;
+  } catch (error) {
+    console.error("Error saving custom model:", error);
+    return false;
+  }
+};
+
+// Delete a custom model
+export const deleteCustomModel = (modelId: string): boolean => {
+  try {
+    const customModels = loadCustomModels();
+    const updatedModels = customModels.filter(model => model.id !== modelId);
+    localStorage.setItem(CUSTOM_MODELS_STORAGE_KEY, JSON.stringify(updatedModels));
+    return true;
+  } catch (error) {
+    console.error("Error deleting custom model:", error);
+    return false;
+  }
+};
+
+// Get all available models including custom ones
+export const getAllModels = (): ModelOption[] => {
+  return [...availableModels, ...loadCustomModels()];
+};
+
 export const getModelById = (id: string): ModelOption | undefined => {
-  return availableModels.find(model => model.id === id);
+  return getAllModels().find(model => model.id === id);
 };
 
 export const getModelsBySource = (source: ModelSource): ModelOption[] => {
-  return availableModels.filter(model => model.source === source);
+  return getAllModels().filter(model => model.source === source);
 };
 
 export const getModelByName = (name: string): ModelOption | undefined => {
-  return availableModels.find(model => 
+  return getAllModels().find(model => 
     model.name.toLowerCase() === name.toLowerCase()
   );
 };
