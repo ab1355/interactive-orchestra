@@ -13,6 +13,12 @@ export default defineConfig(({ mode }) => ({
   build: {
     sourcemap: true,
     minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: mode === 'production',
+        drop_debugger: mode === 'production',
+      }
+    },
     cssCodeSplit: true,
     rollupOptions: {
       output: {
