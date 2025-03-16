@@ -30,11 +30,15 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   const { toast } = useToast();
   
   useEffect(() => {
+    // Log component mounting for debugging
+    console.log('ModelSelector component mounted', import.meta.env.MODE);
+    
     // Load all models including custom ones
     setModels(getAllModels());
   }, []);
   
   const handleSelectModel = (model: ModelOption) => {
+    console.log('Model selected in component:', model.id);
     onSelectModel(model.id);
   };
   
@@ -83,7 +87,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
     return (
       <Card 
         key={model.id} 
-        className={`cursor-pointer hover:border-purple-400 transition-all ${isSelected ? 'border-purple-500 bg-purple-50/5' : 'border-gray-200'}`}
+        className={`model-card cursor-pointer hover:border-purple-400 transition-all ${isSelected ? 'model-selected' : 'border-gray-200'}`}
         onClick={() => handleSelectModel(model)}
       >
         <CardHeader className="pb-2">
@@ -198,12 +202,12 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   return (
     <div className="w-full">
       <Tabs defaultValue="proprietary" onValueChange={(value) => setActiveTab(value as ModelSource)}>
-        <TabsList className="grid grid-cols-5 mb-4">
-          <TabsTrigger value="proprietary">Proprietary</TabsTrigger>
-          <TabsTrigger value="open-source">Open Source</TabsTrigger>
-          <TabsTrigger value="huggingface">HuggingFace</TabsTrigger>
-          <TabsTrigger value="local">Local</TabsTrigger>
-          <TabsTrigger value="custom">Custom</TabsTrigger>
+        <TabsList className="model-selector-tabs">
+          <TabsTrigger value="proprietary" className="model-selector-tab">Proprietary</TabsTrigger>
+          <TabsTrigger value="open-source" className="model-selector-tab">Open Source</TabsTrigger>
+          <TabsTrigger value="huggingface" className="model-selector-tab">HuggingFace</TabsTrigger>
+          <TabsTrigger value="local" className="model-selector-tab">Local</TabsTrigger>
+          <TabsTrigger value="custom" className="model-selector-tab">Custom</TabsTrigger>
         </TabsList>
         
         <TabsContent value="proprietary" className="mt-0">

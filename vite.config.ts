@@ -12,11 +12,23 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     sourcemap: true,
+    minify: 'terser',
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
-        manualChunks: undefined
+        manualChunks: undefined,
+        entryFileNames: 'assets/[name].[hash].js',
+        chunkFileNames: 'assets/[name].[hash].js',
+        assetFileNames: 'assets/[name].[hash].[ext]'
       }
     }
+  },
+  css: {
+    devSourcemap: true
+  },
+  define: {
+    __APP_MODE__: JSON.stringify(mode),
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0')
   },
   plugins: [
     react(),

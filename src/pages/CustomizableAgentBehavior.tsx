@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, Suspense } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import { ChevronRight, Save, Play, GitBranch, Trash, Check, AlertCircle, Copy, BookOpen, Code } from 'lucide-react';
 import { ModelSelector } from '@/components/behavior/ModelSelector';
@@ -370,6 +371,8 @@ const CustomizableAgentBehaviorContent: React.FC = () => {
   useEffect(() => {
     // Log component mounting for debugging
     console.log('CustomizableAgentBehaviorContent mounted');
+    console.log('Environment mode:', import.meta.env.VITE_APP_MODE);
+    console.log('Build mode:', import.meta.env.MODE);
     
     // Add a small delay to ensure smoother transition
     const timer = setTimeout(() => {
@@ -439,13 +442,17 @@ const CustomizableAgentBehaviorContent: React.FC = () => {
                   <div className="space-y-2">
                     <label className="text-sm text-gray-300">Model Selection</label>
                     <div className="bg-dark border border-white/10 rounded-lg overflow-hidden">
-                      <ModelSelector 
-                        selectedModelId={selectedModelId}
-                        onSelectModel={(modelId) => {
-                          console.log('Model selected:', modelId);
-                          setSelectedModelId(modelId);
-                        }}
-                      />
+                      <ErrorBoundary>
+                        <Suspense fallback={<div className="p-4 text-center text-gray-400">Loading model selector...</div>}>
+                          <ModelSelector 
+                            selectedModelId={selectedModelId}
+                            onSelectModel={(modelId) => {
+                              console.log('Model selected:', modelId);
+                              setSelectedModelId(modelId);
+                            }}
+                          />
+                        </Suspense>
+                      </ErrorBoundary>
                     </div>
                   </div>
                 </div>
@@ -477,7 +484,8 @@ const CustomizableAgentBehavior: React.FC = () => {
     console.log('CustomizableAgentBehavior component mounted');
     // Add more detailed logging for production debugging
     console.log('Environment:', import.meta.env.MODE);
-    console.log('Using AgentBehaviorProvider from:', import.meta.env.BASE_URL);
+    console.log('App mode:', import.meta.env.VITE_APP_MODE);
+    console.log('Base URL:', import.meta.env.BASE_URL);
   }, []);
 
   return (
@@ -488,7 +496,9 @@ const CustomizableAgentBehavior: React.FC = () => {
       }}
     >
       <AgentBehaviorProvider>
-        <CustomizableAgentBehaviorContent />
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-dark text-white">Loading agent behavior system...</div>}>
+          <CustomizableAgentBehaviorContent />
+        </Suspense>
       </AgentBehaviorProvider>
     </ErrorBoundary>
   );
