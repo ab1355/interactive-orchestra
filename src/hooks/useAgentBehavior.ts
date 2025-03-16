@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { 
@@ -7,7 +6,6 @@ import {
   BehaviorParameterKey, 
   AgentBehaviorContext 
 } from '@/types/agentBehavior';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 // Default behavior parameters

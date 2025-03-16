@@ -26,31 +26,20 @@ export const AgentBehaviorProvider: React.FC<AgentBehaviorProviderProps> = ({
     </Alert>
   )
 }) => {
-  try {
-    const behaviorContext = useAgentBehavior();
-    
-    // Check if the context has valid data before rendering children
-    if (!behaviorContext || !behaviorContext.currentProfile) {
-      console.error('Agent behavior context initialized with invalid data', behaviorContext);
-      return <>{fallback}</>;
-    }
-    
-    // Log successful initialization for debugging
-    console.log('Agent behavior context initialized successfully', {
-      profileId: behaviorContext.currentProfile.id,
-      profileName: behaviorContext.currentProfile.name,
-      availableProfilesCount: behaviorContext.availableProfiles.length
-    });
-    
-    return (
-      <AgentBehaviorContext.Provider value={behaviorContext}>
-        {children}
-      </AgentBehaviorContext.Provider>
-    );
-  } catch (error) {
-    console.error('Error in AgentBehaviorProvider:', error);
+  // Use the hook to get behavior context
+  const behaviorContext = useAgentBehavior();
+  
+  // Check if the context has valid data before rendering children
+  if (!behaviorContext || !behaviorContext.currentProfile) {
+    console.error('Agent behavior context initialized with invalid data', behaviorContext);
     return <>{fallback}</>;
   }
+  
+  return (
+    <AgentBehaviorContext.Provider value={behaviorContext}>
+      {children}
+    </AgentBehaviorContext.Provider>
+  );
 };
 
 // Custom hook to use the context with error handling
