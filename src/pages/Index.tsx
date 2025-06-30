@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Columns, Terminal, Activity, PieChart, LayoutGrid } from 'lucide-react';
 import Sidebar from '@/components/layout/Sidebar';
@@ -73,51 +72,53 @@ const Index: React.FC = () => {
               <Tabs 
                 value={activeView} 
                 onValueChange={setActiveView}
-                className="w-full border-b border-dark-200"
+                className="w-full h-full flex flex-col"
               >
-                <TabsList className="ml-4 mt-2 mb-0 bg-transparent">
-                  <TabsTrigger 
-                    value="command" 
-                    className="flex items-center gap-2 data-[state=active]:bg-dark-accent/40"
-                  >
-                    <Terminal className="h-4 w-4" />
-                    <span>Command</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="visualization" 
-                    className="flex items-center gap-2 data-[state=active]:bg-dark-accent/40"
-                  >
-                    <PieChart className="h-4 w-4" />
-                    <span>Visualization</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="grid" 
-                    className="flex items-center gap-2 data-[state=active]:bg-dark-accent/40"
-                  >
-                    <LayoutGrid className="h-4 w-4" />
-                    <span>Grid View</span>
-                  </TabsTrigger>
-                </TabsList>
+                <div className="border-b border-dark-200">
+                  <TabsList className="ml-4 mt-2 mb-0 bg-transparent">
+                    <TabsTrigger 
+                      value="command" 
+                      className="flex items-center gap-2 data-[state=active]:bg-dark-accent/40"
+                    >
+                      <Terminal className="h-4 w-4" />
+                      <span>Command</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="visualization" 
+                      className="flex items-center gap-2 data-[state=active]:bg-dark-accent/40"
+                    >
+                      <PieChart className="h-4 w-4" />
+                      <span>Visualization</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="grid" 
+                      className="flex items-center gap-2 data-[state=active]:bg-dark-accent/40"
+                    >
+                      <LayoutGrid className="h-4 w-4" />
+                      <span>Grid View</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+                
+                <div className="flex-1 overflow-hidden p-4">
+                  <TabsContent value="command" className="h-full m-0">
+                    <CommandCenter />
+                  </TabsContent>
+                  <TabsContent value="visualization" className="h-full m-0">
+                    <VisualizationPanel />
+                  </TabsContent>
+                  <TabsContent value="grid" className="h-full m-0">
+                    <div className="grid grid-cols-2 gap-4 h-full">
+                      <div className="bg-dark-accent/30 rounded-lg p-4 border border-dark-200">
+                        <CommandCenter compact={true} />
+                      </div>
+                      <div className="bg-dark-accent/30 rounded-lg p-4 border border-dark-200">
+                        <VisualizationPanel compact={true} />
+                      </div>
+                    </div>
+                  </TabsContent>
+                </div>
               </Tabs>
-              
-              <div className="flex-1 overflow-hidden p-4">
-                <TabsContent value="command" className="h-full m-0">
-                  <CommandCenter />
-                </TabsContent>
-                <TabsContent value="visualization" className="h-full m-0">
-                  <VisualizationPanel />
-                </TabsContent>
-                <TabsContent value="grid" className="h-full m-0">
-                  <div className="grid grid-cols-2 gap-4 h-full">
-                    <div className="bg-dark-accent/30 rounded-lg p-4 border border-dark-200">
-                      <CommandCenter compact={true} />
-                    </div>
-                    <div className="bg-dark-accent/30 rounded-lg p-4 border border-dark-200">
-                      <VisualizationPanel compact={true} />
-                    </div>
-                  </div>
-                </TabsContent>
-              </div>
             </ResizablePanel>
             
             <ResizableHandle withHandle />
